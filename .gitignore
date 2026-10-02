@@ -20,3 +20,4 @@ public/site.css
 *.tsbuildinfo
 test-results/
 playwright-report/
+public/about.html

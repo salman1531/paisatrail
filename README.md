@@ -1,6 +1,6 @@
 # PaisaTrail
 
-A simple responsive personal finance app: email-only sign-in, dated expenses/income, savings and investment contributions, monthly/yearly reporting, editable categories, emergency planning, and Excel export.
+A simple responsive personal finance app: email-and-password sign-in, dated expenses/income, savings and investment contributions, monthly/yearly reporting, editable categories, emergency planning, and Excel export.
 
 ## Try it locally
 
@@ -20,7 +20,7 @@ Open the URL printed by Vite. Without Supabase environment values, use **Explore
 3. Copy `.env.example` to `.env.local`. Set `VITE_SUPABASE_URL` to your project URL and `VITE_SUPABASE_PUBLISHABLE_KEY` to the project's public publishable key (the legacy public anon key also works). These values are intended for browser use. Never put a service-role key, database password, or SMTP secret in a `VITE_` variable.
 4. In Supabase Authentication, enable email sign-in and user signup. Keep email verification enabled. Set the Site URL to the final application origin, and allow `http://localhost:5173/` and `http://127.0.0.1:5173/` as local redirect URLs. Add the exact production origin followed by `/` before testing deployment.
 5. For a public app, configure custom SMTP in Supabase. Its default email service sends only to members of the Supabase project team and currently allows two emails per hour. [Official SMTP documentation](https://supabase.com/docs/guides/auth/auth-smtp). Use a mail provider whose free quota and verified sender requirements fit your account. Credentials belong in Supabase's SMTP settings, not this app. Do not assume a free email-sending tier also supplies a sending domain; use an existing verified sender where supported, or resolve provider requirements before going public.
-6. Restart the development server after changing environment values. Enter your email and open the emailed sign-in link. A new user gets Expenses, Savings, Investments, and Income categories automatically; no password or profile wizard is needed.
+6. Restart the development server after changing environment values. Create an account with an email and password (at least 12 characters), then open the verification email once. Returning users use Sign in with their password without an email. A new user gets Expenses, Savings, Investments, and Income categories automatically; no profile wizard is needed. Existing email-link users can set a password in Settings or use Set or reset password on the sign-in screen.
 
 The browser calls Supabase's authenticated API. PostgreSQL row-level security enforces user ownership for reads, writes, and the data used for Excel exports. Cross-user category references are blocked by both validation and a composite foreign key. Category types cannot be changed by renaming. Removing categories with history archives them; existing records remain available and editable.
 
@@ -50,7 +50,7 @@ The frontend builds to static files; the backend is Supabase. There is no applic
 
 Alternatively, connect a Git repository to Pages, use `npm run build`, output directory `dist`, and configure the two public environment values in the build settings. Choose Git integration at project creation if you want it: direct-upload projects do not switch to Git integration later.
 
-Free hosting is subject to provider quotas. [Cloudflare static asset requests](https://developers.cloudflare.com/pages/functions/pricing/) are free; [Supabase's free plan](https://supabase.com/pricing) has database, usage, and project limits, and inactive projects may be paused. Custom SMTP has its own sending limits. Email deliverability, backend setup, and live deployment require your provider accounts and have not been verified by the local demo.
+Free hosting is subject to provider quotas. [Cloudflare static asset requests](https://developers.cloudflare.com/pages/functions/pricing/) are free; [Supabase's free plan](https://supabase.com/pricing) has database, usage, and project limits, and inactive projects may be paused. Custom SMTP has its own sending limits. Email deliverability, backend setup, and live deployment require your provider accounts and must be verified for each deployment. The current production URL and Brevo delivery were verified on 2 October 2026.
 
 ## Financial behavior
 
@@ -95,3 +95,11 @@ For an existing Supabase project, apply **004_period_goals.sql** once before usi
 Build/start hooks regenerate `public/third-party-notices.txt` from installed production dependencies. Keep that file in the deployed output and linked in the public footer. The new PaisaTrail monogram is purpose-drawn SVG, not the Lucide leaf used previously. Other interface icons still use Lucide; Google Fonts still serves the typefaces and is disclosed in the privacy notice. Review notices after dependency changes.
 
 The 2 October 2026 production audit reports one moderate UUID advisory, propagated to ExcelJS (two package findings). ExcelJS's inspected source uses UUID v4 while the advisory concerns v3/v5/v6 with supplied buffers. Its distributed browser bundle may contain UUID code, so do not claim this dependency is patched or that all security risks are cleared. Do not apply npm's proposed ExcelJS major downgrade without export regression checks.
+
+## Current production and password flow
+
+Production: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Hirubix receives credit only. Supabase hosts the database in Sydney. Migrations 001–004 have already been applied to production; do not re-run them. Vercel and Brevo are configured. Keep credentials in provider settings.
+
+Passwords are managed by Supabase Auth, not the ledger database. Email verification stays enabled. Server minimum password length is 12; secure password change is enabled. Recovery returns to the exact approved origin `/` and opens the authenticated password form, including after a page reload. Returning login calls the password endpoint and does not send email. Signing out preserves the account and ledger. Existing users keep their user ID when adding a password.
+
+The static `/about.html` page contains original public product content and works without JavaScript. It is crawlable when `VITE_SITE_URL` is set; policy drafts and the app entry point remain excluded until review is acknowledged. No private account records are included in sitemap or static HTML. Metadata, canonical URLs, sitemap and llms files are generated using the final origin. Search Console verification and indexing requests require the operator's Google account. Search rankings and name exclusivity are not guaranteed.

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('public policy drafts and discovery files work before sign-in', async ({ page, request }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('PaisaTrail');
+  await expect(page).toHaveTitle('PaisaTrail — Personal Finance & Expense Tracker');
   await page.getByRole('link', { name: 'Privacy policy', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Privacy policy', exact: true })).toBeVisible();
   await expect(page.locator('.draft')).toContainText('Prelaunch draft');
@@ -14,7 +14,8 @@ test('public policy drafts and discovery files work before sign-in', async ({ pa
   expect(llms.ok()).toBe(true); expect(await llms.text()).toContain('# PaisaTrail');
   const sitemap = await request.get('/sitemap.xml');
   expect(sitemap.ok()).toBe(true); expect(await sitemap.text()).toContain('<urlset');
-  expect(await sitemap.text()).not.toContain('<loc>');
+  expect(await sitemap.text()).not.toContain('/privacy.html</loc>');
+  await page.goto('/about.html'); await expect(page.getByRole('heading', {name: /Track your expenses/})).toBeVisible();
   const robots = await request.get('/robots.txt');
   expect(await robots.text()).toContain('Disallow: /');
 });

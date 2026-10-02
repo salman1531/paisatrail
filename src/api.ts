@@ -3,6 +3,9 @@ import type { Entry, Ledger, Profile, Category, PeriodGoal } from './types';
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const configured = Boolean(url && key);
+// Capture recovery before the auth client consumes and clears the callback fragment.
+export const initialPasswordRecovery = typeof window !== 'undefined' && (new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery' || sessionStorage.getItem('paisatrail-password-recovery') === 'true');
+if (initialPasswordRecovery) sessionStorage.setItem('paisatrail-password-recovery', 'true');
 export const supabase = configured ? createClient(url, key, { auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } }) : null;
 function db() { if (!supabase) throw new Error('Email sign-in is not connected yet.'); return supabase; }
 function assert(error: { message: string } | null) { if (error) throw new Error(error.message); }

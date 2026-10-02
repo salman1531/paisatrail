@@ -1,47 +1,26 @@
-# Continue PaisaTrail on another laptop
+# PaisaTrail handoff — 2 October 2026
 
-```sh
-git clone https://github.com/salman1531/paisatrail.git
-cd paisatrail
-npm ci
-npm run dev
-```
+React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/paisatrail. Production: https://paisatrail-eight.vercel.app/. Clone the repository, run `npm ci`, copy `.env.example` to `.env.local`, set the public Supabase values and run `npm run dev`. Secrets never belong in `VITE_` values or Git.
 
-Install Node.js 22.12 or newer (Node 24 recommended) and Git first. The source repository is public and can be cloned without signing in. Sign in with your GitHub account when publishing changes. Copy .env.example to .env.local when connecting Supabase; demo mode works without it. Dependencies and builds are regenerated locally.
+## Implemented and configured
 
-## Implemented
+- Responsive dashboard, charts, category comparisons and a quick expense form at the top.
+- Income, expenses, savings and investment contributions; independent monthly/yearly goals and category budgets. Exact money arithmetic and separate currencies.
+- Supabase private per-user database, migrations 001–004 applied; RLS enabled on all four tables. Do not re-run migrations.
+- Email/password login; signup verification; existing accounts can add a password from Settings or recovery. Password recovery is handled before opening the ledger and survives page reload.
+- Category archive/restore, Excel exports and synthetic browser-local demo. Preserve the existing demo storage key.
+- Vercel Hobby deployment, exact Supabase callback URL, Brevo custom SMTP. Real email delivery and magic-link sign-in were verified before the password change.
+- Operator Salman Javed; support/deletion email salman.se95@gmail.com; Hirubix is credit only. Database region Sydney, Australia.
+- Public About page, sitemap, robots, canonical metadata, llms files, privacy/terms drafts and dependency notices.
 
-- Responsive overview, daily entries, categories, planning and settings.
-- PKR defaults, multiple entries per day, income, expenses, savings and investments; savings/investment withdrawals.
-- Previous-month category comparisons, including cross-year boundaries, signed changes and percentage changes when a prior baseline exists.
-- Monthly/yearly earnings, expense, savings and investment goals with category budgets, progress and deficits. The dashboard opens with a quick expense form. Emergency contributions are included in total savings.
-- Private email-link sign-in integration and paginated Supabase reads, with server-enforced ownership.
-- Category archive/restore, date and category filters, and actual Excel export.
-- Public privacy and terms drafts, sitemap, robots.txt, llms.txt, and an llm.txt compatibility copy generated at build time.
-- Vercel deployment configuration, all database migrations, and local automated checks.
+## Remaining operator steps
 
-## Still needed before going live
+- Set your account password yourself and confirm sign-out/password sign-in and a real entry round trip. Never share the password with the assistant.
+- Review the actual privacy/terms wording and retention/deletion practices before setting `VITE_POLICY_REVIEWED=true`. This flag records operator acknowledgment, not legal certification.
+- Verify the URL-prefix property in Google Search Console and submit `/sitemap.xml`. Rankings are not guaranteed.
+- Full live two-account data isolation and cross-device entry persistence have not been verified; local database authorization tests cover these constraints.
+- Vercel Hobby is restricted to personal non-commercial use. No domain purchase or paid upgrade is authorized.
+- Brevo may require approving another outbound Supabase IP if its sending infrastructure changes; do not disable restrictions automatically.
+- PaisaTrail remains the selected name for now. No trademark or domain clearance is claimed.
 
-Create Supabase and Vercel free accounts. Apply all four SQL migrations once, in numeric order. Configure custom SMTP for public login links. Provide the operator name, public contact email and final website address in the build settings to finalize the policy pages. Review the policy wording against your actual operation, providers, retention practices and applicable laws before publication.
-
-No real backend, public deployment or email sender has been configured. Demo records live only in the browser and do not move with the repository; this repository contains source and synthetic fixtures, not personal financial records. Source can be continued on another laptop without service accounts. Live cross-device financial data requires Supabase.
-
-## Existing design decisions
-
-The selected name is PaisaTrail. Exact web searches found no matching name, but no worldwide exclusivity, trademark clearance or domain availability is claimed. The local folder retains the former pocket-ledger name; branding and exports use PaisaTrail. The old demo storage key is intentionally retained so existing local demo changes survive.
-
-Monthly comparisons use the previous month, as requested. Monthly and yearly goals are stored separately for each period and currency. The default monthly plan remains a labelled fallback for months without overrides. Investment contributions do not measure returns. Emergency calculations use only categories explicitly marked for that fund. Target currency changes reset targets rather than pretending to convert money.
-
-## Commands
-
-```sh
-npm test
-npm run build
-npm run test:ui
-```
-
-Browser tests use installed Chrome; for bundled Chromium, install it with Playwright and adjust the channel in playwright.config.ts. Live email delivery, callbacks, cross-device sync and hosted user isolation remain unverified. See VERIFICATION.md for local test evidence.
-
-## Pakistan launch preparation
-
-Launch audience is Pakistan. Hirubix is credit only, not the confirmed account operator. Footer links to https://www.hirubix.com/. Supabase is not created; production build is explicitly a browser-local demo. Sites project appgprj_6abfe5a416e481919a53a08b8f98ddaf is registered privately but publication was blocked by the desktop environment approval policy. Reuse that project when publication can resume. No live URL has been verified.
+Run `npm test`, `npm run build` and `npm run test:ui`. Desktop browser automation may be blocked by the environment; record limitations honestly and use available native browser controls for layout checks.

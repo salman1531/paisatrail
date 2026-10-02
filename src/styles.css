@@ -28,3 +28,5 @@
 .brand-mark svg{display:block;flex-shrink:0}.brand-mark{border-radius:12px!important}.login-symbol{color:#285943}
 
 .powered-by{display:flex;align-items:center;justify-content:center;gap:5px;flex-basis:100%;font-size:.8125rem}.powered-by a{font-weight:700}.public-links{align-items:center}
+
+.auth-options{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:14px}.auth-options button{min-height:44px}.login-card .email-field{margin:0}.login-card .stack-form{gap:16px}.login-card .checkbox-label{font-weight:400}.auth-notice{padding:14px;border:1px solid #c6d9bc;border-radius:8px;background:#f5faef;font-size:.875rem}.password-panel{margin-top:24px}.password-panel>p{margin:16px 0 24px}.recovery-shell{max-width:600px;margin:40px auto;padding:24px}.recovery-shell>.panel{width:100%}
