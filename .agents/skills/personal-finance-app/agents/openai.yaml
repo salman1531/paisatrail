@@ -1,0 +1,4 @@
+interface:
+  display_name: "Personal Finance App"
+  short_description: "Build a simple finance app with reports and Excel export"
+  default_prompt: "Use $personal-finance-app to build a free, responsive, deployable finance app with email-only sign-in, daily entries, monthly and yearly views, editable categories, and Excel export."
