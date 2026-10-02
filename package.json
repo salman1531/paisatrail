@@ -9,8 +9,8 @@
     "preview": "vite preview --configLoader runner --host 127.0.0.1",
     "test": "vitest run --configLoader runner",
     "test:ui": "playwright test",
-    "predev": "node scripts/generate-public.mjs development",
-    "prebuild": "node scripts/generate-public.mjs production"
+    "predev": "node scripts/generate-notices.mjs && node scripts/generate-public.mjs development",
+    "prebuild": "node scripts/generate-notices.mjs && node scripts/generate-public.mjs production"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.0",

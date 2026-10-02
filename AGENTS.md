@@ -2,7 +2,7 @@
 
 React, TypeScript and Vite frontend; Supabase email magic-link authentication and PostgreSQL backend. Use the existing stack. Keep it responsive and compatible with free hosting. Use integer minor units and explicit currency precision, default PKR, and keep currencies separate. Multiple identical entries on the same day are valid records.
 
-Category changes compare the selected month with the previous calendar month, including January/December across years. Monthly goal comparisons use all categories in the profile currency; savings include emergency contributions. Current targets repeat monthly and are not historical plan snapshots. Preserve the existing demo storage key when changing branding.
+Category changes compare the selected month with the previous calendar month, including January/December across years. Goal comparisons use all categories in the profile currency; savings include emergency contributions. Saved monthly/yearly goals are independent period and currency records. Months without overrides use labelled current default targets. Annual totals can be filled from monthly goals, but are saved independently. Preserve zero goals and show deficits. Category budgets are part of total expenses. Preserve the existing demo storage key when changing branding.
 
 Supabase migrations enforce private per-user access and relationship ownership. Never replace this with client-only checks. Categories with history are archived. Excel exports are real XLSX files with typed cells and literal user text. Keep demo data synthetic and isolated.
 

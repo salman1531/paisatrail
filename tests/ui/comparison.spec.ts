@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 test('monthly category changes and actual versus goals update from saved entries and plans', async ({ page }) => {
-  await page.goto('/'); await page.getByRole('button', { name: 'Explore the demo' }).click(); await page.getByRole('button', { name: 'Savings plan', exact: true }).click();
+  await page.goto('/'); await page.getByRole('button', { name: 'Explore the demo' }).click(); await page.getByRole('button', { name: 'Goals & plan', exact: true }).click();
   await page.getByLabel('Monthly spending limit').fill('150'); await page.getByLabel('Monthly savings target (including emergency)').fill('100'); await page.getByLabel('Monthly emergency contribution').fill('50'); await page.getByRole('button', { name: 'Save plan' }).click();
   await page.getByRole('button', { name: 'Daily entries', exact: true }).click();
   for (const [date, kind, category, amount] of [['2025-12-05', 'Expenses', 'Expenses', '100'], ['2026-01-05', 'Expenses', 'Expenses', '200'], ['2025-12-05', 'Savings', 'Savings', '80'], ['2026-01-05', 'Savings', 'Savings', '40']]) {

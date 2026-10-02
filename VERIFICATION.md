@@ -19,3 +19,25 @@ PKR is the default for new accounts and fresh demos. Accounting precision is exp
 
 Category comparison checks cover January versus December, missing and negative baselines, isolated currencies and corrections. Goal checks cover all-category totals despite a category filter, overspending, remaining savings and emergency contributions within total savings. Public policy pages are prelaunch drafts until operator/contact/origin values are supplied.
 
+
+## Dashboard update — 2 October 2026
+
+Added monthly income/expense chart with keyboard/touch month selection and a data table, expense category ring with exact amounts, cash flow before contributions, net savings/investment rate, and entry/activity counts. Emergency fund now remains visible at small widths. All values use the existing integer-minor-unit calculations and selected currency; chart scope is labelled.
+
+26 automated tests and the production build passed on this checkout. Manual in-app-browser checks found no page-wide overflow at 390, 768 and 1440 pixels. Updated desktop and phone views were inspected. The Playwright suite could not launch installed Chrome in the desktop sandbox (SIGABRT/EPERM); its results do not establish a UI regression. Added dashboard browser coverage for month selection, no-income state, chart table and layout; this new test is unverified until Chrome can launch.
+
+A limited source review found bespoke React components, no image/template assets copied from another product, and existing Lucide icons and Google Fonts. Web searches show that financial summaries and category/trend charts are common features. This is not proof of source provenance, trademark clearance, or worldwide originality. The new dashboard uses purpose-written components and existing dependencies, with no competitor assets or code incorporated.
+
+## Period goals and quick expenses — 2 October 2026
+
+31 automated tests pass, including period/currency independence, explicit zero goals, withdrawals, archived categories, annual goal derivation, cross-user read/write isolation, anonymous access denial and invalid replacement rollback in PGlite. TypeScript compilation and the production build pass.
+
+Manual in-app-browser checks verified quick expense saving, monthly targets, annual targets derived from monthly plans, reload persistence, and category budget comparisons using synthetic demo data. Added browser coverage for backdated quick expenses and monthly/yearly/category goal persistence. The standalone Chrome test runner remains blocked by the sandbox's browser launch restrictions; automated UI results are unverified. No live Supabase migration or real-account deployment has been performed.
+
+Deployments must apply 004_period_goals.sql before using the new API. Existing default monthly planning amounts and financial records are preserved. Saved period goals keep their currency; switching display currency does not convert them. Blank monthly overrides revert to labelled current defaults, so unsaved months are not immutable historical plan snapshots.
+
+## Public-launch review and branding — 2 October 2026
+
+Replaced the generic leaf with a purpose-drawn P/trail SVG in the sidebar, login, loading state and favicon. Added generated third-party license notices and public links. Added DENY framing headers for Vercel/Cloudflare. Policy draft/indexing status now also depends on an explicit VITE_POLICY_REVIEWED acknowledgment; filling operator fields alone no longer publishes the drafts.
+
+31 tests, TypeScript compilation and the production build pass. npm production audit reports a moderate UUID advisory via ExcelJS (two affected package entries). Inspected ExcelJS source uses v4 rather than the advisory's affected v3/v5/v6 paths; the bundled library has not been patched and exploitability was not comprehensively validated. This was a launch/provenance review, not a full security scan or a legal/trademark clearance. Live provider setup and account workflows remain unverified.

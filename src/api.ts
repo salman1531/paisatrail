@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Entry, Ledger, Profile, Category } from './types';
+import type { Entry, Ledger, Profile, Category, PeriodGoal } from './types';
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const configured = Boolean(url && key);
@@ -17,7 +17,12 @@ export async function loadLedger(userId: string): Promise<Ledger> {
     const page = await client.from('entries').select('*').eq('user_id', userId).order('date', { ascending: false }).order('id').range(offset, offset + 499);
     assert(page.error); entries.push(...(page.data as Entry[])); if (page.data!.length < 500) break;
   }
-  return { categories: cats.data as Category[], entries, profile: profile.data as Profile };
+  const goals: PeriodGoal[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const page = await client.from('period_goals').select('*').eq('user_id', userId).order('id').range(offset, offset + 499);
+    assert(page.error); goals.push(...(page.data as PeriodGoal[])); if (page.data!.length < 500) break;
+  }
+  return { categories: cats.data as Category[], entries, profile: profile.data as Profile, goals };
 }
 export async function saveEntry(entry: Entry, editing: boolean) {
   const client = db();
@@ -32,3 +37,7 @@ export async function removeCategory(category: Category, hasEntries: boolean) {
   const r = hasEntries ? await db().from('categories').update({ archived: true }).eq('id', category.id).eq('user_id', category.user_id).select('id').single() : await db().from('categories').delete().eq('id', category.id).eq('user_id', category.user_id).select('id').single(); assert(r.error);
 }
 export async function saveProfile(profile: Profile) { const r = await db().from('profiles').update(profile).eq('user_id', profile.user_id).select('user_id').single(); assert(r.error); }
+
+export async function savePeriodGoals(period: string, currency: string, goals: PeriodGoal[]) {
+  const r = await db().rpc('replace_period_goals', { p_period: period, p_currency: currency, p_goals: goals.map(g => ({ kind: g.kind, category_id: g.category_id, target_minor: g.target_minor })) }); assert(r.error);
+}
