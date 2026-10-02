@@ -16,7 +16,7 @@ if (site) {
   origin = url.origin;
 }
 if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('VITE_CONTACT_EMAIL must be a valid public email address.');
-const reviewed = env.VITE_POLICY_REVIEWED === 'true';
+const reviewed = (env.VITE_PUBLIC_POLICY_REVIEWED ?? env.VITE_POLICY_REVIEWED) === 'true';
 const draft = !operator || !email || !site || !reviewed;
 const escape = value => value.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const contact = email ? `Contact ${operator || 'the operator'} at ${email}.` : 'Public operator and contact details have not been set. Real account operation requires these details before launch.';

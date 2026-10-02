@@ -11,12 +11,12 @@ React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/
 - Category archive/restore, Excel exports and synthetic browser-local demo. Preserve the existing demo storage key.
 - Vercel Hobby deployment, exact Supabase callback URL, Brevo custom SMTP. Real email delivery and magic-link sign-in were verified before the password change.
 - Operator Salman Javed; support/deletion email salman.se95@gmail.com; Hirubix is credit only. Database region Sydney, Australia.
-- Public About page, sitemap, robots, canonical metadata, llms files, privacy/terms drafts and dependency notices.
+- Public About page, sitemap, robots, canonical metadata, llms files, operator-approved privacy/terms and dependency notices.
 
 ## Remaining operator steps
 
 - Set your account password yourself and confirm sign-out/password sign-in and a real entry round trip. Never share the password with the assistant.
-- Review the actual privacy/terms wording and retention/deletion practices before setting `VITE_POLICY_REVIEWED=true`. This flag records operator acknowledgment, not legal certification.
+- The operator reviewed and approved publication on 2 October 2026. Production `VITE_PUBLIC_POLICY_REVIEWED=true` records that acknowledgment, not legal certification. Re-review after changes to actual practices.
 - Verify the URL-prefix property in Google Search Console and submit `/sitemap.xml`. Rankings are not guaranteed.
 - Full live two-account data isolation and cross-device entry persistence have not been verified; local database authorization tests cover these constraints.
 - Vercel Hobby is restricted to personal non-commercial use. No domain purchase or paid upgrade is authorized.
