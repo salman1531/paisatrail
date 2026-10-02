@@ -7,7 +7,7 @@ npm ci
 npm run dev
 ```
 
-Install Node.js 22.12 or newer (Node 24 recommended) and Git first. Authenticate with your GitHub account to clone this private repository. Copy .env.example to .env.local when connecting Supabase; demo mode works without it. Dependencies and builds are regenerated locally.
+Install Node.js 22.12 or newer (Node 24 recommended) and Git first. The source repository is public and can be cloned without signing in. Sign in with your GitHub account when publishing changes. Copy .env.example to .env.local when connecting Supabase; demo mode works without it. Dependencies and builds are regenerated locally.
 
 ## Implemented
 
