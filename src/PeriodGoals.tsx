@@ -1,14 +1,14 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { inputAmount, money, parseAmount, today } from './finance';
-import { elapsedPeriod, goalPeriod, monthlyGoalSum, periodGoalRows } from './goals';
+import { elapsedPeriod, goalPeriod, periodGoalRows } from './goals';
 import { kinds, type Filter, type Ledger, type PeriodGoal } from './types';
 
 export function GoalsOverview({ ledger, filter, edit }: { ledger: Ledger; filter: Filter; edit: () => void }) {
-  const period = goalPeriod(filter);
-  const rows = periodGoalRows(ledger, filter);
+  const period = filter.month === 'all' ? null : goalPeriod(filter);
+  const rows = period ? periodGoalRows(ledger, filter) : [];
   const currency = ledger.profile.currency;
   const elapsed = period ? elapsedPeriod(ledger, period) : 0;
-  return <section className="panel goals-panel" aria-labelledby="period-goals-heading"><div className="panel-head"><div><h2 id="period-goals-heading">{period?.length === 4 ? 'This year vs your goals' : 'This month vs your plan'}</h2><p>{period ? `${period} · All categories · ${currency}` : 'Select a year or month to check your goals.'}</p></div><button className="button secondary" onClick={edit}>Edit goals</button></div>
+  return <section className="panel goals-panel" aria-labelledby="period-goals-heading"><div className="panel-head"><div><h2 id="period-goals-heading">This month vs your goals</h2><p>{period ? `${period} · All categories · ${currency}` : 'Select a month to check your goals.'}</p></div><button className="button secondary" onClick={edit}>Edit goals</button></div>
     {period && <><div className="monthly-goals-grid">{rows.map(row => {
       const expense = row.kind === 'expense';
       const percent = row.target !== null && row.target > 0 ? row.actual / row.target * 100 : null;
@@ -20,42 +20,57 @@ export function GoalsOverview({ ledger, filter, edit }: { ledger: Ledger; filter
   </section>;
 }
 
-export function GoalsEditor({ ledger, busy, save, initialPeriod }: { ledger: Ledger; busy: boolean; initialPeriod?: string; save: (period: string, goals: PeriodGoal[]) => Promise<void> }) {
-  const [period, setPeriod] = useState(initialPeriod ?? today(ledger.profile.timezone).slice(0,7));
-  const [annual, setAnnual] = useState(initialPeriod?.length === 4);
+export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { ledger: Ledger; busy: boolean; initialPeriod?: string; save: (period: string, goals: PeriodGoal[]) => Promise<void>; children?: ReactNode }) {
+  const currentMonth = today(ledger.profile.timezone).slice(0,7);
+  const [period, setPeriod] = useState(initialPeriod?.length === 7 ? initialPeriod : initialPeriod?.length === 4 ? `${initialPeriod}-${currentMonth.slice(5)}` : currentMonth);
+  const [pendingPeriod, setPendingPeriod] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string,string>>({});
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const months = Array.from({length:12}, (_, i) => new Date(2000,i,1).toLocaleString('en', {month:'long'}));
   const currency = ledger.profile.currency;
   const stored = (ledger.goals ?? []).filter(g => g.period === period && g.currency === currency);
-  const valueFor = (key: string) => dirty ? values[key] ?? '' : stored.find(g => (g.category_id ?? g.kind) === key) ? inputAmount(stored.find(g => (g.category_id ?? g.kind) === key)!.target_minor,currency) : '';
-  function update(key: string, value: string) { const initial = Object.fromEntries(stored.map(g=>[g.category_id ?? g.kind,inputAmount(g.target_minor,currency)])); setValues({...(!dirty ? initial : values),[key]:value}); setDirty(true); setSuccess(''); }
-  function changePeriod(value: string) { setPeriod(value); setDirty(false); setError(''); setSuccess(''); }
+  const defaults = {income:ledger.profile.income_target,expense:ledger.profile.spending_target,saving:ledger.profile.saving_target,investment:ledger.profile.investment_target};
+  function savedValue(key: string) {
+    const goal = stored.find(g => (g.category_id ?? g.kind) === key);
+    if (goal) return inputAmount(goal.target_minor,currency);
+    const fallback = defaults[key as keyof typeof defaults];
+    return fallback > 0 ? inputAmount(fallback,currency) : '';
+  }
+  const valueFor = (key: string) => dirty ? values[key] ?? '' : savedValue(key);
+  function update(key: string, value: string) {
+    const keys = [...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)];
+    setValues({...(!dirty ? Object.fromEntries(keys.map(k=>[k,savedValue(k)])) : values),[key]:value}); setDirty(true); setSuccess('');
+  }
+  function selectPeriod(value: string) { setPeriod(value); setDirty(false); setValues({}); setError(''); setSuccess(''); setPendingPeriod(null); }
+  function changePeriod(value: string) { if (value === period) return; if (dirty) { setPendingPeriod(value); return; } selectPeriod(value); }
   async function submit(e: FormEvent) {
-    e.preventDefault(); setError(''); setSuccess('');
+    e.preventDefault(); if (busy) return; setError(''); setSuccess('');
     try {
-      if (!/^(19\d{2}|20\d{2}|2100)(-(0[1-9]|1[0-2]))?$/.test(period)) throw new Error('Choose a valid year or month between 1900 and 2100.');
+      if (!/^(19\d{2}|20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(period)) throw new Error('Choose a valid month between 1900 and 2100.');
       const fields = [...kinds.map(kind=>({key:kind,kind,category_id:null as string|null})),...ledger.categories.filter(c=>c.kind==='expense').map(c=>({key:c.id,kind:c.kind,category_id:c.id}))];
-      const goals = fields.filter(f=>valueFor(f.key).trim()!=='').map(f=>({id:crypto.randomUUID(),user_id:ledger.profile.user_id,period,currency,kind:f.kind,category_id:f.category_id,target_minor:parseAmount(valueFor(f.key),currency,true)}));
-      await save(period,goals); setDirty(false); setSuccess('Goals saved for '+period+'.');
+      // Save explicit overall values so clearing a field cannot silently restore an old default.
+      const goals = fields.filter(f=>f.category_id===null || valueFor(f.key).trim()!=='').map(f=>({id:crypto.randomUUID(),user_id:ledger.profile.user_id,period,currency,kind:f.kind,category_id:f.category_id,target_minor:parseAmount(valueFor(f.key).trim() || '0',currency,true)}));
+      await save(period,goals); setDirty(false); setPendingPeriod(null); setSuccess('Goals saved for '+period+'.');
     } catch(e) { setError((e as Error).message); }
   }
-  const target = (kind:string) => { try { const v=valueFor(kind); return v.trim() ? parseAmount(v,currency,true) : null; } catch { return null; } };
-  const effective = (kind: 'income'|'expense'|'saving'|'investment') => target(kind) ?? (!annual ? ledger.profile[({income:'income_target',expense:'spending_target',saving:'saving_target',investment:'investment_target'} as const)[kind]] : null);
-  const income=effective('income');
-  const allocated=(effective('expense')??0)+(effective('saving')??0)+(effective('investment')??0);
-  const categoryTotal=ledger.categories.filter(c=>c.kind==='expense').reduce((sum,c)=>sum+(target(c.id)??0),0);
-  const expense=effective('expense');
-  return <section className="panel period-goals-editor"><div className="panel-head"><div><h2>Monthly & yearly goals</h2><p>Save a separate plan for each period in {currency}.</p></div></div><form className="stack-form" onSubmit={submit}>
-    <div className="form-grid"><label>Goal period<select value={annual?'year':'month'} disabled={busy} onChange={e=>{const next=e.target.value==='year';setAnnual(next);changePeriod(next?period.slice(0,4):period+'-01');}}><option value="month">Monthly</option><option value="year">Yearly</option></select></label><label>{annual?'Goal year':'Goal month'}<input type={annual?'number':'month'} min={annual?'1900':'1900-01'} max={annual?'2100':'2100-12'} required disabled={busy} value={period} onChange={e=>changePeriod(e.target.value)}/></label></div>
-    <p className="small muted">Blank fields remove a period override. Monthly goals then use your default plan; yearly goals stay unset. Enter 0 for an explicit zero goal. Saved goals keep their original currency.</p>
-    {kinds.map(kind=><label key={kind}>{kind==='income'?'Earnings target':kind==='expense'?'Expense limit':kind==='saving'?'Savings target':'Investment target'}<input inputMode="decimal" placeholder="No period override" disabled={busy} value={valueFor(kind)} onChange={e=>update(kind,e.target.value)}/></label>)}
-    {annual && <button type="button" className="button secondary" disabled={busy} onClick={()=>{try{const initial=Object.fromEntries(stored.map(g=>[g.category_id??g.kind,inputAmount(g.target_minor,currency)]));setValues({...(!dirty?initial:values),...Object.fromEntries(kinds.map(kind=>[kind,inputAmount(monthlyGoalSum(ledger,period,kind),currency)]))});setDirty(true);setSuccess('');}catch(e){setError((e as Error).message);}}}>Use sum of monthly targets</button>}
-    {annual && <p className="small muted">The monthly sum includes saved monthly overrides and defaults for other months. It fills this form; future monthly changes do not alter a saved yearly goal.</p>}
-    <details className="category-budget-editor"><summary>Category expense budgets</summary><p className="small muted">Optional limits within your overall expense limit.</p>{ledger.categories.filter(c=>c.kind==='expense' && (!c.archived || stored.some(g=>g.category_id===c.id))).map(c=><label key={c.id}>{c.name}{c.archived?' · archived':''}<input inputMode="decimal" placeholder="No category limit" disabled={busy} value={valueFor(c.id)} onChange={e=>update(c.id,e.target.value)}/></label>)}</details>
-    {income!==null && allocated>income && <p className="form-error">Your goals exceed your earnings target by {money(allocated-income,currency)}. You can save this plan, but it has a funding gap.</p>}
-    {expense!==null && categoryTotal>expense && <p className="form-error">Category limits exceed your overall expense limit by {money(categoryTotal-expense,currency)}.</p>}
-    {error && <p className="form-error" role="alert">{error}</p>}{success && <p className="goal-status favorable" role="status">{success}</p>}<button className="button" disabled={busy}>{busy?'Saving…':'Save period goals'}</button>
-  </form></section>;
+  const target = (key:string) => { try { return parseAmount(valueFor(key).trim() || '0',currency,true); } catch { return 0; } };
+  const income=target('income');
+  const allocated=target('expense')+target('saving')+target('investment');
+  const categoryTotal=ledger.categories.filter(c=>c.kind==='expense').reduce((sum,c)=>sum+target(c.id),0);
+  const inherited = kinds.some(kind=>!stored.some(g=>g.kind===kind&&g.category_id===null)&&defaults[kind]>0);
+  return <section className="panel period-goals-editor"><div className="panel-head"><div><h2>Monthly goals</h2><p>Choose a month and plan your money in {currency}.</p></div></div><form className="stack-form" onSubmit={submit}>
+    <label>Goal month<input type="month" min="1900-01" max="2100-12" required disabled={busy} value={period} onChange={e=>changePeriod(e.target.value)}/></label>
+    <div className="month-goal-picker" role="group" aria-label="Choose a month for goals">{months.map((name,index)=>{const monthPeriod=`${period.slice(0,4)}-${String(index+1).padStart(2,'0')}`;const saved=(ledger.goals??[]).some(g=>g.period===monthPeriod&&g.currency===currency);return <button key={name} type="button" className={period===monthPeriod?'month-goal selected':'month-goal'} aria-pressed={period===monthPeriod} aria-label={`${name} ${period.slice(0,4)}${saved?', saved goals':''}`} disabled={busy || period.length!==7} onClick={()=>changePeriod(monthPeriod)}><strong>{name.slice(0,3)}</strong><span>{saved?'Saved goals':'Not saved'}</span></button>;})}</div>
+    {pendingPeriod && <div className="unsaved-goals" role="alert"><p>You have unsaved changes for {period}. Save them before switching, or discard them to open {pendingPeriod}.</p><div><button type="button" className="button secondary" onClick={()=>setPendingPeriod(null)}>Keep editing</button><button type="button" className="button secondary" onClick={()=>selectPeriod(pendingPeriod)}>Discard and switch</button></div></div>}
+    <h3>{months[Number(period.slice(5,7))-1] ?? 'Selected month'} {period.slice(0,4)} goals</h3>
+    <p className="small muted">Saving updates this month only. Blank amounts are saved as 0.</p>
+    {inherited && <p className="small muted">Starting amounts come from your earlier monthly plan. Save to make this month's goals independent.</p>}
+    <div className="form-grid">{(['income','expense','saving','investment'] as const).map(kind=><label key={kind}>{kind==='income'?'Earnings target':kind==='expense'?'Expense limit':kind==='saving'?'Savings target':'Investment target'}<input inputMode="decimal" placeholder="0.00" disabled={busy} value={valueFor(kind)} onChange={e=>update(kind,e.target.value)}/></label>)}</div>
+    <details className="category-budget-editor"><summary>Category spending limits (optional)</summary><p className="small muted">These limits are included in your overall expense limit.</p>{ledger.categories.filter(c=>c.kind==='expense' && (!c.archived || stored.some(g=>g.category_id===c.id))).map(c=><label key={c.id}>{c.name}{c.archived?' · archived':''}<input inputMode="decimal" placeholder="No category limit" disabled={busy} value={valueFor(c.id)} onChange={e=>update(c.id,e.target.value)}/></label>)}</details>
+    <p className={allocated>income?'form-error':'small muted'}>{allocated>income ? `Your goals exceed your earnings target by ${money(allocated-income,currency)}. You can save this plan, but it has a funding gap.` : `${money(income-allocated,currency)} left after planned spending, savings and investments.`}</p>
+    {categoryTotal>target('expense') && <p className="form-error">Category limits exceed your overall expense limit by {money(categoryTotal-target('expense'),currency)}.</p>}
+    {error && <p className="form-error" role="alert">{error}</p>}{success && <p className="goal-status favorable" role="status">{success}</p>}<button className="button" disabled={busy}>{busy?'Saving…':'Save monthly goals'}</button>
+  </form>{children}</section>;
 }

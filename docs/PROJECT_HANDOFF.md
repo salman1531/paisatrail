@@ -24,3 +24,12 @@ React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/
 - PaisaTrail remains the selected name for now. No trademark or domain clearance is claimed.
 
 Run `npm test`, `npm run build` and `npm run test:ui`. Desktop browser automation may be blocked by the environment; record limitations honestly and use available native browser controls for layout checks.
+
+## 4 October update
+
+User confirmed password login works. Goals are now one monthly-only panel with January–December buttons, saved-month indicators and unsaved-change protection. Annual goal records remain stored but their controls and comparisons are hidden. The separate default plan panel is removed. Existing defaults prefill unsaved months; saving stores independent monthly values. Emergency target is an optional expansion within Goals. Google ownership is verified; sitemap submitted 4 October but Google initially reported Could not fetch despite valid XML and HTTP 200.
+
+
+## 5 October update
+
+Approved optional expense subcategories implemented in Categories, quick expense, Add/Edit entry, search, spending detail and Excel exports. Main category IDs remain the reporting and goal link; optional subcategory IDs add detail without double-counting. Migration 005 adds owner/parent foreign keys, server validation and private per-user access. Used subcategories are archived and can be restored under an active parent. The operator approved migration and deployment. Local unit/database tests and build pass; direct browser checks cover persistence, main totals, editing and mobile layout. Standalone Chrome UI test launch remains blocked by the environment.

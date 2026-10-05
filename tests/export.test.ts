@@ -11,3 +11,13 @@ it('round-trips a real XLSX with typed cells, literal user text and reconciled s
   const summary = opened.getWorksheet('Summary')!; const amounts: Record<string, number> = {}; summary.eachRow((r, i) => { if (i > 1) amounts[String(r.getCell(4).value)] = Number(r.getCell(5).value); }); expect(amounts).toEqual({ USD: 11.34, JPY: 300 });
 });
 it('exports a valid empty workbook with headers', async () => { const book = await createWorkbook(ledger, [], { year: '2026', month: '02', category: 'all' }); expect(book.getWorksheet('Transactions')!.rowCount).toBe(1); expect(book.getWorksheet('Summary')!.rowCount).toBe(1); expect((await book.xlsx.writeBuffer()).byteLength).toBeGreaterThan(1000); });
+it('exports subcategory names as literal text and reconciles grouped amounts', async () => {
+  const detailed: Ledger = { ...ledger, subcategories: [{ id: 'sub', user_id: 'u', category_id: 'c', name: '=1+1', archived: false }], entries: ledger.entries.map((e,i) => ({ ...e, subcategory_id: i === 0 ? 'sub' : null })) };
+  const book = await createWorkbook(detailed, detailed.entries, { year: '2026', month: '01', category: 'all' });
+  expect(book.getWorksheet('Transactions')!.getCell('H2').value).toBe('=1+1');
+  expect(book.getWorksheet('Transactions')!.getCell('H2').type).toBe(ExcelJS.ValueType.String);
+  const summary = book.getWorksheet('Summary')!;
+  let usd = 0; summary.eachRow((r,i) => { if (i > 1 && r.getCell('currency').value === 'USD') usd += Number(r.getCell('amount').value); });
+  expect(usd).toBeCloseTo(11.34);
+  expect(summary.getCell('F2').value).toBe('=1+1');
+});

@@ -43,11 +43,12 @@ export function emergency(ledger: Ledger) {
   return { funded, target, gap, percent: target > 0 ? Math.max(0, Math.min(100, funded / target * 100)) : 0, months: target > 0 && gap === 0 ? 0 : ledger.profile.emergency_contribution > 0 ? Math.ceil(gap / ledger.profile.emergency_contribution) : null };
 }
 export function summaryRows(ledger: Ledger, entries: Entry[]) {
-  const groups = new Map<string, { month: string; category: string; kind: string; currency: Currency; minor: number }>();
+  const groups = new Map<string, { month: string; category: string; kind: string; currency: Currency; minor: number; subcategory: string }>();
   for (const e of entries) {
     const c = ledger.categories.find(c => c.id === e.category_id)!;
-    const key = `${e.date.slice(0, 7)}|${c.id}|${e.currency}`;
-    const row = groups.get(key) ?? { month: e.date.slice(0, 7), category: c.name, kind: kindLabels[c.kind], currency: e.currency, minor: 0 };
+    const subcategory = (ledger.subcategories ?? []).find(s => s.id === e.subcategory_id)?.name ?? '';
+    const key = `${e.date.slice(0, 7)}|${c.id}|${e.subcategory_id ?? ''}|${e.currency}`;
+    const row = groups.get(key) ?? { month: e.date.slice(0, 7), category: c.name, subcategory, kind: kindLabels[c.kind], currency: e.currency, minor: 0 };
     row.minor += e.amount_minor * (e.withdrawal ? -1 : 1); groups.set(key, row);
   }
   return [...groups.values()].sort((a, b) => a.month.localeCompare(b.month) || a.category.localeCompare(b.category));

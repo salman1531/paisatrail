@@ -11,6 +11,7 @@ beforeAll(async () => {
   await db.exec(readFileSync(new URL('../supabase/migrations/002_pkr_default.sql', import.meta.url), 'utf8'));
   await db.exec(readFileSync(new URL('../supabase/migrations/003_monthly_savings_goal.sql', import.meta.url), 'utf8'));
   await db.exec(readFileSync(new URL('../supabase/migrations/004_period_goals.sql', import.meta.url), 'utf8'));
+  await db.exec(readFileSync(new URL('../supabase/migrations/005_expense_subcategories.sql', import.meta.url), 'utf8'));
   await asUser(a, "select public.initialize_ledger('Asia/Karachi')"); await asUser(b, "select public.initialize_ledger('UTC')");
   aCat = String((await asUser(a, "select id from categories where kind='expense'")).rows[0].id); bCat = String((await asUser(b, "select id from categories where kind='expense'")).rows[0].id);
   await asUser(b, "insert into entries(user_id, category_id, date, amount_minor, currency) values ($1,$2,'2026-01-01',100,'USD')", [b, bCat]);
@@ -49,5 +50,24 @@ describe('period goal authorization', () => {
     await asUser(a,"select replace_period_goals('2026','PKR',$1::jsonb)",[JSON.stringify([{kind:'income',target_minor:12000}])]);
     await asUser(a,"select replace_period_goals('2026-01','PKR','[]'::jsonb)");
     expect((await asUser(a,"select target_minor from period_goals where period='2026'")).rows[0].target_minor).toBe(12000);
+  });
+});
+
+describe('expense subcategories', () => {
+  it('keeps subcategories private and tied to their parent category', async () => {
+    const row = await asUser(a, "insert into subcategories(user_id,category_id,name) values ($1,$2,'Bills') returning id", [a,aCat]);
+    const subId = String(row.rows[0].id);
+    const other = String((await asUser(a, "insert into categories(user_id,name,kind) values ($1,'Transport','expense') returning id", [a])).rows[0].id);
+    await expect(asUser(a, "insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency) values ($1,$2,$3,'2026-03-01',100,'PKR')", [a,other,subId])).rejects.toThrow();
+    const saving = String((await asUser(a, "select id from categories where kind='saving'")).rows[0].id);
+    await expect(asUser(a, "insert into subcategories(user_id,category_id,name) values ($1,$2,'Invalid')", [a,saving])).rejects.toThrow();
+    expect((await asUser(b, 'select * from subcategories')).rows).toHaveLength(0);
+    await expect(asUser(b, "insert into subcategories(user_id,category_id,name) values ($1,$2,'Forged')", [b,aCat])).rejects.toThrow();
+    await expect(asUser(a, "insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency) values ($1,$2,$3,'2026-03-01',100,'PKR')", [a,bCat,subId])).rejects.toThrow();
+    await asUser(a, "insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency) values ($1,$2,$3,'2026-03-01',100,'PKR')", [a,aCat,subId]);
+    await asUser(a, 'update subcategories set archived=true where id=$1', [subId]);
+    await expect(asUser(a, "insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency) values ($1,$2,$3,'2026-03-02',100,'PKR')", [a,aCat,subId])).rejects.toThrow();
+    expect((await asUser(a, 'select subcategory_id from entries where subcategory_id=$1', [subId])).rows).toHaveLength(1);
+    await expect(asUser(a, 'delete from subcategories where id=$1', [subId])).rejects.toThrow();
   });
 });

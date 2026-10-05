@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Entry, Ledger, Profile, Category, PeriodGoal } from './types';
+import type { Entry, Ledger, Profile, Category, Subcategory, PeriodGoal } from './types';
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const configured = Boolean(url && key);
@@ -14,6 +14,11 @@ export async function loadLedger(userId: string): Promise<Ledger> {
   const init = await client.rpc('initialize_ledger', { p_timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }); assert(init.error);
   const [cats, profile] = await Promise.all([client.from('categories').select('*').eq('user_id', userId).order('created_at'), client.from('profiles').select('*').eq('user_id', userId).single()]);
   assert(cats.error); assert(profile.error);
+  const subcategories: Subcategory[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const page = await client.from('subcategories').select('*').eq('user_id', userId).order('created_at').order('id').range(offset, offset + 499);
+    assert(page.error); subcategories.push(...(page.data as Subcategory[])); if (page.data!.length < 500) break;
+  }
   // Page through the complete ledger so large histories aren't silently truncated by the API's row limit.
   const entries: Entry[] = [];
   for (let offset = 0; ; offset += 500) {
@@ -25,7 +30,7 @@ export async function loadLedger(userId: string): Promise<Ledger> {
     const page = await client.from('period_goals').select('*').eq('user_id', userId).order('id').range(offset, offset + 499);
     assert(page.error); goals.push(...(page.data as PeriodGoal[])); if (page.data!.length < 500) break;
   }
-  return { categories: cats.data as Category[], entries, profile: profile.data as Profile, goals };
+  return { categories: cats.data as Category[], subcategories, entries, profile: profile.data as Profile, goals };
 }
 export async function saveEntry(entry: Entry, editing: boolean) {
   const client = db();
@@ -38,6 +43,12 @@ export async function saveCategory(category: Category, editing: boolean) {
 }
 export async function removeCategory(category: Category, hasEntries: boolean) {
   const r = hasEntries ? await db().from('categories').update({ archived: true }).eq('id', category.id).eq('user_id', category.user_id).select('id').single() : await db().from('categories').delete().eq('id', category.id).eq('user_id', category.user_id).select('id').single(); assert(r.error);
+}
+export async function saveSubcategory(subcategory: Subcategory, editing: boolean) {
+  const r = editing ? await db().from('subcategories').update(subcategory).eq('id', subcategory.id).eq('user_id', subcategory.user_id).select('id').single() : await db().from('subcategories').insert(subcategory).select('id').single(); assert(r.error);
+}
+export async function removeSubcategory(subcategory: Subcategory, hasEntries: boolean) {
+  const r = hasEntries ? await db().from('subcategories').update({ archived: true }).eq('id', subcategory.id).eq('user_id', subcategory.user_id).select('id').single() : await db().from('subcategories').delete().eq('id', subcategory.id).eq('user_id', subcategory.user_id).select('id').single(); assert(r.error);
 }
 export async function saveProfile(profile: Profile) { const r = await db().from('profiles').update(profile).eq('user_id', profile.user_id).select('user_id').single(); assert(r.error); }
 
