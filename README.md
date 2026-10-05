@@ -1,4 +1,4 @@
-# PaisaTrail
+# PaisaTrace
 
 A simple responsive personal finance app: email-and-password sign-in, dated expenses/income, savings and investment contributions, monthly/yearly reporting, editable categories, emergency planning, and Excel export.
 
@@ -30,7 +30,7 @@ For a small personal deployment without buying a sending domain, an existing Gma
 
 The repository is `https://github.com/salman1531/paisatrail`. Clone it on your laptop, run `npm ci`, and use `npm run dev`. The app is at the repository root, even though the original local workspace uses `outputs/pocket-ledger`.
 
-Create a Vercel account using GitHub and import the PaisaTrail repository. Choose Vite, build command `npm run build`, output `dist`, and leave Root Directory at the repository root. The included `vercel.json` preserves the security headers. Vercel Hobby is free for personal, non-commercial use; commercial use needs another suitable hosting plan. [Vercel Hobby terms](https://vercel.com/docs/plans/hobby), [GitHub integration](https://vercel.com/docs/git/vercel-for-github), [Vite setup](https://vercel.com/docs/frameworks/frontend/vite).
+Create a Vercel account using GitHub and import the PaisaTrace repository. Choose Vite, build command `npm run build`, output `dist`, and leave Root Directory at the repository root. The included `vercel.json` preserves the security headers. Vercel Hobby is free for personal, non-commercial use; commercial use needs another suitable hosting plan. [Vercel Hobby terms](https://vercel.com/docs/plans/hobby), [GitHub integration](https://vercel.com/docs/git/vercel-for-github), [Vite setup](https://vercel.com/docs/frameworks/frontend/vite).
 
 Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` to Vercel's environment settings after creating Supabase. Without them, the deployed site is a demo preview. Use the assigned Vercel website address; no domain purchase is required. Add the exact production origin plus `/` to Supabase's allowed redirects and Site URL, then redeploy after changing build values. Test a real login link, data reload, another device, separate-account isolation and Excel export before inviting users.
 
@@ -92,13 +92,13 @@ For an existing Supabase project, apply **004_period_goals.sql** once before usi
 
 `VITE_PUBLIC_POLICY_REVIEWED` defaults to `false`. Public pages remain marked as drafts and indexing stays disabled until operator/contact/origin are configured **and** this value is explicitly set to `true` after reviewing the real notice and practices. This setting is an operator acknowledgment, not legal certification. Targeting US, UK and Pakistan users needs review against the actual operator location, providers, rights/deletion process, retention and international transfers. Free user access does not automatically qualify for Vercel Hobby's non-commercial restrictions.
 
-Build/start hooks regenerate `public/third-party-notices.txt` from installed production dependencies. Keep that file in the deployed output and linked in the public footer. The new PaisaTrail monogram is purpose-drawn SVG, not the Lucide leaf used previously. Other interface icons still use Lucide; Google Fonts still serves the typefaces and is disclosed in the privacy notice. Review notices after dependency changes.
+Build/start hooks regenerate `public/third-party-notices.txt` from installed production dependencies. Keep that file in the deployed output and linked in the public footer. The new PaisaTrace monogram is purpose-drawn SVG, not the Lucide leaf used previously. Other interface icons still use Lucide; Google Fonts still serves the typefaces and is disclosed in the privacy notice. Review notices after dependency changes.
 
 The 2 October 2026 production audit reports one moderate UUID advisory, propagated to ExcelJS (two package findings). ExcelJS's inspected source uses UUID v4 while the advisory concerns v3/v5/v6 with supplied buffers. Its distributed browser bundle may contain UUID code, so do not claim this dependency is patched or that all security risks are cleared. Do not apply npm's proposed ExcelJS major downgrade without export regression checks.
 
 ## Current production and password flow
 
-Production: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Hirubix receives credit only. Supabase hosts the database in Sydney. Migrations 001–004 have already been applied to production; do not re-run them. Vercel and Brevo are configured. Keep credentials in provider settings.
+Production: https://paisatrace.vercel.app/. Previous alias: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Hirubix receives credit only. Supabase hosts the database in Sydney. Migrations 001–004 have already been applied to production; do not re-run them. Vercel and Brevo are configured. Keep credentials in provider settings.
 
 Passwords are managed by Supabase Auth, not the ledger database. Email verification stays enabled. Server minimum password length is 12; secure password change is enabled. Recovery returns to the exact approved origin `/` and opens the authenticated password form, including after a page reload. Returning login calls the password endpoint and does not send email. Signing out preserves the account and ledger. Existing users keep their user ID when adding a password.
 

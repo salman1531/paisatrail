@@ -3,7 +3,7 @@ import { kindLabels, precision, summaryRows } from './finance';
 import type { Entry, Filter, Ledger } from './types';
 
 export async function createWorkbook(ledger: Ledger, entries: Entry[], filter: Filter) {
-  const workbook = new ExcelJS.Workbook(); workbook.creator = 'PaisaTrail'; workbook.created = new Date();
+  const workbook = new ExcelJS.Workbook(); workbook.creator = 'PaisaTrace'; workbook.created = new Date();
   const sheet = workbook.addWorksheet('Transactions', { views: [{ state: 'frozen', ySplit: 1 }] });
   sheet.columns = [{ header: 'Date', key: 'date', width: 15 }, { header: 'Category', key: 'category', width: 26 }, { header: 'Type', key: 'kind', width: 18 }, { header: 'Movement', key: 'movement', width: 18 }, { header: 'Amount', key: 'amount', width: 20 }, { header: 'Currency', key: 'currency', width: 12 }, { header: 'Notes', key: 'notes', width: 48 }, { header: 'Subcategory', key: 'subcategory', width: 24 }];
   for (const e of entries) {
@@ -17,7 +17,7 @@ export async function createWorkbook(ledger: Ledger, entries: Entry[], filter: F
   summary.columns = [{ header: 'Month', key: 'month', width: 15 }, { header: 'Category', key: 'category', width: 26 }, { header: 'Type', key: 'kind', width: 18 }, { header: 'Currency', key: 'currency', width: 12 }, { header: 'Net amount', key: 'amount', width: 22 }, { header: 'Subcategory', key: 'subcategory', width: 24 }];
   for (const s of summaryRows(ledger, entries)) { const row = summary.addRow({ ...s, amount: s.minor / 10 ** precision(s.currency) }); row.getCell('amount').numFmt = precision(s.currency) ? '#,##0.' + '0'.repeat(precision(s.currency)) : '#,##0'; }
   const info = workbook.addWorksheet('Export details');
-  info.addRows([['PaisaTrail export'], ['Year', filter.year], ['Month', filter.month], ['Category', filter.category === 'all' ? 'All categories' : ledger.categories.find(c => c.id === filter.category)?.name ?? ''], ['Entries', entries.length], ['Generated', new Date()], ['Summary', 'Savings and investments are net of withdrawals. Currencies are kept separate.']]);
+  info.addRows([['PaisaTrace export'], ['Year', filter.year], ['Month', filter.month], ['Category', filter.category === 'all' ? 'All categories' : ledger.categories.find(c => c.id === filter.category)?.name ?? ''], ['Entries', entries.length], ['Generated', new Date()], ['Summary', 'Savings and investments are net of withdrawals. Currencies are kept separate.']]);
   info.getColumn(1).width = 22; info.getColumn(2).width = 90;
   for (const tab of [sheet, summary]) { tab.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }; tab.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF162B24' } }; tab.getRow(1).height = 26; tab.eachRow((row, index) => { if (index > 1) { row.height = 22; if (index % 2 === 0) row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F6F4' } }; } }); }
   return workbook;
@@ -25,5 +25,5 @@ export async function createWorkbook(ledger: Ledger, entries: Entry[], filter: F
 export async function downloadWorkbook(ledger: Ledger, entries: Entry[], filter: Filter) {
   const workbook = await createWorkbook(ledger, entries, filter); const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer as BlobPart], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `paisatrail-${filter.year}-${filter.month}.xlsx`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+  const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `paisatrace-${filter.year}-${filter.month}.xlsx`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
 }

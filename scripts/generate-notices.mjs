@@ -11,5 +11,5 @@ function visit(name,from) {
  for(const dependency of Object.keys(meta.dependencies??{}))visit(dependency,packageDir);
 }
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));for(const dep of Object.keys(pkg.dependencies))visit(dep,root);
-fs.writeFileSync('public/third-party-notices.txt','# PaisaTrail third-party notices\n\nThe following notices preserve licenses for installed production dependencies and their dependencies. Some packages may be tree-shaken from the browser bundle. App branding is purpose-drawn; other interface icons use Lucide. Fonts are served by Google Fonts under their own open-source licenses.\n\n'+sections.join('\n\n----------------------------------------\n\n'));
+fs.writeFileSync('public/third-party-notices.txt','# PaisaTrace third-party notices\n\nThe following notices preserve licenses for installed production dependencies and their dependencies. Some packages may be tree-shaken from the browser bundle. App branding is purpose-drawn; other interface icons use Lucide. Fonts are served by Google Fonts under their own open-source licenses.\n\n'+sections.join('\n\n----------------------------------------\n\n'));
 console.log(`Recorded notices for ${seen.size} production packages.`);

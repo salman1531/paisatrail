@@ -1,4 +1,4 @@
-# PaisaTrail third-party notices
+# PaisaTrace third-party notices
 
 The following notices preserve licenses for installed production dependencies and their dependencies. Some packages may be tree-shaken from the browser bundle. App branding is purpose-drawn; other interface icons use Lucide. Fonts are served by Google Fonts under their own open-source licenses.
 

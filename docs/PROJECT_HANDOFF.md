@@ -1,6 +1,6 @@
-# PaisaTrail handoff — 2 October 2026
+# PaisaTrace handoff — updated 5 October 2026
 
-React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/paisatrail. Production: https://paisatrail-eight.vercel.app/. Clone the repository, run `npm ci`, copy `.env.example` to `.env.local`, set the public Supabase values and run `npm run dev`. Secrets never belong in `VITE_` values or Git.
+React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/paisatrail. Production: https://paisatrace.vercel.app/. Clone the repository, run `npm ci`, copy `.env.example` to `.env.local`, set the public Supabase values and run `npm run dev`. Secrets never belong in `VITE_` values or Git.
 
 ## Implemented and configured
 
@@ -21,7 +21,7 @@ React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/
 - Full live two-account data isolation and cross-device entry persistence have not been verified; local database authorization tests cover these constraints.
 - Vercel Hobby is restricted to personal non-commercial use. No domain purchase or paid upgrade is authorized.
 - Brevo may require approving another outbound Supabase IP if its sending infrastructure changes; do not disable restrictions automatically.
-- PaisaTrail remains the selected name for now. No trademark or domain clearance is claimed.
+- PaisaTrace is the selected name. No trademark or domain clearance is claimed.
 
 Run `npm test`, `npm run build` and `npm run test:ui`. Desktop browser automation may be blocked by the environment; record limitations honestly and use available native browser controls for layout checks.
 
@@ -48,3 +48,8 @@ Mobile forms use 16px input text to avoid browser focus zoom. Dialogs lock backg
 Goals also supports percentage input for expenses, cash savings and investments (0–100%, two decimals), with earnings remaining a fixed amount. Derived amounts preview in money/words and save as independent fixed monthly targets. Changing earnings recalculates the draft; switching months resets amount mode. Suggestions explicitly apply as amount drafts.
 
 Subcategories now extend to savings and investments via migration 007, with owner/parent constraints and private RLS unchanged. Generic default roots receive 19 expense, 9 savings and 8 investment choices; existing names/archived choices are preserved. New profiles seed once. Savings subcategories can count toward the emergency fund; parent/child flags count each entry once. Add/Edit entry uses one leaf picker for every kind. Amount words use the requested trailing lowercase currency format, e.g. One lakh fifty thousand pkr.
+
+## PaisaTrace rebrand — 5 October
+The user selected PaisaTrace. Rename display branding, titles, exports and public content, while retaining the GitHub/Vercel project addresses, Supabase IDs, existing browser storage keys and recovery keys. No database records migrate. Public SEO uses consistent site name/description, canonical links, WebSite schema on home, SoftwareApplication facts on About, a sharing image, and real FAQ content. Retain the existing Google verification token; the new origin needs its own Search Console property. No domain ownership, trademark clearance or search ranking is claimed.
+
+The free production alias https://paisatrace.vercel.app is now attached to the existing Vercel project. VITE_SITE_URL is updated in Vercel and local ignored configuration. Supabase Site URL and exact https://paisatrace.vercel.app/ authentication redirect are approved and saved; the previous redirect is retained for existing links. New-origin Search Console verification is approved and pending publication.

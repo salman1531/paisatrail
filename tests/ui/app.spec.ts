@@ -11,7 +11,7 @@ test('daily entry, correction, category rename/archive, reporting and Excel down
   await expect(page.getByText('PKR 0.29', { exact: true }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Edit entry Test groceries 2026-01-15' }).click(); await page.getByLabel('Amount', { exact: true }).fill('0.39'); await page.getByRole('button', { name: 'Save entry' }).click();
   await expect(page.getByText('PKR 0.39', { exact: true }).first()).toBeVisible();
-  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Export Excel' }).click(); expect((await download).suggestedFilename()).toBe('paisatrail-2026-01.xlsx');
+  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Export Excel' }).click(); expect((await download).suggestedFilename()).toBe('paisatrace-2026-01.xlsx');
   await page.getByRole('button', { name: 'Categories', exact: true }).click(); await page.getByRole('button', { name: 'Edit Test groceries', exact: true }).click(); await page.getByLabel('Name', { exact: true }).fill('My groceries'); await page.getByRole('button', { name: 'Save category' }).click();
   await page.getByRole('button', { name: 'Delete My groceries', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Archive this category?' })).toBeVisible(); await page.getByRole('button', { name: 'Confirm' }).click();
   await page.getByRole('button', { name: 'Daily entries', exact: true }).click(); await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();
