@@ -11,10 +11,27 @@ export function suggestBudget(income: number, split: PlanningSplit) {
  return {expense:income-saving-investment,saving,investment};
 }
 
-export function percentOfIncome(income: number, percent: string): number {
+function percentagePoints(percent: string): number {
  if(!/^\d+(?:\.\d{1,2})?$/.test(percent.trim()))throw new Error('Enter a percentage with up to two decimal places.');
  const [whole,fraction='']=percent.trim().split('.');
  const hundredths=Number(whole)*100+Number(fraction.padEnd(2,'0'));
  if(!Number.isSafeInteger(hundredths)||hundredths>10000)throw new Error('Enter a percentage from 0 to 100.');
- return Math.round(income*hundredths/10000);
+ return hundredths;
+}
+
+export function percentOfIncome(income: number, percent: string): number {
+ if(!Number.isSafeInteger(income)||income<0)throw new Error('Enter a valid earnings target.');
+ return Number((BigInt(income)*BigInt(percentagePoints(percent))+5000n)/10000n);
+}
+
+export function customBudget(income: number, split: Record<'expense'|'saving'|'investment',string>) {
+ const rates={expense:percentagePoints(split.expense),saving:percentagePoints(split.saving),investment:percentagePoints(split.investment)};
+ const total=rates.expense+rates.saving+rates.investment;
+ if(total>10000)throw new Error('Your split must total 100% or less.');
+ if(!Number.isSafeInteger(income)||income<=0)return null;
+ const portion=(rate:number)=>Number(BigInt(income)*BigInt(rate)/10000n);
+ const saving=portion(rates.saving),investment=portion(rates.investment);
+ // Preserve every minor unit for a fully allocated plan; smaller splits leave income unassigned.
+ const expense=total===10000 ? income-saving-investment : portion(rates.expense);
+ return {expense,saving,investment};
 }

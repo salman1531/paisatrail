@@ -1,6 +1,7 @@
 import AmountWords from './AmountWords';
-import { planningSplits, suggestBudget, percentOfIncome, type PlanningSplit } from './budgetSuggestions';
-import { useState, type FormEvent, type ReactNode } from 'react';
+import Modal from './Modal';
+import { planningSplits, suggestBudget, customBudget, percentOfIncome, type PlanningSplit } from './budgetSuggestions';
+import { useState, useRef, type FormEvent, type ReactNode } from 'react';
 import { inputAmount, money, parseAmount, today } from './finance';
 import { elapsedPeriod, goalPeriod, periodGoalRows } from './goals';
 import { kinds, type Filter, type Ledger, type PeriodGoal } from './types';
@@ -27,7 +28,13 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { l
   const [period, setPeriod] = useState(initialPeriod?.length === 7 ? initialPeriod : initialPeriod?.length === 4 ? `${initialPeriod}-${currentMonth.slice(5)}` : currentMonth);
   const [percentageMode,setPercentageMode]=useState(false);
   const [percentages,setPercentages]=useState<Record<string,string>>({});
-  const [planningSplit,setPlanningSplit] = useState<PlanningSplit>('cushion');
+  const [planningSplit,setPlanningSplit] = useState<PlanningSplit | 'custom'>('cushion');
+  const [customSplit,setCustomSplit] = useState({expense:'70',saving:'20',investment:'10'});
+  const [planningDirty,setPlanningDirty] = useState(false);
+  const [pendingPlan,setPendingPlan] = useState<{period:string;goals:PeriodGoal[];label:string}|null>(null);
+  const [planError,setPlanError] = useState('');
+  const [savingPlan,setSavingPlan] = useState(false);
+  const savingRef=useRef(false);
   const [pendingPeriod, setPendingPeriod] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string,string>>({});
   const [dirty, setDirty] = useState(false);
@@ -68,27 +75,45 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { l
     const keys = [...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)];
     setValues({...(!dirty ? Object.fromEntries(keys.map(k=>[k,savedValue(k)])) : values),[key]:value}); setDirty(true); setSuccess('');
   }
-  function selectPeriod(value: string) { setPeriod(value); setDirty(false); setValues({}); setError(''); setSuccess(''); setPendingPeriod(null); setPercentageMode(false); setPercentages({}); }
-  function changePeriod(value: string) { if (value === period) return; if (dirty) { setPendingPeriod(value); return; } selectPeriod(value); }
-  async function submit(e: FormEvent) {
-    e.preventDefault(); if (busy) return; setError(''); setSuccess('');
+  function selectPeriod(value: string) { setPeriod(value); setDirty(false); setValues({}); setError(''); setSuccess(''); setPendingPeriod(null); setPercentageMode(false); setPercentages({}); setPlanningDirty(false); setPendingPlan(null); setPlanError(''); }
+  function changePeriod(value: string) { if (value === period) return; if (dirty || planningDirty) { setPendingPeriod(value); return; } selectPeriod(value); }
+  function prepareGoals(replacements?: Record<'expense'|'saving'|'investment',number>) {
+    if (!/^(19\d{2}|20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(period)) throw new Error('Choose a valid month between 1900 and 2100.');
+    if(percentageMode && !replacements){ const earnings=parseAmount(rawValueFor('income').trim()||'0',currency,true); for(const kind of percentKinds){const amount=percentOfIncome(earnings,percentages[kind]||'0');if(earnings===0 && Number(percentages[kind])>0)throw new Error('Enter positive earnings before setting percentage goals.');if(amount>1_000_000_000_000)throw new Error('This goal exceeds the supported amount.');} }
+    const fields = [...kinds.map(kind=>({key:kind,kind,category_id:null as string|null})),...ledger.categories.filter(c=>c.kind==='expense').map(c=>({key:c.id,kind:c.kind,category_id:c.id}))];
+    // Keep category limits and income edits while replacing only the three planned outgoings.
+    return fields.filter(f=>f.category_id===null || valueFor(f.key).trim()!=='').map(f=>({id:crypto.randomUUID(),user_id:ledger.profile.user_id,period,currency,kind:f.kind,category_id:f.category_id,target_minor:replacements && f.category_id===null && f.kind!=='income' ? replacements[f.kind] : parseAmount(valueFor(f.key).trim() || '0',currency,true)}));
+  }
+  async function persistGoals(selectedPeriod:string,goals:PeriodGoal[]) {
+    if(busy || savingRef.current)return false;
+    savingRef.current=true;
     try {
-      if (!/^(19\d{2}|20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(period)) throw new Error('Choose a valid month between 1900 and 2100.');
-      if(percentageMode){ const earnings=parseAmount(rawValueFor('income').trim()||'0',currency,true); for(const kind of percentKinds){const amount=percentOfIncome(earnings,percentages[kind]||'0');if(earnings===0 && Number(percentages[kind])>0)throw new Error('Enter positive earnings before setting percentage goals.');if(amount>1_000_000_000_000)throw new Error('This goal exceeds the supported amount.');} }
-      const fields = [...kinds.map(kind=>({key:kind,kind,category_id:null as string|null})),...ledger.categories.filter(c=>c.kind==='expense').map(c=>({key:c.id,kind:c.kind,category_id:c.id}))];
-      // Save explicit overall values so clearing a field cannot silently restore an old default.
-      const goals = fields.filter(f=>f.category_id===null || valueFor(f.key).trim()!=='').map(f=>({id:crypto.randomUUID(),user_id:ledger.profile.user_id,period,currency,kind:f.kind,category_id:f.category_id,target_minor:parseAmount(valueFor(f.key).trim() || '0',currency,true)}));
-      await save(period,goals); setDirty(false); setPendingPeriod(null); setSuccess('Goals saved for '+period+'.');
-    } catch(e) { setError((e as Error).message); }
+      await save(selectedPeriod,goals); setDirty(false); setPlanningDirty(false); setPendingPeriod(null); setSuccess('Goals saved for '+selectedPeriod+'.');return true;
+    } finally {savingRef.current=false;}
+  }
+  async function submit(e: FormEvent) {
+    e.preventDefault(); if (busy || savingRef.current) return; setError(''); setSuccess('');
+    try {await persistGoals(period,prepareGoals());} catch(e) { setError((e as Error).message); }
   }
   const target = (key:string) => { try { return parseAmount(valueFor(key).trim() || '0',currency,true); } catch { return 0; } };
   const income=target('income');
-  const suggested=suggestBudget(income,planningSplit);
-  function applySuggestion() {
-    if(!suggested)return;
-    const keys=[...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)];
-    setValues({...Object.fromEntries(keys.map(k=>[k,valueFor(k)])),...Object.fromEntries(Object.entries(suggested).map(([k,v])=>[k,inputAmount(v,currency)]))});
-    setDirty(true);setSuccess('');setPercentageMode(false);
+  let suggestionError='';
+  let suggested: ReturnType<typeof suggestBudget>=null;
+  try {suggested=planningSplit==='custom' ? customBudget(income,customSplit) : suggestBudget(income,planningSplit);}catch(e){suggestionError=(e as Error).message;}
+  const monthLabel=`${months[Number(period.slice(5,7))-1] ?? 'Selected month'} ${period.slice(0,4)}`;
+  const planLabel=planningSplit==='custom' ? 'Your custom split' : planningSplits[planningSplit].label;
+  const rates=planningSplit==='custom' ? customSplit : planningSplits[planningSplit];
+  function reviewPlan() {
+    if(!suggested || busy)return;
+    setError('');setPlanError('');setSuccess('');
+    try {setPendingPlan({period,goals:prepareGoals(suggested),label:planLabel});}catch(e){setError((e as Error).message);}
+  }
+  async function confirmPlan() {
+    if(!pendingPlan || busy || savingRef.current)return;
+    setPlanError('');setSavingPlan(true);
+    try {if(await persistGoals(pendingPlan.period,pendingPlan.goals)){setPercentageMode(false);setPercentages({});setPendingPlan(null);}}
+    catch(e){setPlanError((e as Error).message);}
+    finally{setSavingPlan(false);}
   }
   const allocated=target('expense')+target('saving')+target('investment');
   const categoryTotal=ledger.categories.filter(c=>c.kind==='expense').reduce((sum,c)=>sum+target(c.id),0);
@@ -103,10 +128,14 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { l
     <fieldset className="goal-entry-mode"><legend>Enter goals as</legend><label><input type="radio" name="goal-entry-mode" checked={!percentageMode} disabled={busy} onChange={()=>changeGoalMode(false)}/>Amounts</label><label><input type="radio" name="goal-entry-mode" checked={percentageMode} disabled={busy} onChange={()=>changeGoalMode(true)}/>Percentages of earnings</label></fieldset>
     {percentageMode && <p className="small muted">Earnings stays an amount. Other goals use a percentage of that month’s take-home earnings target. Saving stores the calculated amounts for this month; it does not create an ongoing percentage rule.</p>}
     <div className="form-grid">{(['income','expense','saving','investment'] as const).map(kind=>{const percent=percentageMode&&kind!=='income';return <div className="amount-field" key={kind}><label>{kind==='income'?'Earnings target':kind==='expense'?'Expense limit':kind==='saving'?'Savings target':'Investment target'}{percent&&<span className="sr-only"> percentage</span>}<input inputMode="decimal" placeholder={percent?'0':'0.00'} disabled={busy} value={percent?percentages[kind]??'0':valueFor(kind)} onChange={e=>percent?updatePercentage(kind,e.target.value):update(kind,e.target.value)}/></label>{percent&&<span className="percentage-preview">% of earnings · {valueFor(kind)?money(target(kind),currency):'Enter a valid percentage (0–100)'}</span>}<AmountWords value={valueFor(kind)} currency={currency}/></div>;})}</div>
-    <section className="budget-suggestion" aria-labelledby="suggestion-heading"><h3 id="suggestion-heading">Plan from your earnings</h3><p className="small muted">Use your monthly take-home earnings target. These examples are starting points; adjust for bills, debt, emergencies and your own priorities.</p><label>Planning example<select value={planningSplit} disabled={busy} onChange={e=>setPlanningSplit(e.target.value as PlanningSplit)}>{Object.entries(planningSplits).map(([key,plan])=><option key={key} value={key}>{plan.label} · {plan.expense}/{plan.saving}/{plan.investment}</option>)}</select></label>{suggested ? <><div className="suggestion-grid">{(['expense','saving','investment'] as const).map(kind=><div key={kind}><span>{kind==='expense'?'Spending limit':kind==='saving'?'Cash savings':'Investments'} · {planningSplits[planningSplit][kind]}%</span><strong>{money(suggested[kind],currency)}</strong><small>Your plan: {money(target(kind),currency)} · {(target(kind)/income*100).toFixed(1)}% of earnings</small></div>)}</div><button type="button" className="button secondary" disabled={busy} onClick={applySuggestion}>Use this split in my draft</button><p className="small muted">Save monthly goals to keep these changes. Category limits stay as entered.</p></> : <p className="small muted">Enter a positive earnings target to see suggested amounts.</p>}<p className="small muted">The <a href="https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/teach/activities/analyzing-budgets/" target="_blank" rel="noopener noreferrer">50/30/20 budgeting guideline</a> sets aside 20% for financial goals. Our savings/investment splits are optional examples, not a personalised investment recommendation. Cash savings can come first while building an emergency cushion.</p></section>
+    <section className="budget-suggestion" aria-labelledby="suggestion-heading"><h3 id="suggestion-heading">Plan from your earnings</h3><p className="small muted">Choose an example or create your own split. Preview the amounts, then save the plan for {monthLabel}.</p><label>Planning example<select value={planningSplit} disabled={busy} onChange={e=>{setPlanningSplit(e.target.value as PlanningSplit|'custom');setPlanningDirty(true);setSuccess('');}}>{Object.entries(planningSplits).map(([key,plan])=><option key={key} value={key}>{plan.label} · {plan.expense}/{plan.saving}/{plan.investment}</option>)}<option value="custom">Create my own split…</option></select></label>
+    {planningSplit==='custom' && <fieldset className="custom-split"><legend>Your custom split</legend><div className="suggestion-grid">{(['expense','saving','investment'] as const).map(kind=><label key={kind}>{kind==='expense'?'Spending':kind==='saving'?'Cash savings':'Investments'} %<input inputMode="decimal" disabled={busy} value={customSplit[kind]} onChange={e=>{setCustomSplit({...customSplit,[kind]:e.target.value});setPlanningDirty(true);setSuccess('');}}/></label>)}</div><p className="small muted">Use up to 100% in total. A smaller split leaves some income available.</p></fieldset>}
+    {suggestionError && <p className="form-error" role="alert">{suggestionError}</p>}
+    {suggested ? <><div className="suggestion-grid">{(['expense','saving','investment'] as const).map(kind=><div key={kind}><span>{kind==='expense'?'Spending limit':kind==='saving'?'Cash savings':'Investments'} · {rates[kind]}%</span><strong>{money(suggested[kind],currency)}</strong><AmountWords value={inputAmount(suggested[kind],currency)} currency={currency}/><small>Current goal: {money(target(kind),currency)}</small></div>)}</div><button type="button" className="button" disabled={busy} onClick={reviewPlan}>Save plan for {monthLabel}</button><p className="small muted">You’ll confirm before this replaces the month’s expense, savings and investment goals. Your category limits stay as entered.</p></> : !suggestionError && <p className="small muted">Enter a positive earnings target to preview and save a plan.</p>}
+    <p className="small muted">These examples are starting points; adjust for bills, debt, emergencies and your priorities. The <a href="https://www.consumerfinance.gov/consumer-tools/educator-tools/youth-financial-education/teach/activities/analyzing-budgets/" target="_blank" rel="noopener noreferrer">50/30/20 budgeting guideline</a> sets aside 20% for financial goals. These savings/investment splits are optional examples. Cash savings can come first while building an emergency cushion.</p></section>
     <details className="category-budget-editor"><summary>Category spending limits (optional)</summary><p className="small muted">These limits are included in your overall expense limit.</p>{ledger.categories.filter(c=>c.kind==='expense' && (!c.archived || stored.some(g=>g.category_id===c.id))).map(c=><div className="amount-field" key={c.id}><label>{c.name}{c.archived?' · archived':''}<input inputMode="decimal" placeholder="No category limit" disabled={busy} value={valueFor(c.id)} onChange={e=>update(c.id,e.target.value)}/></label><AmountWords value={valueFor(c.id)} currency={currency}/></div>)}</details>
     <p className={allocated>income?'form-error':'small muted'}>{allocated>income ? `Your goals exceed your earnings target by ${money(allocated-income,currency)}. You can save this plan, but it has a funding gap.` : `${money(income-allocated,currency)} left after planned spending, savings and investments.`}</p>
     {categoryTotal>target('expense') && <p className="form-error">Category limits exceed your overall expense limit by {money(categoryTotal-target('expense'),currency)}.</p>}
     {error && <p className="form-error" role="alert">{error}</p>}{success && <p className="goal-status favorable" role="status">{success}</p>}<button className="button" disabled={busy}>{busy?'Saving…':'Save monthly goals'}</button>
-  </form>{children}</section>;
+  </form>{children}{pendingPlan && <Modal title={`Set goals for ${monthLabel}?`} close={()=>{if(!busy && !savingPlan)setPendingPlan(null);}}><p>{pendingPlan.label} will set the following goals for <strong>{monthLabel}</strong> in {currency}.</p><dl className="plan-confirmation">{(['income','expense','saving','investment'] as const).map(kind=>{const amount=pendingPlan.goals.find(g=>g.category_id===null&&g.kind===kind)!.target_minor;return <div key={kind}><dt>{kind==='income'?'Earnings target':kind==='expense'?'Expense limit':kind==='saving'?'Savings target':'Investment target'}</dt><dd><strong>{money(amount,currency)}</strong><AmountWords value={inputAmount(amount,currency)} currency={currency}/></dd></div>;})}</dl><p className="small muted">Only {monthLabel} changes. Category limits will save as entered; other months and your recorded entries stay unchanged.</p>{pendingPlan.goals.filter(g=>g.category_id!==null).reduce((sum,g)=>sum+g.target_minor,0) > pendingPlan.goals.find(g=>g.kind==='expense'&&g.category_id===null)!.target_minor && <p className="form-error">Your category limits exceed this plan’s expense limit. Cancel to adjust them, or keep them and save.</p>}{planError && <p className="form-error" role="alert">{planError}</p>}<div className="modal-actions"><button type="button" className="button secondary" disabled={busy||savingPlan} onClick={()=>setPendingPlan(null)}>Cancel</button><button type="button" className="button" disabled={busy||savingPlan} onClick={confirmPlan}>{busy||savingPlan?'Saving…':'Confirm and save goals'}</button></div></Modal>}</section>;
 }

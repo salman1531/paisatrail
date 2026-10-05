@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('public policy drafts and discovery files work before sign-in', async ({ page, request }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('PaisaTrace — Expense Tracker & Monthly Budget for Pakistan');
+  await expect(page).toHaveTitle('PaisaTrace — Expense Tracker & Monthly Budget');
   await page.getByRole('link', { name: 'Privacy policy', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Privacy policy', exact: true })).toBeVisible();
   const draft = await page.locator('.draft').count() > 0;

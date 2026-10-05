@@ -8,8 +8,9 @@ export default function DashboardDetails({ ledger, filter, selectMonth }: { ledg
   const currency = ledger.profile.currency;
   const entries = filtered(ledger.entries, filter).filter(e => e.currency === currency);
   const sum = totals(ledger, entries, currency);
-  const cashflow = sum.income - sum.expense;
-  const rate = sum.income > 0 ? (sum.saving + sum.investment) / sum.income * 100 : null;
+  const periodTotals = totals(ledger, filtered(ledger.entries, {...filter, category:'all'}), currency);
+  const cashflow = periodTotals.income - periodTotals.expense;
+  const rate = periodTotals.income > 0 ? (periodTotals.saving + periodTotals.investment) / periodTotals.income * 100 : null;
   const spending = ledger.categories.filter(c => c.kind === 'expense').map(c => ({ category: c, amount: entries.filter(e => e.category_id === c.id).reduce((a, e) => a + e.amount_minor, 0) })).filter(r => r.amount > 0).sort((a, b) => b.amount - a.amount);
   const rows = filter.year === 'all' ? [] : yearRows(ledger, filtered(ledger.entries, { ...filter, month: 'all' }), currency, filter.year);
   const peak = Math.max(1, ...rows.flatMap(r => [r.income, r.expense]));
@@ -18,8 +19,8 @@ export default function DashboardDetails({ ledger, filter, selectMonth }: { ledg
   const gradient = spending.map((r, i) => { const start = angle; angle += r.amount / sum.expense * 360; return `${colors[i % colors.length]} ${start}deg ${angle}deg`; }).join(',');
   return <>
     <section className="financial-pulse" aria-label="Financial details">
-      <div><span>Cash flow before contributions</span><strong className={cashflow < 0 ? 'negative' : ''}>{money(cashflow, currency)}</strong><small>Recorded income minus expenses</small></div>
-      <div><span>Savings & investment rate</span><strong>{rate === null ? '—' : `${rate.toFixed(1)}%`}</strong><small>{rate === null ? 'Record positive income to calculate' : 'Net contributions ÷ recorded income'}</small></div>
+      <div><span>{periodTotals.income > 0 && cashflow < 0 ? 'Expenses above income' : 'Income after expenses'}</span><strong className={periodTotals.income > 0 && cashflow < 0 ? 'negative' : ''}>{periodTotals.income <= 0 ? '—' : money(Math.abs(cashflow), currency)}</strong><small>{periodTotals.income <= 0 ? 'Record income to compare with expenses' : 'Recorded income and expenses · all categories'}</small></div>
+      <div><span>Savings & investment rate</span><strong>{rate === null ? '—' : `${rate.toFixed(1)}%`}</strong><small>{rate === null ? 'Record positive income to calculate' : 'Net contributions ÷ recorded income · all categories'}</small></div>
       <div><span>Recorded activity</span><strong>{entries.length} <small>entries</small></strong><small>{new Set(entries.map(e => e.date)).size} days with activity · {currency} only</small></div>
     </section>
     <div className="dashboard-charts">

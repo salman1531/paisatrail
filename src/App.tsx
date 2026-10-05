@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ArrowDownLeft, ArrowUpRight, BarChart3, CalendarDays, Check, ChevronLeft, ChevronRight, Download, LogOut, Pencil, PiggyBank, Plus, Search, Settings, ShieldCheck, Tags, Trash2, TrendingUp, Wallet, X } from 'lucide-react';
+import Modal from './Modal';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ArrowDownLeft, ArrowUpRight, BarChart3, CalendarDays, Check, ChevronLeft, ChevronRight, Download, LogOut, Pencil, PiggyBank, Plus, Search, Settings, ShieldCheck, Tags, Trash2, TrendingUp, Wallet } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { configured, supabase, initialPasswordRecovery, loadLedger, saveEntry, deleteEntry, saveCategory, removeCategory, saveSubcategory, removeSubcategory, saveProfile, savePeriodGoals } from './api';
 import { newDemo, persistDemo, readDemo } from './demo';
@@ -17,25 +18,6 @@ import { currencies, kinds, type Category, type Subcategory, type Currency, type
 const monthNames = Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleString('en', { month: 'long' }));
 const icons = { expense: Wallet, saving: PiggyBank, investment: TrendingUp, income: ArrowDownLeft };
 
-function Modal({ title, children, close }: { title: string; children: ReactNode; close: () => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const old = document.activeElement as HTMLElement | null;
-    const dialog = ref.current!;
-    const x = window.scrollX, y = window.scrollY;
-    const body = document.body;
-    const saved = { position: body.style.position, top: body.style.top, left: body.style.left, width: body.style.width, overflow: body.style.overflow };
-    Object.assign(body.style, { position: 'fixed', top: `-${y}px`, left: `-${x}px`, width: '100%', overflow: 'hidden' });
-    dialog.showModal();
-    return () => {
-      dialog.close();
-      Object.assign(body.style, saved);
-      old?.focus({ preventScroll: true });
-      window.scrollTo({ left: x, top: y, behavior: 'instant' });
-    };
-  }, []);
-  return <dialog ref={ref} onCancel={e => { e.preventDefault(); close(); }} onClick={e => { if (e.target === e.currentTarget) close(); }} aria-labelledby="dialog-title"><div className="modal-content"><div className="modal-head"><h2 id="dialog-title">{title}</h2><button className="icon-button" onClick={close} aria-label="Close dialog"><X size={20}/></button></div>{children}</div></dialog>;
-}
 function PageLoader() { return <div className="loading" role="status" aria-live="polite" aria-busy="true"><BrandMark/><span className="loading-spinner" aria-hidden="true"/><h2>Opening your ledger…</h2><p>Loading your account and financial overview.</p></div>; }
 function ErrorMessage({ message }: { message: string }) { return message ? <p className="form-error" role="alert">{message}</p> : null; }
 
@@ -80,7 +62,8 @@ export default function App() {
   const visible = current.filter(e => { const c = ledger.categories.find(c => c.id === e.category_id)!; const s = (ledger.subcategories ?? []).find(s => s.id === e.subcategory_id); return `${e.notes} ${c.name} ${s?.name ?? ''} ${kindLabels[c.kind]}`.toLowerCase().includes(search.toLowerCase()); });
   const years = [...new Set([today(ledger.profile.timezone).slice(0, 4), filter.year, ...ledger.entries.map(e => e.date.slice(0, 4))])].filter(y => y !== 'all').sort().reverse();
   const period = filter.year === 'all' ? 'All history' : filter.month === 'all' ? filter.year : `${monthNames[Number(filter.month) - 1]} ${filter.year}`;
-  const left = values.income - values.expense - values.saving - values.investment;
+  const cashValues = totals(ledger, filtered(ledger.entries, {...filter, category: 'all'}), currency);
+  const left = cashValues.income - cashValues.expense - cashValues.saving - cashValues.investment;
   const summaryGoals = filter.month === 'all' ? [] : periodGoalRows(ledger, filter).filter(g => g.category_id === null);
   async function exportExcel() { setBusy(true); setError(''); try { const exportLedger = demo ? ledger! : await loadLedger(user!.id); const { downloadWorkbook } = await import('./export'); await downloadWorkbook(exportLedger, filtered(exportLedger.entries, filter).filter(e => { const c = exportLedger.categories.find(c => c.id === e.category_id)!; const s = (exportLedger.subcategories ?? []).find(s => s.id === e.subcategory_id); return `${e.notes} ${c.name} ${s?.name ?? ''} ${kindLabels[c.kind]}`.toLowerCase().includes(search.toLowerCase()); }), filter); setNotice('Excel export downloaded.'); } catch (e) { setError((e as Error).message); } finally { setBusy(false); } }
   async function storeGoals(period: string, goals: PeriodGoal[]) { await mutate(() => savePeriodGoals(period, currency, goals), { ...ledger!, goals: [...(ledger!.goals ?? []).filter(g => g.period !== period || g.currency !== currency), ...goals] }, 'Monthly goals saved.'); setFilter({year:period.slice(0,4),month:period.slice(5,7),category:'all'}); }
@@ -93,7 +76,7 @@ export default function App() {
       <ErrorMessage message={error}/>{notice && <div className="toast" role="status"><Check size={17}/>{notice}</div>}
       {(tab === 'overview' || tab === 'entries') && <><div className="period-bar"><div className="period-title"><CalendarDays size={19}/><strong>{period}</strong></div><div className="period-controls"><label><span className="sr-only">Year</span><select aria-label="Year" value={filter.year} onChange={e => setFilter({ ...filter, year: e.target.value, month: e.target.value === 'all' ? 'all' : filter.month })}><option value="all">All years</option>{years.map(y => <option key={y}>{y}</option>)}</select></label><label><span className="sr-only">Month</span><select aria-label="Month" value={filter.month} disabled={filter.year === 'all'} onChange={e => setFilter({ ...filter, month: e.target.value })}><option value="all">Full year</option>{monthNames.map((m, i) => <option key={m} value={String(i + 1).padStart(2, '0')}>{m}</option>)}</select></label><span className="currency-label">{currency}</span></div></div>
       <div className="stats-grid">{(tab === 'overview' ? (['income', 'expense', 'saving', 'investment'] as Kind[]) : kinds).map(kind => { const Icon = icons[kind]; const goal = summaryGoals.find(g => g.kind === kind); return <section className={`stat-card ${kind}`} key={kind}><div className="stat-label"><span>{kindLabels[kind]}</span><span className="stat-icon"><Icon size={18}/></span></div><strong>{money(values[kind], currency)}</strong><span className="stat-caption">{kind === 'income' ? 'Money coming in' : kind === 'expense' ? 'Day-to-day spending' : kind === 'saving' ? 'Set aside, net of withdrawals' : 'Contributions, net of withdrawals'}</span>{goal && <span className="stat-goal">{kind === 'expense' ? 'Monthly limit' : 'Monthly target'}: {goal.target === null ? 'Not set' : money(goal.target,currency)}{goal.target !== null && <small>{kind === 'expense' ? values[kind] > goal.target ? `${money(values[kind]-goal.target,currency)} over limit` : `${money(goal.target-values[kind],currency)} left to spend` : values[kind] >= goal.target ? 'Target reached' : `${money(goal.target-values[kind],currency)} to target`}</small>}</span>}</section>; })}</div>
-      <div className="cashflow-line"><span>Left to allocate <strong className={left < 0 ? 'negative' : ''}>{money(left, currency)}</strong></span><span>Income − expenses − savings − investments · not a bank balance</span></div>{current.some(e => e.currency !== currency) && <p className="info-note">Totals show {currency} only. Entries and Excel exports keep each currency separate.</p>}
+      <div className="cashflow-line" role="group" aria-label="Income remaining summary"><span>{cashValues.income <= 0 ? 'Income not recorded' : left < 0 ? 'Above recorded income' : 'Remaining income'} <strong className={cashValues.income > 0 && left < 0 ? 'negative' : ''}>{cashValues.income <= 0 ? '—' : money(Math.abs(left), currency)}</strong></span><span>{cashValues.income <= 0 ? 'Add income for this period to see what remains after expenses, savings and investments.' : left < 0 ? 'Expenses, savings and investments exceed the income you recorded.' : 'Recorded income after expenses, savings and investments.'} All categories · {currency} · not a bank balance</span></div>{current.some(e => e.currency !== currency) && <p className="info-note">Totals show {currency} only. Entries and Excel exports keep each currency separate.</p>}
       {tab === 'overview' && <QuickExpense ledger={ledger} busy={busy} more={() => setEntryModal('new')} save={async entry => { await mutate(() => saveEntry(entry, false), { ...ledger, entries: [entry, ...ledger.entries] }, 'Expense saved.'); setFilter({year: entry.date.slice(0,4), month: entry.date.slice(5,7), category: 'all'}); }}/>}
       {tab === 'entries' && <GoalsOverview ledger={ledger} filter={filter} edit={() => setTab('plan')}/>}
       <section className="panel entries-panel"><div className="panel-head"><div><h2>{tab === 'overview' ? 'Recent entries' : 'All entries'}<span className="count">{visible.length}</span></h2><p>{period}{filter.category !== 'all' ? ` · ${ledger.categories.find(c => c.id === filter.category)?.name}` : ''}</p></div><div className="entry-filters"><label className="search-field"><Search size={16}/><input aria-label="Search entries" placeholder="Search entries" value={search} onChange={e => setSearch(e.target.value)}/></label><select aria-label="Filter category" value={filter.category} onChange={e => setFilter({ ...filter, category: e.target.value })}><option value="all">All categories</option>{ledger.categories.map(c => <option key={c.id} value={c.id}>{c.name}{c.archived ? ' (archived)' : ''}</option>)}</select></div></div><EntryTable entries={tab === 'overview' ? visible.slice(0, 5) : visible} ledger={ledger} edit={setEntryModal} remove={confirmDelete} busy={busy}/>{visible.length === 0 && <div className="empty"><CalendarDays size={30}/><h3>{ledger.entries.length ? 'No entries match this view' : 'A fresh start for your money'}</h3><p>{ledger.entries.length ? 'Try a different month, category, or search.' : 'Add your first expense, saving, or investment.'}</p><button className="button secondary" onClick={() => setEntryModal('new')}><Plus size={17}/>Add entry</button></div>}{tab === 'overview' && visible.length > 5 && <button className="view-all" onClick={() => setTab('entries')}>View all {visible.length} entries</button>}</section>
