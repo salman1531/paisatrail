@@ -41,10 +41,11 @@ test('custom plan confirms only the selected month and keeps category limits',as
 
 test('income summary uses all categories and avoids negative balances without income',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
+ const activeMonth=await page.getByLabel('Month',{exact:true}).inputValue();const year=await page.getByLabel('Year',{exact:true}).inputValue();const emptyMonth=activeMonth==='06'?'07':'06';
  const summary=page.getByRole('group',{name:'Income remaining summary'});const original=await summary.innerText();
  await page.getByRole('combobox',{name:'Filter category',exact:true}).selectOption({label:'Groceries'});await expect(summary).toHaveText(original);await page.getByRole('combobox',{name:'Filter category',exact:true}).selectOption('all');
- await page.getByLabel('Expense amount',{exact:false}).fill('1');await page.getByText('Change date or add a note',{exact:true}).click();await page.getByLabel('Expense date',{exact:true}).fill('2026-06-01');await page.getByRole('button',{name:'Save expense',exact:true}).click();
+ await page.getByLabel('Expense amount',{exact:false}).fill('1');await page.getByText('Change date or add a note',{exact:true}).click();const currentDate=await page.getByLabel('Expense date',{exact:true}).inputValue();await page.getByLabel('Expense date',{exact:true}).fill(`${year}-${emptyMonth}-01`);await page.getByRole('button',{name:'Save expense',exact:true}).click();
  await expect(summary).toContainText('Income not recorded');await expect(summary.locator('strong')).toHaveText('—');
- await page.getByRole('combobox',{name:'Month',exact:true}).selectOption(String(new Date().getMonth()+1).padStart(2,'0'));
+ await page.getByRole('combobox',{name:'Month',exact:true}).selectOption(activeMonth);await page.getByLabel('Expense date',{exact:true}).fill(currentDate);
  await page.getByLabel('Expense amount',{exact:false}).fill('10000');await page.getByRole('button',{name:'Save expense',exact:true}).click();await expect(summary).toContainText('Above recorded income');await expect(summary.locator('strong')).not.toContainText('-');
 });
