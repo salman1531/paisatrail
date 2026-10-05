@@ -7,6 +7,8 @@ test('monthly category changes and actual versus goals update from saved entries
     await page.getByRole('button', { name: 'Add entry', exact: true }).first().click(); await page.getByRole('radio', { name: kind, exact: true }).check(); await page.getByLabel('Category', { exact: true }).selectOption({ label: category }); await page.getByLabel('Amount', { exact: true }).fill(amount); await page.getByLabel('Date', { exact: true }).fill(date); await page.getByRole('button', { name: 'Save entry' }).click(); await expect(page.getByRole('dialog')).not.toBeVisible();
   }
   await page.getByRole('button', { name: 'Overview', exact: true }).click(); await page.getByLabel('Year', { exact: true }).selectOption('2026'); await page.getByLabel('Month', { exact: true }).selectOption('01');
+  await page.getByText('Compare with the previous month',{exact:true}).click();
+  await page.getByText('Monthly goals & category limits',{exact:true}).click();
   await expect(page.getByText('January 2026 vs December 2025 · PKR', { exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: /^Expenses: January 2026/ })).toContainText('Up 100%');
   await page.getByLabel('Comparison type').selectOption('saving'); await expect(page.getByRole('group', { name: /^Savings: January 2026/ })).toContainText('Down 50%');

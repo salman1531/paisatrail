@@ -33,3 +33,10 @@ User confirmed password login works. Goals are now one monthly-only panel with J
 ## 5 October update
 
 Approved optional expense subcategories implemented in Categories, quick expense, Add/Edit entry, search, spending detail and Excel exports. Main category IDs remain the reporting and goal link; optional subcategory IDs add detail without double-counting. Migration 005 adds owner/parent foreign keys, server validation and private per-user access. Used subcategories are archived and can be restored under an active parent. The operator approved migration and deployment. Local unit/database tests and build pass; direct browser checks cover persistence, main totals, editing and mobile layout. Standalone Chrome UI test launch remains blocked by the environment.
+
+
+## 5 October clarity follow-up
+
+Read-only checks in the operator account confirmed October saved goals matched Overview. Targets were too far down and Daily entries lacked goal progress. Show monthly targets beside recorded totals on both tabs and the same GoalsOverview panel on Daily entries. Saving a month's goals selects that month in reports. Replace two expense selects with one leaf picker; resolve the main category automatically. Existing generic Expenses-only accounts receive common subcategories via migration 006; new accounts seed them once. Keep existing direct-category entries editable.
+
+Overview presents recorded totals with monthly targets, cash flow, spending charts, recent entries and shortcuts to categories, entries and emergency savings. Detailed goals/category limits and previous-month comparison expand on demand. Daily entries shows the same monthly goal progress. Expense entry uses one leaf-category picker and saves its parent automatically. Migration 006 seeds starter expense choices for generic Expenses categories without children and for new accounts.

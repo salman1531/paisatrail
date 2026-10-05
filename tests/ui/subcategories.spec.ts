@@ -8,8 +8,8 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await page.getByLabel('Subcategory name').fill('Utilities');
   await page.getByRole('button', { name: 'Save subcategory', exact: true }).click();
   await page.getByRole('button', { name: 'Overview', exact: true }).click();
-  await page.getByLabel('Expense category', { exact: true }).selectOption({ label: 'Home & bills' });
-  await page.getByLabel('Subcategory (optional)', { exact: true }).selectOption({ label: 'Utilities' });
+  await page.getByLabel('Expense category', { exact: true }).selectOption({ label: 'Utilities' });
+  await expect(page.getByLabel('Subcategory (optional)', { exact: true })).toHaveCount(0);
   await page.getByLabel('Expense amount · PKR', { exact: true }).fill('50');
   await page.getByText('Change date or add a note', { exact: true }).click();
   await page.getByLabel('Expense date', { exact: true }).fill('2026-03-04');
@@ -23,9 +23,9 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await page.getByLabel('Search entries', { exact: true }).fill('Utilities');
   await expect(page.getByRole('row').filter({ hasText: 'Utilities' })).toContainText('Home & bills');
   await page.getByRole('button', { name: 'Edit entry Home & bills 2026-03-04', exact: true }).click();
-  await expect(page.getByLabel('Subcategory', { exact: true })).not.toHaveValue('');
-  await page.getByLabel('Category', { exact: true }).selectOption({ label: 'Transport' });
-  await expect(page.getByLabel('Subcategory', { exact: true })).toHaveValue('');
+  await expect(page.getByLabel('Category', { exact: true }).locator('option:checked')).toHaveText('Utilities');
+  await page.getByLabel('Category', { exact: true }).selectOption({ label: 'Petrol' });
+  await expect(page.getByLabel('Subcategory', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

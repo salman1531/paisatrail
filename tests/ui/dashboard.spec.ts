@@ -13,5 +13,5 @@ test('dashboard charts drill into a month and handle empty income without overfl
   await page.getByText('View chart data', { exact: true }).click();
   await expect(page.locator('.chart-data tbody tr')).toHaveCount(12);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await expect(page.getByRole('heading', { name: 'Emergency fund', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Emergency savings/ })).toBeVisible();
 });

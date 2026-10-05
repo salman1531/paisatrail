@@ -71,3 +71,16 @@ describe('expense subcategories', () => {
     await expect(asUser(a, 'delete from subcategories where id=$1', [subId])).rejects.toThrow();
   });
 });
+
+it('seeds starter expense choices once for existing and new accounts', async () => {
+  const c = '00000000-0000-4000-8000-000000000003', d = '00000000-0000-4000-8000-000000000004';
+  await db.query('insert into auth.users values ($1),($2)', [c,d]);
+  await asUser(c, 'select initialize_ledger()');
+  await db.exec(readFileSync(new URL('../supabase/migrations/006_default_expense_choices.sql', import.meta.url), 'utf8'));
+  expect((await asUser(c, 'select * from subcategories')).rows).toHaveLength(8);
+  await asUser(c, "delete from subcategories where name='Petrol'");
+  await asUser(c, 'select initialize_ledger()');
+  expect((await asUser(c, 'select * from subcategories')).rows).toHaveLength(7);
+  await asUser(d, 'select initialize_ledger()');
+  expect((await asUser(d, 'select * from subcategories')).rows).toHaveLength(8);
+});
