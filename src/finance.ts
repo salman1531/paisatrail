@@ -37,7 +37,8 @@ export function totals(ledger: Ledger, entries: Entry[], currency: Currency) {
 }
 export function emergency(ledger: Ledger) {
   const ids = new Set(ledger.categories.filter(c => c.kind === 'saving' && c.emergency).map(c => c.id));
-  const funded = ledger.entries.filter(e => ids.has(e.category_id) && e.currency === ledger.profile.currency).reduce((v, e) => v + e.amount_minor * (e.withdrawal ? -1 : 1), 0);
+  const children = new Set((ledger.subcategories ?? []).filter(s=>s.emergency).map(s=>s.id));
+  const funded = ledger.entries.filter(e => (ids.has(e.category_id) || !!e.subcategory_id && children.has(e.subcategory_id)) && e.currency === ledger.profile.currency).reduce((v, e) => v + e.amount_minor * (e.withdrawal ? -1 : 1), 0);
   const target = ledger.profile.emergency_target;
   const gap = Math.max(0, target - funded);
   return { funded, target, gap, percent: target > 0 ? Math.max(0, Math.min(100, funded / target * 100)) : 0, months: target > 0 && gap === 0 ? 0 : ledger.profile.emergency_contribution > 0 ? Math.ceil(gap / ledger.profile.emergency_contribution) : null };

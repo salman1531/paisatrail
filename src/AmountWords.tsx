@@ -17,7 +17,7 @@ export function amountInWords(value: string,currency: Currency): string | null {
  try {
   const minor=parseAmount(value,currency,true), divisor=10**precision(currency), whole=Math.floor(minor/divisor), fraction=minor%divisor;
   const unit=units[currency], pakistani=currency==='PKR';
-  const text=`${words(whole,pakistani)} ${unit[whole===1?0:1]}${fraction?` and ${words(fraction,pakistani)} ${unit[fraction===1?2:3]}`:''}`;
+  const text=`${words(whole,pakistani)}${fraction?` and ${words(fraction,pakistani)} ${unit[fraction===1?2:3]}`:''} ${currency.toLowerCase()}`;
   return text[0].toUpperCase()+text.slice(1);
  } catch {return null;}
 }

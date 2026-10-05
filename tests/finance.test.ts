@@ -22,3 +22,9 @@ describe('emergency savings', () => {
   it('counts only marked savings, net of withdrawals, even after archiving', () => { const l = { ...ledger, categories: ledger.categories.map(c => ({ ...c, archived: true })), entries: [entry('s', 8000), entry('s', 1000, undefined, { withdrawal: true }), entry('i', 30000), entry('s', 50000, undefined, { currency: 'PKR' })] }; expect(emergency(l)).toMatchObject({ funded: 7000, gap: 3000, months: 1, percent: 70 }); });
   it('handles zero contributions, overfunding and no target', () => { expect(emergency({ ...ledger, profile: { ...ledger.profile, emergency_contribution: 0 } }).months).toBeNull(); expect(emergency({ ...ledger, entries: [entry('s', 15000)] })).toMatchObject({ gap: 0, months: 0, percent: 100 }); expect(emergency({ ...ledger, profile: { ...ledger.profile, emergency_target: 0, emergency_contribution: 0 } })).toMatchObject({ months: null, percent: 0 }); });
 });
+
+it('counts an emergency subcategory once even if its parent is also emergency',()=>{
+ const l={...ledger,subcategories:[{id:'child',user_id:'u',category_id:'s',name:'Cushion',archived:false,emergency:true}],entries:[entry('s',5000,undefined,{subcategory_id:'child'}),entry('s',1000,undefined,{subcategory_id:'child',withdrawal:true})]};
+ expect(emergency(l).funded).toBe(4000);
+ expect(emergency({...l,categories:l.categories.map(c=>({...c,emergency:false}))}).funded).toBe(4000);
+});

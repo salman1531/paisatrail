@@ -5,7 +5,7 @@ test('popup restores scrolling and amount words reflect currency precision', asy
 
  await page.getByRole('button',{name:/^Edit entry/}).first().click();
  await page.getByLabel('Amount',{exact:true}).fill('150000.50');
- await expect(page.getByText('One lakh fifty thousand Pakistani rupees and fifty paisa',{exact:true})).toBeVisible();
+ await expect(page.getByText('One lakh fifty thousand and fifty paisa pkr',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.body.style.position)).toBe('fixed');
  const before=await page.evaluate(()=>-parseFloat(document.body.style.top));
  await page.getByRole('button',{name:'Cancel',exact:true}).click();

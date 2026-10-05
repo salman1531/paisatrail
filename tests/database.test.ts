@@ -84,3 +84,19 @@ it('seeds starter expense choices once for existing and new accounts', async () 
   await asUser(d, 'select initialize_ledger()');
   expect((await asUser(d, 'select * from subcategories')).rows).toHaveLength(8);
 });
+
+it('supports private savings and investment subcategories without weakening parent checks',async()=>{
+ await db.exec(readFileSync(new URL('../supabase/migrations/007_more_subcategories.sql',import.meta.url),'utf8'));
+ const saving=String((await asUser(a,"select id from categories where kind='saving'")).rows[0].id);
+ const emergency=String((await asUser(a,"select id from subcategories where category_id=$1 and emergency",[saving])).rows[0].id);
+ await asUser(a,"insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency) values($1,$2,$3,'2026-04-01',100,'PKR')",[a,saving,emergency]);
+ const investment=String((await asUser(a,"select id from categories where kind='investment'")).rows[0].id);
+ const stocks=String((await asUser(a,"select id from subcategories where category_id=$1 and name='Stocks'",[investment])).rows[0].id);
+ await asUser(a,"insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency,withdrawal) values($1,$2,$3,'2026-04-01',50,'PKR',true)",[a,investment,stocks]);
+ await expect(asUser(b,'select * from subcategories where id=$1',[stocks])).resolves.toMatchObject({rows:[]});
+ await expect(asUser(a,"update subcategories set emergency=true where id=$1",[stocks])).rejects.toThrow();
+ await expect(asUser(a,"insert into entries(user_id,category_id,subcategory_id,date,amount_minor,currency) values($1,$2,$3,'2026-04-01',50,'PKR')",[a,saving,stocks])).rejects.toThrow();
+ const e='00000000-0000-4000-8000-000000000005';await db.query('insert into auth.users values($1)',[e]);await asUser(e,'select initialize_ledger()');
+ expect((await asUser(e,'select * from subcategories')).rows).toHaveLength(36);
+ await asUser(e,"delete from subcategories where name='Stocks'");await asUser(e,'select initialize_ledger()');expect((await asUser(e,'select * from subcategories')).rows).toHaveLength(35);
+});

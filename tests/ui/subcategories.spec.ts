@@ -29,3 +29,12 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await page.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+ test('savings and investments pick subcategories and preserve parent totals',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
+ for(const [kind,choice,amount] of [['Savings','Travel savings','100'],['Investments','Stocks','200']]){
+ await page.getByRole('button',{name:'Add entry',exact:true}).first().click();await page.getByRole('radio',{name:kind,exact:true}).check();await page.getByLabel('Category',{exact:true}).selectOption({label:choice});await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:'Save entry',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
+ await expect(page.getByText(choice,{exact:true})).toBeVisible();
+ }
+ await page.getByRole('button',{name:/^Edit entry Investments/}).first().click();await expect(page.getByLabel('Category',{exact:true}).locator('option:checked')).toHaveText('Stocks');await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ });
