@@ -58,7 +58,7 @@ Free hosting is subject to provider quotas. [Cloudflare static asset requests](h
 - Record as many separate entries on the same date as you need, including multiple entries in the same category. Each entry has its own identity; recording another entry never replaces the previous one.
 - Store money as integer minor units. Supported currencies: USD, PKR, EUR, GBP, AED, JPY, KWD; their precision is respected. Dates are calendar dates with the selected timezone used for today's default.
 - Savings and investments are contributions minus withdrawals; they are not consumption expenses or investment returns.
-- “Left to allocate” is income minus expenses and net savings/investment contributions for the selected period. It is not a reconciled bank balance.
+- “Remaining income” is income minus expenses and net savings/investment contributions for the selected period. Excess outgoings show as “Above recorded income”; missing earnings show “Income not recorded”. It is not a reconciled bank balance.
 - Different currencies are never added together. Dashboard totals use the selected display currency; entries and exports retain the original currency. Changing the display currency resets planning targets instead of pretending to convert amounts.
 - Emergency progress includes only savings categories marked as emergency funds, including their historical and archived entries. Estimates assume fixed contributions and no interest or withdrawals.
 - The overview compares each category in a selected month against the previous calendar month; January compares with December of the prior year. Missing baselines show new activity rather than an infinite percentage.
@@ -109,10 +109,16 @@ The static `/about.html` page contains original public product content and works
 
 ## Expense subcategories
 
-In Categories, add optional subcategories under any active expense category, such as Home → Rent / Bills or Transport → Travel / Petrol. Select the main category and then an optional subcategory in the quick expense form or Add entry. Entries without subcategories remain valid. Main category totals, filters and goals include all their subcategories once. The spending breakdown shows subcategory amounts; transaction search and Excel export include subcategory names. Used subcategories are archived to preserve history. Parent and user ownership are enforced by database validation and composite foreign keys.
+In Categories, add optional subcategories under any active expense, savings or investment category, such as Home → Rent / Bills or Transport → Travel / Petrol. Entry forms use one leaf picker and infer the main category automatically. Entries without subcategories remain valid. Main category totals, filters and goals include all their subcategories once. The spending breakdown shows subcategory amounts; transaction search and Excel export include subcategory names. Used subcategories are archived to preserve history. Parent and user ownership are enforced by database validation and composite foreign keys.
 
 Apply **005_expense_subcategories.sql** once to existing projects before deploying this frontend. The migration preserves existing entries and enables per-user row-level security on subcategories.
 
 Overview presents recorded totals with monthly targets, cash flow, spending charts, recent entries and shortcuts to categories, entries and emergency savings. Detailed goals/category limits and previous-month comparison expand on demand. Daily entries shows the same monthly goal progress. Expense entry uses one leaf-category picker and saves its parent automatically. Migration 006 seeds starter expense choices for generic Expenses categories without children and for new accounts.
 
 Planning examples and Create my own split preview expense/savings/investment percentages. Save plan for [month] opens a review of exact monthly amounts; Confirm and save goals saves once, preserving category limits and other months. Custom splits allow 0–100% per part and up to 100% total; smaller totals leave income available. Remaining income uses all categories in the selected period and currency, with explicit no-income and above-income states.
+
+## User guide and usability review
+
+The generated `/guide.html` and `/guide.md` cover account setup, preferences, actual income, expenses, contributions/withdrawals, categories, monthly goals, optional planning, emergency savings, reports, corrections and Excel export. The guide is accessible before sign-in and from workspace headers; it opens separately so current form edits remain available. Edit `scripts/user-guide.mjs`, then regenerate/build. The public sitemap includes the reviewed guide. See `docs/UX_REVIEW.md` for findings and remaining suggestions.
+
+Overview starts with quick expense capture and dedicated income/savings/investment shortcuts. Summary totals and goals cover all categories for the period/currency; entry filters affect the list, category charts and export. Add/Edit saves select the entry's month and clear entry filters. Planning examples are an optional disclosure inside Goals.

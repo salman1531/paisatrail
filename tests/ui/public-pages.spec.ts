@@ -18,6 +18,14 @@ test('public policy drafts and discovery files work before sign-in', async ({ pa
   if (draft) expect(await sitemap.text()).not.toContain('/privacy.html</loc>');
   else expect(await sitemap.text()).toContain('/privacy.html</loc>');
   await page.goto('/about.html'); await expect(page.getByRole('heading', {name: /Track your expenses/})).toBeVisible();
+  await page.getByRole('navigation', {name:'Public pages'}).first().getByRole('link', {name:'User guide',exact:true}).click();
+  await expect(page).toHaveTitle(/PaisaTrace user guide/);
+  await expect(page.getByRole('navigation',{name:'Guide contents'})).toBeVisible();
+  await page.getByRole('navigation',{name:'Guide contents'}).getByRole('link',{name:'7. Set goals for one month',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Set goals for one month',exact:true})).toBeVisible();
+  await expect(page.locator('#goals')).toContainText('Saving stores that calculated amount');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  if (!draft) expect(await sitemap.text()).toContain('/guide.html</loc>');
   const robots = await request.get('/robots.txt');
   expect(await robots.text()).toContain(draft ? 'Disallow: /' : 'Allow: /');
 });

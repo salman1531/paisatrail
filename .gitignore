@@ -21,3 +21,6 @@ public/site.css
 test-results/
 playwright-report/
 public/about.html
+
+public/guide.html
+public/guide.md

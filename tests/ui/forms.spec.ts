@@ -21,7 +21,7 @@ test('percentage goals recalculate, save amounts and preserve amount entry',asyn
  await page.getByLabel('Earnings target',{exact:true}).fill('200000');await expect(page.locator('.percentage-preview').nth(1)).toContainText('20,000.00');
  await page.getByRole('button',{name:'Save monthly goals',exact:true}).click();await expect(page.getByText(/^Goals saved for/)).toBeVisible();
  await page.getByRole('radio',{name:'Amounts',exact:true}).check();await expect(page.getByLabel('Savings target',{exact:true})).toHaveValue('20000.00');
- await page.getByRole('combobox',{name:'Planning example',exact:true}).selectOption('cushion');await page.getByRole('button',{name:/^Save plan for/}).click();await expect(page.getByRole('dialog')).toContainText('40,000.00');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByLabel('Savings target',{exact:true})).toHaveValue('20000.00');await page.getByRole('button',{name:/^Save plan for/}).click();await page.getByRole('button',{name:'Confirm and save goals',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByLabel('Savings target',{exact:true})).toHaveValue('40000.00');await expect(page.getByLabel('Investment target',{exact:true})).toHaveValue('0.00');
+ await page.getByText('Need help splitting your earnings?',{exact:true}).click();await page.getByRole('combobox',{name:'Planning example',exact:true}).selectOption('cushion');await page.getByRole('button',{name:/^Save plan for/}).click();await expect(page.getByRole('dialog')).toContainText('40,000.00');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByLabel('Savings target',{exact:true})).toHaveValue('20000.00');await page.getByRole('button',{name:/^Save plan for/}).click();await page.getByRole('button',{name:'Confirm and save goals',exact:true}).click();await expect(page.getByRole('dialog')).toHaveCount(0);await expect(page.getByLabel('Savings target',{exact:true})).toHaveValue('40000.00');await expect(page.getByLabel('Investment target',{exact:true})).toHaveValue('0.00');
 });
 
 
@@ -29,7 +29,7 @@ test('custom plan confirms only the selected month and keeps category limits',as
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();await page.getByRole('button',{name:'Goals',exact:true}).click();
  await page.getByLabel('Goal month').fill('2026-04');await page.getByLabel('Earnings target',{exact:true}).fill('1000');
  await page.getByText('Category spending limits (optional)',{exact:true}).click();await page.locator('.category-budget-editor').getByLabel('Groceries',{exact:true}).fill('200');
- await page.getByRole('combobox',{name:'Planning example',exact:true}).selectOption('custom');
+ await page.getByText('Need help splitting your earnings?',{exact:true}).click();await page.getByRole('combobox',{name:'Planning example',exact:true}).selectOption('custom');
  await page.getByLabel('Spending %',{exact:true}).fill('85');await expect(page.getByRole('alert')).toContainText('100% or less');await expect(page.getByRole('button',{name:/^Save plan for/})).toHaveCount(0);
  await page.getByLabel('Spending %',{exact:true}).fill('60');await page.getByLabel('Cash savings %',{exact:true}).fill('25');await page.getByLabel('Investments %',{exact:true}).fill('10');
  await page.getByRole('button',{name:'Save plan for April 2026',exact:true}).click();await expect(page.getByRole('dialog')).toContainText('April 2026');await expect(page.getByRole('dialog')).toContainText('PKR 600.00');
