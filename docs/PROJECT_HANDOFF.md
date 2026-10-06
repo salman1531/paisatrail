@@ -10,7 +10,7 @@ React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/
 - Email/password login; signup verification; existing accounts can add a password from Settings or recovery. Password recovery is handled before opening the ledger and survives page reload.
 - Category archive/restore, Excel exports and synthetic browser-local demo. Preserve the existing demo storage key.
 - Vercel Hobby deployment, exact Supabase callback URL, Brevo custom SMTP. Real email delivery and magic-link sign-in were verified before the password change.
-- Operator Salman Javed; support/deletion email salman.se95@gmail.com; Hirubix is credit only. Database region Sydney, Australia.
+- Operator Salman Javed; support/deletion email salman.se95@gmail.com; Rubix Labs is credit only. Database region Sydney, Australia.
 - Public About page, sitemap, robots, canonical metadata, llms files, operator-approved privacy/terms and dependency notices.
 
 ## Remaining operator steps
@@ -73,3 +73,5 @@ User confirmed signup works after the redirect fix and chose to retain the free 
 Usability review and guide: generated /guide.html and /guide.md provide 11 steps plus troubleshooting, public jump navigation and support. Guide links appear before sign-in and in every workspace header, opening separately to preserve edits. Add income/savings/investment now preselects the correct form type; Add/Edit save selects its reporting month and clears entry filters. Main summary cards use all categories like overall goals and remaining income. A filter scope note and Clear entry filters explain list/chart/export behavior. Quick expense capture precedes summary cards; planning examples are a collapsed optional disclosure. Sitemap now includes the guide; technical sitemap/llms footer links are removed but files remain served. No database migration.
 
 Read docs/UX_REVIEW.md for evidence, remaining usability suggestions and test limits. TypeScript/build and 43 unit/database tests passed; direct browser checks covered shortcuts, filter summary consistency, optional planning, guide anchors and phone layout. Playwright still cannot launch Chrome (failure before assertions).
+
+The user requested the display credit Powered by Rubix Labs. Keep its destination https://www.hirubix.com/ unchanged. This is credit only; Salman Javed remains the operator and support contact is unchanged.

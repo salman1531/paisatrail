@@ -98,7 +98,7 @@ The 2 October 2026 production audit reports one moderate UUID advisory, propagat
 
 ## Current production and password flow
 
-Production: https://paisatrace.vercel.app/. Previous alias: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Hirubix receives credit only. Supabase hosts the database in Sydney. Migrations 001–004 have already been applied to production; do not re-run them. Vercel and Brevo are configured. Keep credentials in provider settings.
+Production: https://paisatrace.vercel.app/. Previous alias: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Rubix Labs receives credit only. Supabase hosts the database in Sydney. Migrations 001–004 have already been applied to production; do not re-run them. Vercel and Brevo are configured. Keep credentials in provider settings.
 
 Passwords are managed by Supabase Auth, not the ledger database. Email verification stays enabled. Server minimum password length is 12; secure password change is enabled. Recovery returns to the exact approved origin `/` and opens the authenticated password form, including after a page reload. Returning login calls the password endpoint and does not send email. Signing out preserves the account and ledger. Existing users keep their user ID when adding a password.
 
