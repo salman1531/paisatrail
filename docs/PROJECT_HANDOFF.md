@@ -61,3 +61,9 @@ Planning flow update: examples plus Create my own split (up to 100% total), amou
 Verification: TypeScript/build and all 41 unit/database tests passed. The standalone Playwright suite could not launch Chrome (all cases failed before execution), so direct browser demo checks verified custom validation, mobile confirmation/cancel, successful save, preserved category targets, independent months, reload persistence and category-filter consistency. The overview cash-flow and savings-rate details also use all period categories.
 
 The user requested general positioning rather than Pakistan-only wording. Remove the audience restriction from titles, About, llms, terms and sharing graphic. Keep PKR default/currency units and other currency support; do not imply currency conversion or make new international legal-compliance claims.
+
+## 6 October email redirect fix
+
+User verified a new signup email but its callback returned to localhost. Signup and password recovery previously sent location.origin; both now use the configured HTTPS VITE_SITE_URL through authRedirectUrl, including requests initiated from local previews or old aliases. An unconfigured development app still uses its current origin. Invalid configured destinations are rejected. Supabase dashboard readback confirmed Site URL https://paisatrace.vercel.app and the exact new-origin redirect already saved; no access-rule change was needed. Existing email links cannot be rewritten; confirmed users can sign in directly on the public site. Never record email callback tokens in source, diagnostics or handoff.
+
+TypeScript/build and 43 unit/database tests passed, including configured redirect handling and signup/recovery SDK request checks. The focused Playwright auth test could not launch Chrome (SIGABRT before execution); it is not an app assertion failure. Google Search Console now reports sitemap Success with four discovered pages; the indexing report is still processing.

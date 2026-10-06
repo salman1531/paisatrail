@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { Mail, PiggyBank, ShieldCheck, TrendingUp, Wallet } from 'lucide-react';
 import { configured, supabase } from './api';
 import BrandMark from './BrandMark';
+import { authRedirectUrl } from './authRedirect';
 
 type Mode = 'signin' | 'signup' | 'reset';
 export const minimumPasswordLength = 12;
@@ -31,8 +32,8 @@ export function Login({ enterDemo, authError, links }: { enterDemo: () => void; 
     e.preventDefault(); if (pending.current) return; setError(''); setMessage(''); if (!supabase) { setError('Account sign-in is not connected yet. You can explore the demo below.'); return; }
     pending.current = true; setBusy(true);
     try {
-      if (mode === 'signup') { validatePassword(password, confirmation); const result = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: location.origin + '/' } }); if (result.error) throw result.error; setMessage('Check your inbox to verify your email. If you already have an account, sign in or use Set or reset password instead.'); setCooldown(60); }
-      else if (mode === 'reset') { const result = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin + '/' }); if (result.error) throw result.error; setMessage('If this email has an account, we sent a password link. Open it to set your password. Check your spam folder too.'); setCooldown(60); }
+      if (mode === 'signup') { validatePassword(password, confirmation); const result = await supabase.auth.signUp({ email: email.trim(), password, options: { emailRedirectTo: authRedirectUrl() } }); if (result.error) throw result.error; setMessage('Check your inbox to verify your email. If you already have an account, sign in or use Set or reset password instead.'); setCooldown(60); }
+      else if (mode === 'reset') { const result = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: authRedirectUrl() }); if (result.error) throw result.error; setMessage('If this email has an account, we sent a password link. Open it to set your password. Check your spam folder too.'); setCooldown(60); }
       else { const result = await supabase.auth.signInWithPassword({ email: email.trim(), password }); if (result.error) { if (result.error.code === 'invalid_credentials') throw new Error('Email or password is incorrect. If you previously used an email link, choose Set or reset password.'); throw result.error; } }
       setPassword(''); setConfirmation('');
     } catch (e) { setError((e as Error).message); } finally { pending.current = false; setBusy(false); }

@@ -19,6 +19,7 @@ test('password login does not send an email; signup and recovery are separate', 
   await page.getByLabel('Confirm password').fill('fixture password only');
   await page.getByRole('button', {name: 'Create account', exact: true}).click();
   await expect(page.getByRole('status')).toContainText('verify your email'); expect(requests[1].path).toContain('/signup');
+  expect(new URLSearchParams(requests[1].path.split('?')[1]).get('redirect_to')).toBe('https://paisatrace.vercel.app/');
   await page.getByRole('button', {name: 'Set or reset password'}).click();
   await expect(page.getByLabel('Password', {exact: true})).toHaveCount(0);
   // A shared cooldown also prevents immediate repeated emails across forms.
