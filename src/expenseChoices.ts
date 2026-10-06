@@ -1,4 +1,14 @@
-import type { Entry, Ledger, Kind } from './types';
+import type { Category, Entry, Ledger, Kind } from './types';
+
+export const customCategoryChoice = '__custom_category__';
+export function namedCategory(ledger: Ledger, kind: Kind, value: string, id: string) {
+  const name = value.trim();
+  if (!name || name.length > 60) throw new Error('Enter a category name between 1 and 60 characters.');
+  const existing = ledger.categories.find(c => c.kind === kind && c.name.toLowerCase() === name.toLowerCase());
+  if (existing?.archived) throw new Error('This category is archived. Restore it in Categories or choose another name.');
+  const category: Category = existing ?? {id, user_id: ledger.profile.user_id, name, kind, archived:false, essential:false, emergency:false};
+  return {category, isNew:!existing};
+}
 
 export function categoryChoices(ledger: Ledger, kind: Kind, existing?: Entry | null) {
   const choices: { value: string; label: string; categoryId: string; subcategoryId: string | null }[] = [];

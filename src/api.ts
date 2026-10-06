@@ -3,10 +3,12 @@ import type { Entry, Ledger, Profile, Category, Subcategory, PeriodGoal } from '
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const configured = Boolean(url && key);
-// Capture recovery before the auth client consumes and clears the callback fragment.
-export const initialPasswordRecovery = typeof window !== 'undefined' && (new URLSearchParams(window.location.hash.slice(1)).get('type') === 'recovery' || sessionStorage.getItem('paisatrail-password-recovery') === 'true');
-if (initialPasswordRecovery) sessionStorage.setItem('paisatrail-password-recovery', 'true');
-export const supabase = configured ? createClient(url, key, { auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true, autoRefreshToken: true } }) : null;
+// Keep email-link credentials in memory until the visitor explicitly accepts the verified identity.
+const fragment = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.hash.slice(1));
+export const emailCallback = fragment.has('access_token') ? {access_token:fragment.get('access_token')!,refresh_token:fragment.get('refresh_token') ?? '',recovery:fragment.get('type')==='recovery'} : null;
+if(emailCallback) history.replaceState(null,'',location.pathname+location.search);
+export const initialPasswordRecovery = typeof window !== 'undefined' && sessionStorage.getItem('paisatrail-password-recovery') === 'true';
+export const supabase = configured ? createClient(url, key, { auth: { flowType: 'implicit', detectSessionInUrl: false, persistSession: true, autoRefreshToken: true } }) : null;
 function db() { if (!supabase) throw new Error('Email sign-in is not connected yet.'); return supabase; }
 function assert(error: { message: string } | null) { if (error) throw new Error(error.message); }
 export async function loadLedger(userId: string): Promise<Ledger> {

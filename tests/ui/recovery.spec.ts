@@ -10,6 +10,10 @@ test('verified recovery opens password form, survives reload, and updates the sa
   const encode = (v: unknown) => Buffer.from(JSON.stringify(v)).toString('base64url');
   const token = `${encode({alg:'HS256',typ:'JWT'})}.${encode({sub:user.id, exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})}.fixture-signature`;
   await page.goto(`/#access_token=${token}&refresh_token=fixture-refresh-only&expires_in=3600&token_type=bearer&type=recovery`);
+  await expect(page.getByRole('heading',{name:'Confirm your account',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Set your password',exact:true})).toHaveCount(0);
+  await page.getByLabel('Your email address',{exact:true}).fill(user.email);
+  await page.getByRole('button',{name:'Continue to password recovery',exact:true}).click();
   await expect(page.getByRole('heading', {name:'Set your password',exact:true})).toBeVisible();
   await page.reload(); await expect(page.getByRole('heading', {name:'Set your password',exact:true})).toBeVisible();
   await page.getByLabel('Password',{exact:true}).fill('fixture phrase only'); await page.getByLabel('Confirm password').fill('fixture phrase only');

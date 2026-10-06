@@ -122,3 +122,16 @@ Planning examples and Create my own split preview expense/savings/investment per
 The generated `/guide.html` and `/guide.md` cover account setup, preferences, actual income, expenses, contributions/withdrawals, categories, monthly goals, optional planning, emergency savings, reports, corrections and Excel export. The guide is accessible before sign-in and from workspace headers; it opens separately so current form edits remain available. Edit `scripts/user-guide.mjs`, then regenerate/build. The public sitemap includes the reviewed guide. See `docs/UX_REVIEW.md` for findings and remaining suggestions.
 
 Overview starts with quick expense capture and dedicated income/savings/investment shortcuts. Summary totals and goals cover all categories for the period/currency; entry filters affect the list, category charts and export. Add/Edit saves select the entry's month and clear entry filters. Planning examples are an optional disclosure inside Goals.
+
+
+## Operator administration (6 October 2026)
+
+Migration `008_admin.sql` adds private operator membership, last-active timestamps and deletion audit records. Membership must be granted to an existing verified UUID by a trusted database operator; never derive it from user-editable metadata or automatically grant by email on signup. The approved operator account is Salman Javed’s existing account. Its UUID grant is applied separately from the reusable migration.
+
+Open Settings → Open admin panel. Metrics count existing accounts, signups in the last 7/30 days, and accounts opening the signed-in app in the last 7/30 days. Activity begins with this release; historical use is unavailable. The panel exposes emails and account dates, not financial records. Search is literal and paginated in groups of 25.
+
+Permanent deletion requires an active admin session, a password sign-in in the last 15 minutes and an exact email confirmation. Admin accounts cannot be deleted here. Verify ownership of support deletion requests and allow export before deleting. Auth/account data and app records cascade together; provider logs/backups have separate retention. If Storage is added later, review object ownership and deletion dependencies before enabling deletion for those users. Private audit rows retain actor/target IDs and time without financial content.
+
+Email-link callbacks no longer silently accept token fragments. Tokens are removed from the address bar and kept in memory until the visitor confirms the server-verified account email. Cancelling preserves any existing session. Recovery still uses the same account, and ordinary password sign-in is unchanged.
+
+UI tests can target an existing preview with `PAISA_TEST_PORT=5174 npm run test:ui`. Standalone Chrome launch was blocked by this local environment; direct responsive checks and database tests were used for this release.
