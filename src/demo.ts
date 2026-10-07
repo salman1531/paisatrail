@@ -1,23 +1,34 @@
-import { today } from './finance';
-import type { Ledger, Category, Entry, Kind, Subcategory } from './types';
+import { today, precision } from './finance';
+import { starterCategories } from './starterCategories';
+import type { Ledger, Category, Entry, Currency, Subcategory } from './types';
 const user = 'demo';
-export function newDemo(): Ledger {
-  const day = today(); const month = day.slice(0, 7); const year = day.slice(0, 4);
-  const cats: { name: string; kind: Kind; essential?: boolean; emergency?: boolean }[] = [
-    { name: 'Expenses', kind: 'expense' }, { name: 'Savings', kind: 'saving' }, { name: 'Investments', kind: 'investment' }, { name: 'Income', kind: 'income' },
-    { name: 'Groceries', kind: 'expense', essential: true }, { name: 'Home & bills', kind: 'expense', essential: true }, { name: 'Coffee & dining', kind: 'expense' }, { name: 'Transport', kind: 'expense', essential: true }, { name: 'Emergency fund', kind: 'saving', emergency: true }
-  ];
-  const categories: Category[] = cats.map((c, i) => ({ id: `demo-cat-${i}`, user_id: user, archived: false, essential: false, emergency: false, ...c }));
-  const subcategories: Subcategory[] = [[5, 'Rent'], [5, 'Bills'], [7, 'Travel'], [7, 'Petrol']].map(([parent, name], i) => ({ id: `demo-sub-${i}`, user_id: user, category_id: categories[Number(parent)].id, name: String(name), archived: false }));
-  const starterChoices: [number,string,boolean][] = [[0, 'Groceries', false], [0, 'Food & dining', false], [0, 'Rent', false], [0, 'Bills', false], [0, 'Travel', false], [0, 'Petrol', false], [0, 'Shopping', false], [0, 'Other expenses', false], [0, 'Healthcare', false], [0, 'Education', false], [0, 'Entertainment', false], [0, 'Subscriptions', false], [0, 'Insurance', false], [0, 'Home maintenance', false], [0, 'Gifts & charity', false], [0, 'Childcare', false], [0, 'Fitness', false], [0, 'Personal care', false], [0, 'Pets', false], [1, 'Emergency fund', true], [1, 'Travel savings', false], [1, 'Home deposit', false], [1, 'Car savings', false], [1, 'Education savings', false], [1, 'Wedding savings', false], [1, 'Retirement savings', false], [1, 'Rainy-day savings', false], [1, 'Other savings', false], [2, 'Stocks', false], [2, 'Mutual funds', false], [2, 'ETFs', false], [2, 'Bonds', false], [2, 'Gold', false], [2, 'Real estate', false], [2, 'Retirement investments', false], [2, 'Other investments', false]];
-  for(const [parent,name,emergency] of starterChoices)if(!categories.some(c=>c.name.toLowerCase()===name.toLowerCase())&&!subcategories.some(s=>s.name.toLowerCase()===name.toLowerCase()))subcategories.push({id:crypto.randomUUID(),user_id:user,category_id:categories[parent].id,name,archived:false,emergency});
-  const samples: [number, number, string, string][] = [[3, 480000, `${month}-01`, 'Monthly salary'], [5, 125000, `${month}-01`, 'Rent and utilities'], [8, 45000, `${month}-02`, 'Building a safety net'], [2, 40000, `${month}-02`, 'Monthly contribution'], [4, 6850, `${month}-02`, 'Weekly groceries'], [6, 1850, `${month}-02`, 'Lunch with friends'], [7, 3500, `${month}-01`, 'Travel pass'], [1, 25000, `${month}-01`, 'Holiday savings'], [8, 180000, `${year}-01-15`, 'Earlier emergency savings']];
-  const entries: Entry[] = samples.filter(([, , d]) => d <= day).map(([c, amount, date, notes]) => ({ id: crypto.randomUUID(), user_id: user, category_id: categories[c].id, subcategory_id: c === 5 ? subcategories[0].id : c === 7 ? subcategories[2].id : null, amount_minor: amount, currency: 'PKR', date, notes, withdrawal: false }));
-  return { categories, subcategories, entries, profile: { user_id: user, currency: 'PKR', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, income_target: 480000, spending_target: 240000, saving_target: 70000, investment_target: 50000, emergency_target: 1200000, emergency_contribution: 45000 } };
+// Independent fictional scenarios, not exchange-rate conversions or income recommendations.
+export const demoIncome:Record<Currency,number>={PKR:180000,USD:4800,EUR:3400,GBP:3000,AED:15000,JPY:380000,KWD:1200};
+export function newDemo(currency:Currency='PKR'): Ledger {
+  const day=today();const salary=demoIncome[currency];const unit=10**precision(currency);
+  const minor=(amount:number)=>Math.round(amount*unit);
+  const categories:Category[]=starterCategories.map((c,i)=>({id:`demo-cat-${i}`,user_id:user,name:c.name,kind:c.kind,archived:false,essential:c.essential??false,emergency:false}));
+  const subcategories:Subcategory[]=starterCategories.flatMap((c,i)=>c.children.map((s,j)=>({id:`demo-sub-${i}-${j}`,user_id:user,category_id:categories[i].id,name:s.name,archived:false,emergency:s.emergency??false})));
+  const entries:Entry[]=[];
+  function sample(date:string,parent:string,child:string|null,amount:number,notes:string,withdrawal=false){if(date>day)return;const category=categories.find(c=>c.name===parent)!;const sub=subcategories.find(s=>s.category_id===category.id&&s.name===child);entries.push({id:crypto.randomUUID(),user_id:user,category_id:category.id,subcategory_id:sub?.id??null,date,amount_minor:minor(amount),currency,notes,withdrawal});}
+  for(let back=0;back<4;back++){
+    const month=new Date(Date.UTC(Number(day.slice(0,4)),Number(day.slice(5,7))-1-back,1)).toISOString().slice(0,7);const variation=1+back*.025;
+    sample(`${month}-01`,'Income',null,salary,'Monthly salary');
+    sample(`${month}-01`,'Home','Rent',salary*.25,'Monthly rent');
+    sample(`${month}-02`,'Food','Groceries',salary*.045*variation,'Weekly groceries');
+    sample(`${month}-03`,'Food','Dining',salary*.009,'Lunch with friends');
+    sample(`${month}-04`,'Transport','Petrol',salary*.028*variation,'Fuel refill');
+    sample(`${month}-05`,'Home','Bills',salary*.05*variation,'Utilities and internet');
+    sample(`${month}-02`,'Savings','Emergency fund',salary*.12,'Monthly safety cushion');
+    sample(`${month}-02`,'Savings','Travel savings',salary*.03,'Holiday savings');
+    sample(`${month}-02`,'Investments','Mutual funds',salary*.10,'Monthly contribution');
+    if(back===1)sample(`${month}-12`,'Savings','Travel savings',salary*.015,'Weekend trip withdrawal',true);
+  }
+  return {categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:minor(salary),spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
 }
 const storageKey = 'pocket-ledger-demo-v1';
 export function readDemo(): Ledger {
-  try { const raw = localStorage.getItem(storageKey); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v.categories) && Array.isArray(v.entries) && v.profile?.user_id === user) return { ...v, subcategories: Array.isArray(v.subcategories) ? v.subcategories : [], profile: { ...v.profile, saving_target: v.profile.saving_target ?? v.profile.emergency_contribution } }; } } catch { /* Start a fresh demo if saved data is unavailable. */ }
+  try { const raw = localStorage.getItem(storageKey); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v.categories) && Array.isArray(v.entries) && v.profile?.user_id === user) return { ...v, subcategories: Array.isArray(v.subcategories) ? v.subcategories : [], profile: { ...v.profile, planning_currency:v.profile.planning_currency??v.profile.currency,saving_target: v.profile.saving_target ?? v.profile.emergency_contribution } }; } } catch { /* Start a fresh demo if saved data is unavailable. */ }
   return newDemo();
 }
 export function persistDemo(ledger: Ledger) { localStorage.setItem(storageKey, JSON.stringify(ledger)); }

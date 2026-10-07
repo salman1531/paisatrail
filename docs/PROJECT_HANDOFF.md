@@ -1,4 +1,4 @@
-# PaisaTrace handoff — updated 5 October 2026
+# PaisaTrace handoff — updated 7 October 2026
 
 React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/paisatrail. Production: https://paisatrace.vercel.app/. Clone the repository, run `npm ci`, copy `.env.example` to `.env.local`, set the public Supabase values and run `npm run dev`. Secrets never belong in `VITE_` values or Git.
 
@@ -75,3 +75,9 @@ Usability review and guide: generated /guide.html and /guide.md provide 11 steps
 Read docs/UX_REVIEW.md for evidence, remaining usability suggestions and test limits. TypeScript/build and 43 unit/database tests passed; direct browser checks covered shortcuts, filter summary consistency, optional planning, guide anchors and phone layout. Playwright still cannot launch Chrome (failure before assertions).
 
 The user requested the display credit Powered by Rubix Labs. Keep its destination https://www.hirubix.com/ unchanged. This is credit only; Salman Javed remains the operator and support contact is unchanged.
+
+## 7 October product-review release
+
+This section supersedes earlier layout/currency notes. Overview leads with the three main answers and compact capture below. Daily entries is list-first, with a collapsed monthly budget summary. Entry-list filters affect only the list/export; dashboard charts keep full period/currency scope. Narrow transaction rows stack with Actions menus. Reporting currency, entry default and saved goal currencies are distinct. Migration009 pins legacy defaults/emergency amounts to their original planning currency and preserves existing accounts/categories/history; only new profiles receive the canonical hierarchy. Goals show Using default plan, Customize and Use defaults, with dirty-currency guards. Demo scenarios use four months of coherent values per currency. Account & support offers all-record export, contact and email deletion requests; no automated request/status service is claimed. Updated public guide screenshots use fictional demo data. Recurring templates, reminders, named savings goals and debt tracking remain follow-up product work.
+
+Migration009 applied 7 October; live readback confirms planning-currency backfill and unchanged finance RLS/anon initializer restrictions. All 56 unit/database checks pass; direct responsive checks cover 320–1280px. Standalone Chrome runner remains blocked before assertions.

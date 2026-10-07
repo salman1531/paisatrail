@@ -1,7 +1,7 @@
 import AmountWords from './AmountWords';
 import Modal from './Modal';
 import { planningSplits, suggestBudget, customBudget, percentOfIncome, type PlanningSplit } from './budgetSuggestions';
-import { useState, useRef, type FormEvent, type ReactNode } from 'react';
+import { useState, useRef, useEffect, type FormEvent, type ReactNode } from 'react';
 import { inputAmount, money, parseAmount, today } from './finance';
 import { elapsedPeriod, goalPeriod, periodGoalRows } from './goals';
 import { kinds, type Filter, type Ledger, type PeriodGoal } from './types';
@@ -23,7 +23,7 @@ export function GoalsOverview({ ledger, filter, edit }: { ledger: Ledger; filter
   </section>;
 }
 
-export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { ledger: Ledger; busy: boolean; initialPeriod?: string; save: (period: string, goals: PeriodGoal[]) => Promise<void>; children?: ReactNode }) {
+export function GoalsEditor({ ledger, busy, save, initialPeriod, children, onDirtyChange }: { ledger: Ledger; busy: boolean; initialPeriod?: string; save: (period: string, goals: PeriodGoal[]) => Promise<void>; children?: ReactNode; onDirtyChange?: (dirty:boolean)=>void }) {
   const currentMonth = today(ledger.profile.timezone).slice(0,7);
   const [period, setPeriod] = useState(initialPeriod?.length === 7 ? initialPeriod : initialPeriod?.length === 4 ? `${initialPeriod}-${currentMonth.slice(5)}` : currentMonth);
   const [percentageMode,setPercentageMode]=useState(false);
@@ -38,6 +38,7 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { l
   const [pendingPeriod, setPendingPeriod] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string,string>>({});
   const [dirty, setDirty] = useState(false);
+  useEffect(()=>{onDirtyChange?.(dirty || planningDirty);},[dirty,planningDirty,onDirtyChange]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const months = Array.from({length:12}, (_, i) => new Date(2000,i,1).toLocaleString('en', {month:'long'}));
@@ -120,11 +121,11 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children }: { l
   const inherited = kinds.some(kind=>!stored.some(g=>g.kind===kind&&g.category_id===null)&&defaults[kind]>0);
   return <section className="panel period-goals-editor"><div className="panel-head"><div><h2>Monthly goals</h2><p>Choose a month and plan your money in {currency}.</p></div></div><form className="stack-form" onSubmit={submit}>
     <label>Goal month<input type="month" min="1900-01" max="2100-12" required disabled={busy} value={period} onChange={e=>changePeriod(e.target.value)}/></label>
-    <div className="month-goal-picker" role="group" aria-label="Choose a month for goals">{months.map((name,index)=>{const monthPeriod=`${period.slice(0,4)}-${String(index+1).padStart(2,'0')}`;const saved=(ledger.goals??[]).some(g=>g.period===monthPeriod&&g.currency===currency);return <button key={name} type="button" className={period===monthPeriod?'month-goal selected':'month-goal'} aria-pressed={period===monthPeriod} aria-label={`${name} ${period.slice(0,4)}${saved?', saved goals':''}`} disabled={busy || period.length!==7} onClick={()=>changePeriod(monthPeriod)}><strong>{name.slice(0,3)}</strong><span>{saved?'Saved goals':'Not saved'}</span></button>;})}</div>
+    <div className="month-goal-picker" role="group" aria-label="Choose a month for goals">{months.map((name,index)=>{const monthPeriod=`${period.slice(0,4)}-${String(index+1).padStart(2,'0')}`;const saved=(ledger.goals??[]).some(g=>g.period===monthPeriod&&g.currency===currency);return <button key={name} type="button" className={period===monthPeriod?'month-goal selected':'month-goal'} aria-pressed={period===monthPeriod} aria-label={`${name} ${period.slice(0,4)}${saved?', saved goals':''}`} disabled={busy || period.length!==7} onClick={()=>changePeriod(monthPeriod)}><strong>{name.slice(0,3)}</strong><span>{saved?'Saved goals':Object.values(defaults).some(v=>v>0)?'Using defaults':'No plan'}</span></button>;})}</div>
     {pendingPeriod && <div className="unsaved-goals" role="alert"><p>You have unsaved changes for {period}. Save them before switching, or discard them to open {pendingPeriod}.</p><div><button type="button" className="button secondary" onClick={()=>setPendingPeriod(null)}>Keep editing</button><button type="button" className="button secondary" onClick={()=>selectPeriod(pendingPeriod)}>Discard and switch</button></div></div>}
     <h3>{months[Number(period.slice(5,7))-1] ?? 'Selected month'} {period.slice(0,4)} goals</h3>
     <p className="small muted">Saving updates this month only. Blank amounts are saved as 0.</p>
-    {inherited && <p className="small muted">Starting amounts come from your earlier monthly plan. Save to make this month's goals independent.</p>}
+    {inherited && <div className="default-plan-notice"><p>Using default plan for {monthLabel} · {currency}. These amounts already apply in your overview.</p><button type="button" className="button secondary" disabled={busy} onClick={()=>{setPercentageMode(false);setPercentages({});setValues(Object.fromEntries([...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)].map(key=>[key,savedValue(key)])));setDirty(true);}}>Customize {months[Number(period.slice(5,7))-1]}</button><button type="button" className="text-button" disabled={busy} onClick={async()=>{setError('');try{await persistGoals(period,prepareGoals());}catch(e){setError((e as Error).message);}}}>{dirty?'Save this draft for '+monthLabel:'Use defaults for '+monthLabel}</button></div>}
     <fieldset className="goal-entry-mode"><legend>Enter goals as</legend><label><input type="radio" name="goal-entry-mode" checked={!percentageMode} disabled={busy} onChange={()=>changeGoalMode(false)}/>Amounts</label><label><input type="radio" name="goal-entry-mode" checked={percentageMode} disabled={busy} onChange={()=>changeGoalMode(true)}/>Percentages of earnings</label></fieldset>
     {percentageMode && <p className="small muted">Earnings stays an amount. Other goals use a percentage of that month’s take-home earnings target. Saving stores the calculated amounts for this month; it does not create an ongoing percentage rule.</p>}
     <div className="form-grid">{(['income','expense','saving','investment'] as const).map(kind=>{const percent=percentageMode&&kind!=='income';return <div className="amount-field" key={kind}><label>{kind==='income'?'Earnings target':kind==='expense'?'Expense limit':kind==='saving'?'Savings target':'Investment target'}{percent&&<span className="sr-only"> percentage</span>}<input inputMode="decimal" placeholder={percent?'0':'0.00'} disabled={busy} value={percent?percentages[kind]??'0':valueFor(kind)} onChange={e=>percent?updatePercentage(kind,e.target.value):update(kind,e.target.value)}/></label>{percent&&<span className="percentage-preview">% of earnings · {valueFor(kind)?money(target(kind),currency):'Enter a valid percentage (0–100)'}</span>}<AmountWords value={valueFor(kind)} currency={currency}/></div>;})}</div>

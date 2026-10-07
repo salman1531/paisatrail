@@ -29,3 +29,12 @@ Income, daily expenses, monthly goals, category limits, search, charts and Excel
 ## Verification scope
 
 TypeScript, production build and 43 unit/database tests pass. Direct browser checks verify matching entry-type shortcuts, unchanged summary cards under category filtering, filter clearing, optional planning visibility and guide anchor navigation. Guide and dashboard checked at 390px without horizontal overflow. Standalone Playwright cannot launch installed Chrome in this environment (SIGABRT before execution); added UI regressions are preserved for an environment where it can run. Existing export and account-isolation tests cover calculation/storage contracts, not a full real-account browser flow.
+
+
+## Product-expert follow-up — 6 October 2026
+
+Implemented the first usability release: Overview leads with remaining income, spending vs budget and savings progress; expense entry is collapsed below it with a direct Add expense action. Daily entries starts with search/filter/list and has an optional budget disclosure below. Report period/currency is independent of list category/search; every scope is labelled. Responsive stacked transaction rows extend through tablet/intermediate widths, with explicit Actions/Edit/Delete controls.
+
+Default entry currency is distinct from reporting currency. Migration009 preserves original default-plan/emergency currency and monthly goals, with an effect preview before preference changes; no conversion/reset. New accounts and reset demo use Food → Groceries/Dining/Coffee and one starter hierarchy. Existing custom/legacy categories remain untouched; owners can rename/archive through Categories. This avoids relabelling historical spending without their decision.
+
+Demo scenarios have four months of fictional activity for each supported currency. Signup copy describes the practical outcome and previews the dashboard. Settings includes all-record export and email support/deletion request links; status remains email-based, not an in-app request tracker. Recurring templates, reminders, named savings goals, debt tracking and a dedicated monthly review remain roadmap items requiring prioritization.

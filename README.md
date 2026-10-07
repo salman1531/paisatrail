@@ -59,10 +59,10 @@ Free hosting is subject to provider quotas. [Cloudflare static asset requests](h
 - Store money as integer minor units. Supported currencies: USD, PKR, EUR, GBP, AED, JPY, KWD; their precision is respected. Dates are calendar dates with the selected timezone used for today's default.
 - Savings and investments are contributions minus withdrawals; they are not consumption expenses or investment returns.
 - “Remaining income” is income minus expenses and net savings/investment contributions for the selected period. Excess outgoings show as “Above recorded income”; missing earnings show “Income not recorded”. It is not a reconciled bank balance.
-- Different currencies are never added together. Dashboard totals use the selected display currency; entries and exports retain the original currency. Changing the display currency resets planning targets instead of pretending to convert amounts.
+- Different currencies are never added together. Dashboard totals use the selected display currency; entries and exports retain the original currency. Reporting currency and the default for new entries are separate. Changing the entry default previews the effect and preserves legacy plans in their original planning currency; saved monthly plans retain their currencies. No conversion is performed.
 - Emergency progress includes only savings categories marked as emergency funds, including their historical and archived entries. Estimates assume fixed contributions and no interest or withdrawals.
 - The overview compares each category in a selected month against the previous calendar month; January compares with December of the prior year. Missing baselines show new activity rather than an infinite percentage.
-- Goal comparisons use all categories in the profile currency. Saved monthly targets apply only to their month and currency. Existing default targets prefill months until independent monthly goals are saved. Emergency contributions are included within total savings and are not subtracted twice.
+- Goal comparisons use all categories in the selected reporting currency. Saved monthly targets apply only to their month and currency. Existing default targets prefill months until independent monthly goals are saved. Emergency contributions are included within total savings and are not subtracted twice.
 - Monthly planning amounts are optional user targets. A deficit is shown rather than silently reducing allocations. No investment advice or promised returns are provided.
 - Excel export applies year/month/category/search filters. It includes typed dates and amounts, literal notes, and summaries grouped by month, category, subcategory, financial type, and currency. Formula-like notes are never executed as formulas. An empty export still contains headers.
 
@@ -80,7 +80,7 @@ These local checks do not replace testing live email delivery and the deployed S
 
 ## Quick expenses and period goals
 
-The dashboard opens with **Add an expense**: enter an amount, select a category, and save. Today is preselected in your timezone; expand the optional details to change the date or add a note. Saving an expense opens its reporting month. Other entry types and currencies remain available through Add entry.
+The dashboard opens with remaining income, spending against budget and savings progress. **Add expense** opens a form immediately; the compact **Add an expense** disclosure expands quick capture below the summary. Enter an amount, deliberately choose a category, and save. Today is preselected in your timezone; expand the optional details to change the date or add a note. Saving an expense opens its reporting month. Other entry types and currencies remain available through Add entry.
 
 Use **Goals** to save earnings, expense, savings and investment targets independently for each month. Choose a month with the date picker or January–December buttons. Optional expense-category limits are included within the overall spending limit. Blank overall amounts save as 0; blank category limits remove that limit. Existing monthly defaults prefill unsaved months, with an explanatory label. Emergency fund settings are optional inside the same panel. Annual goal records are preserved in the database but no annual goal controls appear in the app.
 
@@ -94,11 +94,11 @@ For an existing Supabase project, apply **004_period_goals.sql** once before usi
 
 Build/start hooks regenerate `public/third-party-notices.txt` from installed production dependencies. Keep that file in the deployed output and linked in the public footer. The new PaisaTrace monogram is purpose-drawn SVG, not the Lucide leaf used previously. Other interface icons still use Lucide; Google Fonts still serves the typefaces and is disclosed in the privacy notice. Review notices after dependency changes.
 
-The 2 October 2026 production audit reports one moderate UUID advisory, propagated to ExcelJS (two package findings). ExcelJS's inspected source uses UUID v4 while the advisory concerns v3/v5/v6 with supplied buffers. Its distributed browser bundle may contain UUID code, so do not claim this dependency is patched or that all security risks are cleared. Do not apply npm's proposed ExcelJS major downgrade without export regression checks.
+The 6 October 2026 dependency update patches the ExcelJS UUID dependency and upgrades Vitest. The installed lockfile audit reports zero known advisories; financial export regression checks pass. This is a point-in-time advisory check, not a security guarantee.
 
 ## Current production and password flow
 
-Production: https://paisatrace.vercel.app/. Previous alias: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Rubix Labs receives credit only. Supabase hosts the database in Sydney. Migrations 001–004 have already been applied to production; do not re-run them. Vercel and Brevo are configured. Keep credentials in provider settings.
+Production: https://paisatrace.vercel.app/. Previous alias: https://paisatrail-eight.vercel.app/. Salman Javed operates the service; public support/deletion contact is salman.se95@gmail.com. Rubix Labs receives credit only. Supabase hosts the database in Sydney. Migrations 001–009 have already been applied to production; do not re-run them. Apply 009 to other existing projects before deploying the currency preservation update. Vercel and Brevo are configured. Keep credentials in provider settings.
 
 Passwords are managed by Supabase Auth, not the ledger database. Email verification stays enabled. Server minimum password length is 12; secure password change is enabled. Recovery returns to the exact approved origin `/` and opens the authenticated password form, including after a page reload. Returning login calls the password endpoint and does not send email. Signing out preserves the account and ledger. Existing users keep their user ID when adding a password.
 
@@ -113,7 +113,7 @@ In Categories, add optional subcategories under any active expense, savings or i
 
 Apply **005_expense_subcategories.sql** once to existing projects before deploying this frontend. The migration preserves existing entries and enables per-user row-level security on subcategories.
 
-Overview presents recorded totals with monthly targets, cash flow, spending charts, recent entries and shortcuts to categories, entries and emergency savings. Detailed goals/category limits and previous-month comparison expand on demand. Daily entries shows the same monthly goal progress. Expense entry uses one leaf-category picker and saves its parent automatically. Migration 006 seeds starter expense choices for generic Expenses categories without children and for new accounts.
+Overview presents recorded totals with monthly targets, cash flow, spending charts, recent entries and shortcuts to categories, entries and emergency savings. Detailed goals/category limits and previous-month comparison expand on demand. Daily entries puts search, filters and transactions first; monthly goal progress is an optional disclosure below the list. Expense entry uses one leaf-category picker and saves its parent automatically. Migration 006 seeds starter expense choices for generic Expenses categories without children and for new accounts.
 
 Planning examples and Create my own split preview expense/savings/investment percentages. Save plan for [month] opens a review of exact monthly amounts; Confirm and save goals saves once, preserving category limits and other months. Custom splits allow 0–100% per part and up to 100% total; smaller totals leave income available. Remaining income uses all categories in the selected period and currency, with explicit no-income and above-income states.
 
@@ -121,7 +121,7 @@ Planning examples and Create my own split preview expense/savings/investment per
 
 The generated `/guide.html` and `/guide.md` cover account setup, preferences, actual income, expenses, contributions/withdrawals, categories, monthly goals, optional planning, emergency savings, reports, corrections and Excel export. The guide is accessible before sign-in and from workspace headers; it opens separately so current form edits remain available. Edit `scripts/user-guide.mjs`, then regenerate/build. The public sitemap includes the reviewed guide. See `docs/UX_REVIEW.md` for findings and remaining suggestions.
 
-Overview starts with quick expense capture and dedicated income/savings/investment shortcuts. Summary totals and goals cover all categories for the period/currency; entry filters affect the list, category charts and export. Add/Edit saves select the entry's month and clear entry filters. Planning examples are an optional disclosure inside Goals.
+Overview starts with remaining income, spending against budget and savings progress, followed by compact expense capture and income/savings/investment shortcuts. Summary totals, charts and goals cover all categories for the period/reporting currency; entry filters affect only the list and its export. Add/Edit saves select the entry's month and clear entry filters. Planning examples are an optional disclosure inside Goals.
 
 
 ## Operator administration (6 October 2026)
@@ -135,3 +135,10 @@ Permanent deletion requires an active admin session, a password sign-in in the l
 Email-link callbacks no longer silently accept token fragments. Tokens are removed from the address bar and kept in memory until the visitor confirms the server-verified account email. Cancelling preserves any existing session. Recovery still uses the same account, and ordinary password sign-in is unchanged.
 
 UI tests can target an existing preview with `PAISA_TEST_PORT=5174 npm run test:ui`. Standalone Chrome launch was blocked by this local environment; direct responsive checks and database tests were used for this release.
+
+
+## Product review update (7 October 2026)
+
+Migration `009_currency_and_starters.sql` preserves existing profile planning amounts in `planning_currency` and allows changing the default entry currency without resetting them. New accounts receive one Food → Groceries / Dining / Coffee hierarchy and consistent Home, Transport and other parents. Existing categories, entries and goals are preserved rather than silently recategorized.
+
+Daily entries uses stacked rows with an Actions menu on narrow screens. Demo scenarios provide four months of fictional values for each supported currency. Goals label default plans explicitly and offer Customize or Use defaults. Settings contains all-record export and support/deletion request links; deletion requests still require operator handling and ownership verification.

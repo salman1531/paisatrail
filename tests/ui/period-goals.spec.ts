@@ -1,7 +1,8 @@
+import {openQuickExpense} from './helpers';
 import { expect, test } from '@playwright/test';
 test('quick expenses and independent monthly goals persist after reload',async({page})=>{
   await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
-  await page.getByLabel('Expense amount',{exact:false}).fill('12.50');
+  await openQuickExpense(page); await page.getByLabel('Expense amount',{exact:false}).fill('12.50');
   await page.getByRole('combobox',{name:'Expense category',exact:true}).selectOption({label:'Groceries'});
   await page.getByText('Change date or add a note',{exact:true}).click();
   await page.getByLabel('Expense date',{exact:true}).fill('2026-02-03');
@@ -15,7 +16,7 @@ test('quick expenses and independent monthly goals persist after reload',async({
   await page.getByLabel('Expense limit',{exact:true}).fill('10');await page.getByLabel('Earnings target',{exact:true}).fill('100');
   await page.getByLabel('Investment target',{exact:true}).fill('25');
   await page.getByText('Category spending limits (optional)',{exact:true}).click();
-  await page.locator('.category-budget-editor').getByLabel('Groceries',{exact:true}).fill('10');
+  await page.locator('.category-budget-editor').getByLabel('Food',{exact:true}).fill('10');
   await page.getByRole('button',{name:'Save monthly goals',exact:true}).click();
   await expect(page.getByText('Goals saved for 2026-02.',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'March 2026',exact:true}).click();
@@ -27,7 +28,7 @@ test('quick expenses and independent monthly goals persist after reload',async({
   await page.getByLabel('Month',{exact:true}).selectOption('02');
   await page.getByText('Monthly goals & category limits',{exact:true}).click();
   await expect(page.getByRole('group',{name:'Expense goal comparison',exact:true})).toContainText('Over limit by PKR 2.50');
-  await expect(page.getByRole('group',{name:'Groceries goal comparison',exact:true})).toContainText('Over limit by PKR 2.50');
+  await expect(page.getByRole('group',{name:'Food goal comparison',exact:true})).toContainText('Over limit by PKR 2.50');
   await page.getByLabel('Month',{exact:true}).selectOption('03');
   await expect(page.getByRole('group',{name:'Expense goal comparison',exact:true})).toContainText('PKR 1,200.00 planned');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -55,9 +56,8 @@ test('saving another month selects it and exposes the same goals on both reporti
   await expect(page.getByText('Goals saved for 2026-05.',{exact:true})).toBeVisible();
   for (const tab of ['Overview','Daily entries']) {
     await page.getByRole('button',{name:tab,exact:true}).click();
-    if (tab === 'Overview') await page.getByText('Monthly goals & category limits',{exact:true}).click();
+    if (tab === 'Overview') await page.getByText('Monthly goals & category limits',{exact:true}).click(); else await page.locator('.entries-budget-summary>summary').click();
     await expect(page.getByLabel('Month',{exact:true})).toHaveValue('05');
-    await expect(page.locator('.stat-card.expense')).toContainText('Monthly limit: PKR 4,321.00');
     await expect(page.getByRole('group',{name:'Expense goal comparison',exact:true})).toContainText('PKR 4,321.00 planned');
   }
 });

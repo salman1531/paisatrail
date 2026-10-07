@@ -6,20 +6,20 @@ const steps = [
     'Already confirmed that address? Do not create another account. Use Sign in. If you forgot your password, choose Set or reset password, open the latest email and save a new password.'
   ], 'The demo is for practice: its sample records stay in that browser and are not transferred into your account. Never share a confirmation or recovery URL; it can contain session credentials.'],
   ['preferences', 'Choose your currency and timezone', [
-    'Open Settings. Choose Display & default currency and Timezone, then Save settings.',
+    'Open Settings. Choose Default entry currency and Timezone, then Save settings.',
     'Choose these before entering your own data. The timezone sets today’s default date; entries keep the dates you selected.',
-    'The overview uses your display currency. An individual entry can use another supported currency through Add entry.'
-  ], 'Currencies are kept separate and are never converted. Changing the default currency resets the earlier default planning and emergency amounts; previously saved monthly goals stay in their original currency.'],
+    'Choose Reporting currency on Overview or Daily entries to change the report without changing the entry default. An individual entry can use another supported currency through Add entry.'
+  ], 'Currencies are kept separate and are never converted. Changing the entry default previews the effect before saving. Existing entries, monthly goals and earlier default planning/emergency amounts retain their original currencies. No plans are reset.'],
   ['income', 'Record the money you receive', [
     'On Overview, choose Add income. The form opens with Income selected.',
     'Enter the amount, currency, category and date. Add a note such as Salary or Freelance payment if helpful.',
     'Choose Save entry. The reporting month switches to the entry’s date so you can see the result.'
   ], 'An earnings target is a plan, not a transaction. To include earnings in your overview, record the actual income you received.'],
   ['expenses', 'Add everyday expenses', [
-    'Use Add an expense on Overview. Enter the amount and choose what you spent on, such as Rent, Bills or Petrol.',
+    'Use the compact Add an expense panel on Overview, or the Add expense button. Enter the amount and choose what you spent on, such as Rent, Bills or Petrol.',
     'For a choice that is missing, select Other — enter a custom name and enter a spending name. It becomes a reusable expense category.',
-    'Check the amount in words and its currency, then choose Save expense. Today is already selected.',
-    'Use Change date or add a note for an older expense or extra detail. Use Add entry if the expense needs a different currency.'
+    'Check the amount in words and its currency, then choose Save expense in quick capture or Save entry in the popup. Today is already selected.',
+    'In quick capture, use Change date or add a note for an older expense or extra detail. The popup includes date, note and currency fields.'
   ], 'Selecting a subcategory saves it under its parent automatically. You can record multiple separate expenses on the same day.'],
   ['contributions', 'Track savings and investments', [
     'Choose Add savings or Add investment on Overview, or choose the corresponding type in Add entry.',
@@ -32,7 +32,7 @@ const steps = [
     'Use the edit pencil to rename a choice or restore an archived choice. Removing a used choice archives it so your history remains.'
   ], 'Main totals include their subcategories once. Expense-category budgets are set on the parent category, not individually on each subcategory.'],
   ['goals', 'Set goals for one month', [
-    'Open Goals and choose the Goal month or one of the month buttons. Saved goals are marked.',
+    'Open Goals, choose the Goal currency and then the Goal month or one of the month buttons. Saved goals are marked. Using defaults means the earlier plan already applies. Choose Use defaults to save it for that month, or Customize to change it.',
     'Enter the Earnings target, Expense limit, Savings target and Investment target. Use Amounts, or choose Percentages of earnings for the last three.',
     'For example, with an earnings target of 100,000 pkr, a 10% savings target becomes 10,000 pkr. Saving stores that calculated amount for this month.',
     'Choose Save monthly goals. Blank overall values save as zero. Other months are independent; saving also selects that month in your reports.'
@@ -50,16 +50,16 @@ const steps = [
   ], 'Emergency savings are already included in total savings. The emergency target is long-term and is saved separately from the month’s targets.'],
   ['overview', 'Read your overview and reports', [
     'Choose the year and month on Overview. Full year and All years let you review a longer period; monthly goal comparisons need a single month.',
-    'Read Income, Expenses, Savings and Investments first. Their totals and monthly goals cover all categories in the display currency.',
+    'Read Remaining income, Spending against budget and Savings progress first. Recorded income and net investment contributions appear alongside them. All overview totals cover the selected period, all categories and Reporting currency.',
     'Remaining income is recorded income minus expenses and net savings/investment contributions. Above recorded income shows the excess as a positive amount. Income not recorded means you need to add actual income.',
     'Use Income & spending to explore months and Where your spending goes to see categories and subcategories. Expand Monthly goals & category limits or Compare with the previous month for more detail.'
-  ], 'Remaining income is not a reconciled bank balance. Search changes the entry list and export; a category filter also changes the spending charts. Headline totals and goals remain the whole period.'],
+  ], 'Remaining income is not a reconciled bank balance. Search and category filters affect only the entry list and its Excel export. They never change the overview cards or charts. Each section shows its scope. The entry list includes all currencies.'],
   ['entries', 'Find, correct and export records', [
     'Open Daily entries (Entries in the mobile navigation). Choose the period, search by note, category, subcategory or type, and select a category if needed.',
     'Choose Clear entry filters to remove search/category filters. Choose another period if the record is still missing.',
-    'Use the edit pencil to correct a record, then Save entry. Deleting asks for confirmation and removes the record from your reports.',
+    'On a phone, open the three-dot Actions button and choose Edit or Delete. On desktop, use the edit pencil. Save entry applies corrections. Deleting asks for confirmation and removes the record from your reports.',
     'Choose Export Excel to download the selected period and entry filters. The workbook includes entries and summaries with currencies kept separate.'
-  ], 'Export important records before deleting them. Account-wide deletion is handled through the support contact in the privacy notice; signing out is not account deletion.'],
+  ], 'Export important records before deleting them. Settings → Account & support offers Export all records, Contact support and Request account deletion. Deletion requests and their status are handled by email after ownership verification; signing out is not account deletion.'],
 ];
 
 const questions = [

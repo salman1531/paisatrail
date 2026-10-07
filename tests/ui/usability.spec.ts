@@ -7,8 +7,8 @@ test('entry shortcuts select the intended type and planning help is optional', a
     await expect(page.getByRole('dialog').getByRole('radio',{name:type,exact:true})).toBeChecked();
     await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();
   }
-  const cards=page.locator('.stats-grid'); const before=await cards.innerText();
-  await page.getByRole('combobox',{name:'Filter category',exact:true}).selectOption({label:'Groceries'});
+  const cards=page.locator('.overview-summary'); const before=await cards.innerText();
+  await page.getByRole('combobox',{name:'Filter category',exact:true}).selectOption({label:'Food'});
   await expect(cards).toHaveText(before);
   await page.getByRole('button',{name:'Clear entry filters',exact:true}).click();
   await expect(page.getByRole('combobox',{name:'Filter category',exact:true})).toHaveValue('all');

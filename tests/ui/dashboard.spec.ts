@@ -7,7 +7,7 @@ test('dashboard charts drill into a month and handle empty income without overfl
   const month = await page.getByLabel('Month', { exact: true }).inputValue();
   await page.getByRole('button', { name: /^Jan: income/ }).click();
   await expect(page.getByLabel('Month', { exact: true })).toHaveValue('01');
-  await expect(page.getByRole('region', { name: 'Financial details' })).toContainText('Record positive income to calculate');
+  await expect(page.getByRole('group',{name:'Income remaining summary'})).toContainText('Income not recorded');
   await expect(page.getByText('No expenses in this view.', { exact: false })).toBeVisible();
   await page.getByLabel('Month', { exact: true }).selectOption(month);
   await page.getByText('View chart data', { exact: true }).click();

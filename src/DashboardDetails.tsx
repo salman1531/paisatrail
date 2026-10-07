@@ -31,11 +31,11 @@ export default function DashboardDetails({ ledger, filter, selectMonth }: { ledg
           <div className="trend-readout" aria-live="polite">{selected ? <><strong>{selected.month}</strong><span>Income {money(selected.income, currency)}</span><span>Expenses {money(selected.expense, currency)}</span></> : <span>Focus or hover over a month for exact amounts.</span>}</div>
           <div className="trend-scale"><span>{money(peak === 1 ? 0 : peak, currency)}</span><span>0</span></div>
           <div className="trend-chart">{rows.map((row, i) => <button key={row.month} className={`trend-month ${filter.month === String(i + 1).padStart(2, '0') ? 'selected' : ''}`} aria-label={`${row.month}: income ${money(row.income, currency)}, expenses ${money(row.expense, currency)}. Show this month.`} onMouseEnter={() => setActive(i)} onMouseLeave={() => setActive(null)} onFocus={() => setActive(i)} onBlur={() => setActive(null)} onClick={() => selectMonth(String(i + 1).padStart(2, '0'))}><span className="trend-bars" aria-hidden="true"><i style={{ height: `${row.income / peak * 100}%`, background: '#285943' }}/><i style={{ height: `${row.expense / peak * 100}%`, background: '#cf975a' }}/></span><span>{row.month}</span></button>)}</div>
-          <p className="comparison-note">Full selected year, including months without entries. The current month may be incomplete. Category filter applies; entry search does not.</p>
+          <p className="comparison-note">Full selected year, including months without entries. The current month may be incomplete. All categories · {currency} only. Entry-list filters do not change this chart.</p>
           <details className="chart-data"><summary>View chart data</summary><div className="table-wrap"><table><thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Cash flow</th></tr></thead><tbody>{rows.map(row => <tr key={row.month}><td>{row.month}</td><td>{money(row.income, currency)}</td><td>{money(row.expense, currency)}</td><td>{money(row.income - row.expense, currency)}</td></tr>)}</tbody></table></div></details>
         </>}
       </section>
-      <section className="panel spending-panel" aria-labelledby="spending-heading"><div className="panel-head"><div><h2 id="spending-heading">Where your spending goes</h2><p>Selected period & category · {currency}</p></div></div>
+      <section className="panel spending-panel" aria-labelledby="spending-heading"><div className="panel-head"><div><h2 id="spending-heading">Where your spending goes</h2><p>All categories · {currency} only · selected period</p></div></div>
         {spending.length ? <><div className="spending-ring" role="img" aria-label={`Total expenses ${money(sum.expense, currency)}`} style={{ background: `conic-gradient(${gradient})` }}><div><span>Total expenses</span><strong>{money(sum.expense, currency)}</strong></div></div><ul className="spending-list">{spending.map((r, i) => {
           const categoryEntries = entries.filter(e => e.category_id === r.category.id);
           const parts = (ledger.subcategories ?? []).filter(s => s.category_id === r.category.id).map(s => ({ name: s.name, amount: categoryEntries.filter(e => e.subcategory_id === s.id).reduce((a,e) => a + e.amount_minor,0) })).filter(s => s.amount > 0);
@@ -44,7 +44,7 @@ export default function DashboardDetails({ ledger, filter, selectMonth }: { ledg
           parts.sort((a,b) => b.amount - a.amount);
           return <li key={r.category.id}><i style={{ background: colors[i % colors.length] }}/><div><strong>{r.category.name}</strong><span>{(r.amount / sum.expense * 100).toFixed(1)}% of expenses{r.category.archived ? ' · archived' : ''}</span>{parts.length > 0 && <div className="spending-subcategories">{parts.map(s => <div key={s.name}><span>{s.name}</span><b>{money(s.amount,currency)}</b></div>)}</div>}</div><b>{money(r.amount, currency)}</b></li>;
         })}</ul></> : <div className="comparison-empty"><p>No expenses in this view. Add an expense or change the period to see your spending breakdown.</p></div>}
-        <p className="comparison-note">Savings and investment contributions are shown separately from spending. Entry search does not change these totals.</p>
+        <p className="comparison-note">Savings and investment contributions are shown separately from spending. Entry-list filters do not change these totals.</p>
       </section>
     </div>
   </>;
