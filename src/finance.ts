@@ -21,7 +21,7 @@ export function today(timezone = Intl.DateTimeFormat().resolvedOptions().timeZon
 export function dateLabel(date: string) { return new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(date + 'T12:00:00')); }
 export function validDate(date: string) { if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date < '1900-01-01' || date > '2100-12-31') return false; const d = new Date(date + 'T12:00:00Z'); return !Number.isNaN(+d) && d.toISOString().slice(0, 10) === date; }
 export function filtered(entries: Entry[], f: Filter): Entry[] {
-  return entries.filter(e => (f.year === 'all' || e.date.slice(0, 4) === f.year) && (f.month === 'all' || e.date.slice(5, 7) === f.month) && (f.category === 'all' || e.category_id === f.category)).sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  return entries.filter(e => (f.year === 'all' || e.date.slice(0, 4) === f.year) && (f.month === 'all' || e.date.slice(5, 7) === f.month) && (f.category === 'all' || e.category_id === f.category) && (!f.currency || f.currency === 'all' || e.currency === f.currency)).sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
 }
 export function totals(ledger: Ledger, entries: Entry[], currency: Currency) {
   const result = { expense: 0, saving: 0, investment: 0, income: 0 };

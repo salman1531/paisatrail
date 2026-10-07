@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 test('monthly category changes and actual versus goals update from saved entries and plans', async ({ page }) => {
   await page.goto('/'); await page.getByRole('button', { name: 'Explore the demo' }).click(); await page.getByRole('button', { name: 'Goals', exact: true }).click();
   await page.getByLabel('Goal month').fill('2026-02'); await page.getByLabel('Savings target').fill('100'); await page.getByRole('button', { name: 'Save monthly goals' }).click(); await expect(page.getByRole('status')).toContainText('2026-02'); await page.getByLabel('Goal month').fill('2026-01'); await page.getByLabel('Expense limit').fill('150'); await page.getByLabel('Savings target').fill('100'); await page.getByRole('button', { name: 'Save monthly goals' }).click();
-  await page.getByRole('button', { name: 'Daily entries', exact: true }).click();
+  await page.getByRole('button', { name: 'Money Log', exact: true }).click();
   for (const [date, kind, category, amount] of [['2025-12-05', 'Expenses', 'Rent', '100'], ['2026-01-05', 'Expenses', 'Rent', '200'], ['2025-12-05', 'Savings', 'Travel savings', '80'], ['2026-01-05', 'Savings', 'Travel savings', '40']]) {
     await page.getByRole('button', { name: 'Add entry', exact: true }).first().click(); await page.getByRole('radio', { name: kind, exact: true }).check(); await page.getByLabel('Category', { exact: true }).selectOption({ label: category }); await page.getByLabel('Amount', { exact: true }).fill(amount); await page.getByLabel('Date', { exact: true }).fill(date); await page.getByRole('button', { name: 'Save entry' }).click(); await expect(page.getByRole('dialog')).not.toBeVisible();
   }
