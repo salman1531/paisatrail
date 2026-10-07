@@ -54,3 +54,15 @@ Dependency follow-up (6 October 2026): Vitest upgraded to 5.0.3 to remove affect
 Migration009 is applied to live Supabase. Read-only verification returned zero profiles without a planning currency, zero changed initial currencies, row-level security enabled on all five finance tables and anonymous ledger initialization denied. It does not rewrite existing transaction/category history. Real user currency settings were not changed as a test. Standalone Playwright Chrome launch remains unavailable (SIGABRT/EPERM before assertions); the updated automated UI suite is not claimed as passed. Real operator password recovery and cross-device email checks remain outstanding.
 
 Guide image follow-up (7 October 2026): screenshot links are block-sized, images are bounded to their containers with their aspect ratio preserved, and CSS/image URLs use content hashes to refresh stale assets. Production build passes. Direct browser checks confirm all four images load, fit and retain their ratios at320/390/1280px without horizontal overflow.
+
+### 7 October — latest product review follow-up
+
+- TypeScript and production build passed. 59 unit/database checks pass across 14 files. New checks reconcile pending allocations/withdrawals, preserve direct/archived spending detail, isolate currencies and reopen a filtered XLSX to validate rows/summaries/scope/literal text.
+- Native browser: November stays selected across PKR → USD → PKR. Goal amount/percentage, custom planning split, category limit and emergency target survive tab navigation and a separate reporting-currency change. Currency-switch/sign-out cancellation preserves fields; discard-and-exit then demo opens Overview.
+- Synthetic local provider fixture: sign in → Settings → Admin → sign out → demo returns populated Overview, with no admin heading. No production credentials or real records used.
+- Mixed-currency demo: USD list filter returns one USD record while PKR overview stays unchanged. Exact delete dialog shows amount, currency, category/subcategory, date, movement and note; cancellation preserves the record.
+- Entry filter layout checked at 320, 390, 660, 900, 1280px: document width equals viewport and search controls have usable widths. Guide images refreshed using synthetic data.
+- Standalone Chrome runner fails at launch (SIGABRT/EPERM) before assertions. 69 UI cases collected. Native download capture timed out despite export success; serialized workbook verification uses the actual exporter with synthetic fixtures. Real backend writes/sync/recovery and account deletion were not exercised.
+- No new database migration or access grant. Existing-category remapping, subcategory limits, recurring-entry templates/monthly-review remain scoped future work.
+
+The operator selected **Money Log** for desktop/mobile navigation, page title and guide. Subtitle: “Everything you earn, spend, and set aside.” UI selectors and current public copy use this name; internal entries storage/routes stay the same.

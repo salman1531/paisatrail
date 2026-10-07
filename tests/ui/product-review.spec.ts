@@ -8,7 +8,7 @@ test('overview leads with answers and entry-list filters cannot change report to
  await expect(page.getByLabel('Expense amount',{exact:false})).toBeHidden();
  await page.getByLabel('Filter category',{exact:true}).selectOption({label:'Food'});await page.getByLabel('Search entries',{exact:true}).fill('Lunch');
  await expect(summary).toHaveText(before);await expect(charts).toHaveText(chartBefore);await expect(page.locator('.transaction-row')).toHaveCount(1);
- await page.getByRole('button',{name:'Daily entries',exact:true}).click();await expect(page.locator('.overview-summary')).toHaveCount(0);await expect(page.locator('.entries-budget-summary')).not.toHaveAttribute('open');await expect(page.locator('.transaction-row')).toHaveCount(1);
+ await page.getByRole('button',{name:'Money Log',exact:true}).click();await expect(page.locator('.overview-summary')).toHaveCount(0);await expect(page.locator('.entries-budget-summary')).not.toHaveAttribute('open');await expect(page.locator('.transaction-row')).toHaveCount(1);
  await entryAction(page,/^Edit entry Food/);await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

@@ -54,7 +54,7 @@ test('saving another month selects it and exposes the same goals on both reporti
   await page.getByLabel('Expense limit',{exact:true}).fill('4321');
   await page.getByRole('button',{name:'Save monthly goals',exact:true}).click();
   await expect(page.getByText('Goals saved for 2026-05.',{exact:true})).toBeVisible();
-  for (const tab of ['Overview','Daily entries']) {
+  for (const tab of ['Overview','Money Log']) {
     await page.getByRole('button',{name:tab,exact:true}).click();
     if (tab === 'Overview') await page.getByText('Monthly goals & category limits',{exact:true}).click(); else await page.locator('.entries-budget-summary>summary').click();
     await expect(page.getByLabel('Month',{exact:true})).toHaveValue('05');

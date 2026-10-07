@@ -20,7 +20,7 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await expect(page.getByRole('region', { name: 'Where your spending goes' })).toContainText('PKR 50.00');
   await page.reload();
   await page.getByRole('button', { name: 'Explore the demo' }).click();
-  await page.getByRole('button', { name: 'Daily entries', exact: true }).click();
+  await page.getByRole('button', { name: 'Money Log', exact: true }).click();
   await page.getByLabel('Month', { exact: true }).selectOption('03');
   await page.getByLabel('Search entries', { exact: true }).fill('Utilities');
   await expect(page.getByRole('row').filter({ hasText: 'Utilities' })).toContainText('Home');

@@ -23,7 +23,7 @@ export function GoalsOverview({ ledger, filter, edit }: { ledger: Ledger; filter
   </section>;
 }
 
-export function GoalsEditor({ ledger, busy, save, initialPeriod, children, onDirtyChange }: { ledger: Ledger; busy: boolean; initialPeriod?: string; save: (period: string, goals: PeriodGoal[]) => Promise<void>; children?: ReactNode; onDirtyChange?: (dirty:boolean)=>void }) {
+export function GoalsEditor({ ledger, busy, save, initialPeriod, children, onDirtyChange, onPeriodChange }: { ledger: Ledger; busy: boolean; initialPeriod?: string; save: (period: string, goals: PeriodGoal[]) => Promise<void>; children?: ReactNode; onDirtyChange?: (dirty:boolean)=>void; onPeriodChange?:(period:string)=>void }) {
   const currentMonth = today(ledger.profile.timezone).slice(0,7);
   const [period, setPeriod] = useState(initialPeriod?.length === 7 ? initialPeriod : initialPeriod?.length === 4 ? `${initialPeriod}-${currentMonth.slice(5)}` : currentMonth);
   const [percentageMode,setPercentageMode]=useState(false);
@@ -66,7 +66,7 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children, onDir
       const keys=[...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)];
       setValues(Object.fromEntries(keys.map(key=>[key,valueFor(key)])));setDirty(true);
     }
-    setPercentageMode(usePercent);setSuccess('');
+    setPercentageMode(usePercent);setPlanningDirty(true);setSuccess('');
   }
   function updatePercentage(key:string,value:string){
     if(!dirty){const keys=[...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)];setValues(Object.fromEntries(keys.map(k=>[k,savedValue(k)])));}
@@ -76,7 +76,7 @@ export function GoalsEditor({ ledger, busy, save, initialPeriod, children, onDir
     const keys = [...kinds,...ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id)];
     setValues({...(!dirty ? Object.fromEntries(keys.map(k=>[k,savedValue(k)])) : values),[key]:value}); setDirty(true); setSuccess('');
   }
-  function selectPeriod(value: string) { setPeriod(value); setDirty(false); setValues({}); setError(''); setSuccess(''); setPendingPeriod(null); setPercentageMode(false); setPercentages({}); setPlanningDirty(false); setPendingPlan(null); setPlanError(''); }
+  function selectPeriod(value: string) { setPeriod(value); onPeriodChange?.(value); setDirty(false); setValues({}); setError(''); setSuccess(''); setPendingPeriod(null); setPercentageMode(false); setPercentages({}); setPlanningDirty(false); setPendingPlan(null); setPlanError(''); }
   function changePeriod(value: string) { if (value === period) return; if (dirty || planningDirty) { setPendingPeriod(value); return; } selectPeriod(value); }
   function prepareGoals(replacements?: Record<'expense'|'saving'|'investment',number>) {
     if (!/^(19\d{2}|20\d{2}|2100)-(0[1-9]|1[0-2])$/.test(period)) throw new Error('Choose a valid month between 1900 and 2100.');

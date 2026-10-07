@@ -1,3 +1,4 @@
+import {spendingBreakdown} from './spendingBreakdown';
 import { useState } from 'react';
 import { filtered, money, totals, yearRows } from './finance';
 import type { Filter, Ledger } from './types';
@@ -11,7 +12,9 @@ export default function DashboardDetails({ ledger, filter, selectMonth }: { ledg
   const periodTotals = totals(ledger, filtered(ledger.entries, {...filter, category:'all'}), currency);
   const cashflow = periodTotals.income - periodTotals.expense;
   const rate = periodTotals.income > 0 ? (periodTotals.saving + periodTotals.investment) / periodTotals.income * 100 : null;
-  const spending = ledger.categories.filter(c => c.kind === 'expense').map(c => ({ category: c, amount: entries.filter(e => e.category_id === c.id).reduce((a, e) => a + e.amount_minor, 0) })).filter(r => r.amount > 0).sort((a, b) => b.amount - a.amount);
+  const [spendingView,setSpendingView]=useState<'category'|'subcategory'|null>(null);
+  const view=spendingView??(ledger.categories.filter(c=>c.kind==='expense').length<=1?'subcategory':'category');
+  const spending=spendingBreakdown(ledger,filter,view);
   const rows = filter.year === 'all' ? [] : yearRows(ledger, filtered(ledger.entries, { ...filter, month: 'all' }), currency, filter.year);
   const peak = Math.max(1, ...rows.flatMap(r => [r.income, r.expense]));
   const selected = active === null ? null : rows[active];
@@ -35,16 +38,9 @@ export default function DashboardDetails({ ledger, filter, selectMonth }: { ledg
           <details className="chart-data"><summary>View chart data</summary><div className="table-wrap"><table><thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Cash flow</th></tr></thead><tbody>{rows.map(row => <tr key={row.month}><td>{row.month}</td><td>{money(row.income, currency)}</td><td>{money(row.expense, currency)}</td><td>{money(row.income - row.expense, currency)}</td></tr>)}</tbody></table></div></details>
         </>}
       </section>
-      <section className="panel spending-panel" aria-labelledby="spending-heading"><div className="panel-head"><div><h2 id="spending-heading">Where your spending goes</h2><p>All categories · {currency} only · selected period</p></div></div>
-        {spending.length ? <><div className="spending-ring" role="img" aria-label={`Total expenses ${money(sum.expense, currency)}`} style={{ background: `conic-gradient(${gradient})` }}><div><span>Total expenses</span><strong>{money(sum.expense, currency)}</strong></div></div><ul className="spending-list">{spending.map((r, i) => {
-          const categoryEntries = entries.filter(e => e.category_id === r.category.id);
-          const parts = (ledger.subcategories ?? []).filter(s => s.category_id === r.category.id).map(s => ({ name: s.name, amount: categoryEntries.filter(e => e.subcategory_id === s.id).reduce((a,e) => a + e.amount_minor,0) })).filter(s => s.amount > 0);
-          const direct = categoryEntries.filter(e => !e.subcategory_id).reduce((a,e) => a + e.amount_minor,0);
-          if (direct > 0 && parts.length) parts.push({name:'Other '+r.category.name,amount:direct});
-          parts.sort((a,b) => b.amount - a.amount);
-          return <li key={r.category.id}><i style={{ background: colors[i % colors.length] }}/><div><strong>{r.category.name}</strong><span>{(r.amount / sum.expense * 100).toFixed(1)}% of expenses{r.category.archived ? ' · archived' : ''}</span>{parts.length > 0 && <div className="spending-subcategories">{parts.map(s => <div key={s.name}><span>{s.name}</span><b>{money(s.amount,currency)}</b></div>)}</div>}</div><b>{money(r.amount, currency)}</b></li>;
-        })}</ul></> : <div className="comparison-empty"><p>No expenses in this view. Add an expense or change the period to see your spending breakdown.</p></div>}
-        <p className="comparison-note">Savings and investment contributions are shown separately from spending. Entry-list filters do not change these totals.</p>
+      <section className="panel spending-panel" aria-labelledby="spending-heading"><div className="panel-head"><div><h2 id="spending-heading">Where your spending goes</h2><p>All categories · {currency} only · selected period</p></div></div><label className="spending-view-control">Break down by<select aria-label="Spending breakdown" value={view} onChange={e=>setSpendingView(e.target.value as 'category'|'subcategory')}><option value="category">Categories</option><option value="subcategory">Subcategories</option></select></label>
+        {spending.length ? <><div className="spending-ring" role="img" aria-label={`Total expenses ${money(sum.expense, currency)}`} style={{ background: `conic-gradient(${gradient})` }}><div><span>Total expenses</span><strong>{money(sum.expense, currency)}</strong></div></div><ul className="spending-list">{spending.map((r,i)=><li key={r.key}><i style={{background:colors[i%colors.length]}}/><div><strong>{r.name}</strong><span>{r.parent?r.parent+' · ':''}{(r.amount/sum.expense*100).toFixed(1)}% of expenses{r.archived?' · archived':''}</span></div><b>{money(r.amount,currency)}</b></li>)}</ul></> : <div className="comparison-empty"><p>No expenses in this view. Add an expense or change the period to see your spending breakdown.</p></div>}
+        <p className="comparison-note">Switch to Subcategories to see detailed spending without reorganizing past records. Entries without a subcategory stay labelled. Savings and investment contributions are shown separately from spending. Entry-list filters do not change these totals.</p>
       </section>
     </div>
   </>;

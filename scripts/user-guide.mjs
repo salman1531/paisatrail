@@ -8,7 +8,7 @@ const steps = [
   ['preferences', 'Choose your currency and timezone', [
     'Open Settings. Choose Default entry currency and Timezone, then Save settings.',
     'Choose these before entering your own data. The timezone sets today’s default date; entries keep the dates you selected.',
-    'Choose Reporting currency on Overview or Daily entries to change the report without changing the entry default. An individual entry can use another supported currency through Add entry.'
+    'Choose Reporting currency on Overview or Money Log to change the report without changing the entry default. An individual entry can use another supported currency through Add entry.'
   ], 'Currencies are kept separate and are never converted. Changing the entry default previews the effect before saving. Existing entries, monthly goals and earlier default planning/emergency amounts retain their original currencies. No plans are reset.'],
   ['income', 'Record the money you receive', [
     'On Overview, choose Add income. The form opens with Income selected.',
@@ -35,7 +35,7 @@ const steps = [
     'Open Goals, choose the Goal currency and then the Goal month or one of the month buttons. Saved goals are marked. Using defaults means the earlier plan already applies. Choose Use defaults to save it for that month, or Customize to change it.',
     'Enter the Earnings target, Expense limit, Savings target and Investment target. Use Amounts, or choose Percentages of earnings for the last three.',
     'For example, with an earnings target of 100,000 pkr, a 10% savings target becomes 10,000 pkr. Saving stores that calculated amount for this month.',
-    'Choose Save monthly goals. Blank overall values save as zero. Other months are independent; saving also selects that month in your reports.'
+    'Choose Save monthly goals. Blank overall values save as zero. Other months are independent; saving also selects that month and currency in your reports. Switching goal currency keeps the selected month. Unsaved goals, percentage fields and planning examples stay in your draft when you visit other tabs; save before signing out or refreshing.'
   ], 'Goals are optional. Changing your actual income later does not automatically recalculate a saved percentage goal. Edit the month’s targets when your plan changes.'],
   ['planning', 'Use optional planning help', [
     'Inside Goals, open Need help splitting your earnings? if you want a starting point.',
@@ -50,14 +50,14 @@ const steps = [
   ], 'Emergency savings are already included in total savings. The emergency target is long-term and is saved separately from the month’s targets.'],
   ['overview', 'Read your overview and reports', [
     'Choose the year and month on Overview. Full year and All years let you review a longer period; monthly goal comparisons need a single month.',
-    'Read Remaining income, Spending against budget and Savings progress first. Recorded income and net investment contributions appear alongside them. All overview totals cover the selected period, all categories and Reporting currency.',
-    'Remaining income is recorded income minus expenses and net savings/investment contributions. Above recorded income shows the excess as a positive amount. Income not recorded means you need to add actual income.',
-    'Use Income & spending to explore months and Where your spending goes to see categories and subcategories. Expand Monthly goals & category limits or Compare with the previous month for more detail.'
-  ], 'Remaining income is not a reconciled bank balance. Search and category filters affect only the entry list and its Excel export. They never change the overview cards or charts. Each section shows its scope. The entry list includes all currencies.'],
+    'Read Recorded income remaining, Spending against budget and Savings progress first. Recorded income and net investment contributions appear alongside them. All overview totals cover the selected period, all categories and Reporting currency.',
+    'Recorded income remaining is recorded income minus expenses and net savings/investment contributions. Above recorded income shows the excess as a positive amount. Income not recorded means you need to add actual income.',
+    'Use Income & spending to explore months and Where your spending goes to see Categories or Subcategories using Break down by. Expand Monthly goals & category limits or Compare with the previous month for more detail.'
+  ], 'Recorded income remaining is not a reconciled bank balance or guaranteed spendable cash. Expense budget remaining is your expense limit minus spending. Expand planned contributions to see savings and investment goals still to record; these are not deducted until you record them. Search, category and entry currency filters affect only the entry list and its Excel export. They never change the overview cards or charts. Each section shows its scope. The entry list defaults to all currencies. Its Entry currency filter is independent of Reporting currency and also controls the filtered Excel export.'],
   ['entries', 'Find, correct and export records', [
-    'Open Daily entries (Entries in the mobile navigation). Choose the period, search by note, category, subcategory or type, and select a category if needed.',
-    'Choose Clear entry filters to remove search/category filters. Choose another period if the record is still missing.',
-    'On a phone, open the three-dot Actions button and choose Edit or Delete. On desktop, use the edit pencil. Save entry applies corrections. Deleting asks for confirmation and removes the record from your reports.',
+    'Open Money Log — everything you earn, spend, and set aside. Choose the period, search by note, category, subcategory or type, and select a category or entry currency if needed.',
+    'Choose Clear entry filters to remove search, category and entry currency filters. Choose another period if the record is still missing.',
+    'On a phone, open the three-dot Actions button and choose Edit or Delete. On desktop, use the edit pencil. Save entry applies corrections. Deleting shows the exact amount, currency, category, date and note before you confirm Delete entry; it removes the record from your reports.',
     'Choose Export Excel to download the selected period and entry filters. The workbook includes entries and summaries with currencies kept separate.'
   ], 'Export important records before deleting them. Settings → Account & support offers Export all records, Contact support and Request account deletion. Deletion requests and their status are handled by email after ownership verification; signing out is not account deletion.'],
 ];
@@ -65,12 +65,12 @@ const steps = [
 const questions = [
   ['I did not receive a signup email. What next?', 'If you already confirmed the address, use Sign in instead. For a new or unverified account, check spam and that the email is correct, wait at least a minute, and try again. If it still fails, contact support. Do not share passwords or email-link tokens.'],
   ['Why does a goal not show in Overview?', 'Select the same month and display currency you used when saving it. A goal does not add income, expenses or contributions to your recorded totals.'],
-  ['Where is my saved entry?', 'Check the entry date, reporting year/month, category filter and search. Clear entry filters. Another currency may appear in the entry list without being included in the display-currency totals.'],
+  ['Where is my saved entry?', 'Check the entry date, reporting year/month, category/entry currency filters and search. Clear entry filters. Another currency may appear in the entry list without being included in the display-currency totals.'],
   ['Will rent or subscriptions be added automatically?', 'No. Entries are manual. Record recurring payments when they occur. Automatic recurring entries, bill reminders, named savings goals and debt tracking are not currently available.'],
   ['Can I use another phone or computer?', 'Yes: sign in to the same account. The demo stays in its own browser; real account records are stored online. If a save reports an error, retry after checking your connection rather than assuming it succeeded.']
 ];
 
-const screenshots = {expenses:['expense-mobile.jpg','Add an expense with a custom spending name','phone'],goals:['goals-mobile.jpg','Enter your monthly earnings, spending and contribution targets','phone'],overview:['overview.jpg','Your overview brings actual income and spending together','wide'],entries:['entries.jpg','Find and review your entries for the selected month','wide']};
+const screenshots = {expenses:['expense-mobile.jpg','Record an expense with an amount, category and date','phone'],goals:['goals-mobile.jpg','Enter your monthly earnings, spending and contribution targets','phone'],overview:['overview.jpg','Your overview brings actual income and spending together','wide'],entries:['entries.jpg','Use Money Log to find and review the selected month','wide']};
 
 export function userGuide({ origin, draft, nav, contact, escape, stylesheet, imageVersions }) {
   const md = '# PaisaTrace user guide\n\nStart small: record your income and expenses. Goals and custom categories can come later.\n\n' + steps.map(([, title, actions, note], i) => `## ${i + 1}. ${title}\n\n${actions.map((a, n) => `${n + 1}. ${a}`).join('\n')}\n\n${note}`).join('\n\n') + '\n\n## Troubleshooting\n\n' + questions.map(([q, a]) => `### ${q}\n\n${a}`).join('\n\n') + `\n\n${contact}\n`;

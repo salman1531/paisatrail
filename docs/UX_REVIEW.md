@@ -38,3 +38,13 @@ Implemented the first usability release: Overview leads with remaining income, s
 Default entry currency is distinct from reporting currency. Migration009 preserves original default-plan/emergency currency and monthly goals, with an effect preview before preference changes; no conversion/reset. New accounts and reset demo use Food → Groceries/Dining/Coffee and one starter hierarchy. Existing custom/legacy categories remain untouched; owners can rename/archive through Categories. This avoids relabelling historical spending without their decision.
 
 Demo scenarios have four months of fictional activity for each supported currency. Signup copy describes the practical outcome and previews the dashboard. Settings includes all-record export and email support/deletion request links; status remains email-based, not an in-app request tracker. Recurring templates, reminders, named savings goals, debt tracking and a dedicated monthly review remain roadmap items requiring prioritization.
+
+## Latest product team review — 7 October follow-up
+
+Addressed all three reproduced state bugs: retain Goals drafts while switching tabs, preserve month across currency changes, and reset/guard inaccessible routes across account/demo transitions. Goals uses independent planning context; saving synchronizes reports explicitly. Sign-out and reload protect unsaved work, including the emergency draft.
+
+Added independent entry currency filtering/export scope, exact deletion details and clear recorded-income/budget labels with pending contribution detail. A parent/subcategory breakdown makes existing generic Expenses accounts more useful without modifying history. Full category mapping with a preview and subcategory spending limits are not included. Keep optional recurring templates and a decision-focused monthly review for a separately prioritized release.
+
+59 calculation/export/database tests pass; direct UI checks cover the new flows and responsive widths. The local admin fixture verifies state transitions only. Browser download capture and standalone Chrome remain tooling limitations. Real-account backend writes/cross-device sync and user-completed recovery remain necessary before claiming complete production verification.
+
+The operator selected **Money Log** for desktop/mobile navigation, page title and guide. Subtitle: “Everything you earn, spend, and set aside.” UI selectors and current public copy use this name; internal entries storage/routes stay the same.
