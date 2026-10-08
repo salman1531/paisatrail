@@ -3,7 +3,7 @@ import {entryAction} from './helpers';
 
 test('goals keep all draft fields across tabs, preserve month across currencies and guard sign-out',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await page.getByRole('button',{name:'Goals',exact:true}).click();
- await page.getByRole('button',{name:/^November 2026/}).click();
+ await page.getByLabel('Goal month').fill('2026-11');
  for(const currency of ['USD','PKR']){await page.getByLabel('Goal currency',{exact:true}).selectOption(currency);await expect(page.getByLabel('Goal month',{exact:true})).toHaveValue('2026-11');}
  await page.getByLabel('Earnings target',{exact:true}).fill('200000');await page.getByRole('radio',{name:'Percentages of earnings',exact:true}).check();await page.getByLabel('Savings target percentage',{exact:true}).fill('12');
  await page.getByText('Need help splitting your earnings?',{exact:true}).click();await page.getByLabel('Planning example').selectOption('custom');await page.getByLabel('Cash savings %',{exact:true}).fill('17');
@@ -17,12 +17,12 @@ test('goals keep all draft fields across tabs, preserve month across currencies 
 
 test('entry currency controls the list and export, while specific deletion can be cancelled',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await page.getByRole('button',{name:'Add expense',exact:true}).click();
- await page.getByLabel('Currency',{exact:true}).selectOption('USD');await page.getByLabel('Amount',{exact:true}).fill('10.25');await page.getByLabel('Category',{exact:true}).selectOption({label:'Groceries'});await page.getByRole('dialog').getByLabel('Note',{exact:false}).fill('Currency filter test');await page.getByRole('button',{name:'Save entry',exact:true}).click();
+ await page.getByLabel('Currency',{exact:true}).selectOption('USD');await page.getByLabel('Amount',{exact:true}).fill('10.25');await page.getByLabel('Category',{exact:true}).selectOption({label:'Food → Groceries'});await page.getByRole('dialog').getByText('More details',{exact:true}).click();await page.getByRole('dialog').getByLabel('Note',{exact:false}).fill('Currency filter test');await page.getByRole('button',{name:'Save entry',exact:true}).click();
  await page.getByLabel('Reporting currency',{exact:true}).selectOption('PKR');const summary=await page.locator('.overview-summary').innerText();
- await page.getByLabel('Filter entry currency',{exact:true}).selectOption('USD');await expect(page.locator('.transaction-row')).toHaveCount(1);await expect(page.locator('.overview-summary')).toHaveText(summary);
+ await page.getByRole('button',{name:'Money Log',exact:true}).click();await page.getByLabel('Filter entry currency',{exact:true}).selectOption('USD');await expect(page.locator('.transaction-row')).toHaveCount(1);await expect(page.locator('.overview-summary')).toHaveCount(0);
  await entryAction(page,/^Delete entry Food/);const dialog=page.getByRole('dialog');await expect(dialog).toContainText('USD');await expect(dialog).toContainText('10.25');await expect(dialog).toContainText('Groceries');await expect(dialog).toContainText('Currency filter test');await expect(dialog.getByRole('button',{name:'Delete entry',exact:true})).toBeVisible();await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.locator('.transaction-row')).toHaveCount(1);
  const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export Excel',exact:true}).click();expect(await (await download).path()).toBeTruthy();
- await page.getByRole('button',{name:'Clear entry filters',exact:true}).click();await expect(page.locator('.transaction-row')).not.toHaveCount(1);await expect(page.locator('.overview-summary')).toHaveText(summary);
+ await page.getByRole('button',{name:'Clear entry filters',exact:true}).click();await expect(page.locator('.transaction-row')).not.toHaveCount(1);await page.getByRole('button',{name:'Overview',exact:true}).click();await expect(page.locator('.overview-summary')).toHaveText(summary);
 });
 
 test('signing out from a mocked admin workspace enters a populated demo',async({page})=>{

@@ -9,4 +9,4 @@ export type Filter = { year: string; month: string; category: string; currency?:
 export const kinds: Kind[] = ['expense', 'saving', 'investment', 'income'];
 export const kindLabels: Record<Kind, string> = { expense: 'Expenses', saving: 'Savings', investment: 'Investments', income: 'Income' };
 export const currencies: Currency[] = ['USD', 'PKR', 'EUR', 'GBP', 'AED', 'JPY', 'KWD'];
-export type PeriodGoal = { id: string; user_id: string; period: string; currency: Currency; kind: Kind; category_id: string | null; target_minor: number };
+export type PeriodGoal = { id: string; user_id: string; period: string; currency: Currency; kind: Kind; category_id: string | null; target_minor: number | null };
