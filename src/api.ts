@@ -1,3 +1,4 @@
+import { insertEntriesOnce } from './entryBatch';
 import { createClient } from '@supabase/supabase-js';
 import type { Entry, Ledger, Profile, Category, Subcategory, PeriodGoal } from './types';
 const url = import.meta.env.VITE_SUPABASE_URL;
@@ -35,6 +36,7 @@ export async function loadLedger(userId: string): Promise<Ledger> {
   return { categories: cats.data as Category[], subcategories, entries, profile: profile.data as Profile, goals };
 }
 export async function saveEntry(entry: Entry, editing: boolean) {
+  if (!editing) return saveEntries([entry]);
   const client = db();
   const { error, data } = editing ? await client.from('entries').update(entry).eq('id', entry.id).eq('user_id', entry.user_id).select('id').single() : await client.from('entries').insert(entry).select('id').single();
   assert(error); if (!data) throw new Error('Entry was not saved.');
@@ -56,4 +58,14 @@ export async function saveProfile(profile: Profile) { const r = await db().from(
 
 export async function savePeriodGoals(period: string, currency: string, goals: PeriodGoal[]) {
   const r = await db().rpc('replace_period_goals', { p_period: period, p_currency: currency, p_goals: goals.map(g => ({ kind: g.kind, category_id: g.category_id, target_minor: g.target_minor })) }); assert(r.error);
+}
+
+export async function saveEntries(entries: Entry[]) {
+  const client=db();
+  await insertEntriesOnce(entries,async payload=>{
+    const result=await client.from('entries').insert(payload).select('id'); assert(result.error);
+    if(result.data?.length!==payload.length)throw new Error('Could not confirm every saved entry. Retry this session without starting a new one.');
+  },async ids=>{
+    const result=await client.from('entries').select('*').eq('user_id',entries[0].user_id).in('id',ids);assert(result.error);return result.data as Entry[];
+  });
 }

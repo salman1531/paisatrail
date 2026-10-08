@@ -1,3 +1,4 @@
+import {openBudget} from './helpers';
 import { expect, test } from '@playwright/test';
 test('monthly category changes and actual versus goals update from saved entries and plans', async ({ page }) => {
   await page.goto('/'); await page.getByRole('button', { name: 'Explore the demo' }).click(); await page.getByRole('button', { name: 'Goals', exact: true }).click();
@@ -8,13 +9,12 @@ test('monthly category changes and actual versus goals update from saved entries
   }
   await page.getByRole('button', { name: 'Overview', exact: true }).click(); await page.getByLabel('Year', { exact: true }).selectOption('2026'); await page.getByLabel('Month', { exact: true }).selectOption('01');
   await page.getByText('Compare with the previous month',{exact:true}).click();
-  await page.getByText('Monthly goals & category limits',{exact:true}).click();
   await expect(page.getByText('January 2026 vs December 2025 · PKR', { exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: /^Home: January 2026/ })).toContainText('Up 100%');
   await page.getByLabel('Comparison type').selectOption('saving'); await expect(page.getByRole('group', { name: /^Savings: January 2026/ })).toContainText('Down 50%');
-  const expense = page.getByRole('group', { name: 'Expense goal comparison', exact: true }); await expect(expense).toContainText('Over limit by PKR 50.00');
-  await expect(page.getByRole('group', { name: 'Savings goal comparison', exact: true })).toContainText('PKR 60.00 to your savings goal');
-  await page.getByLabel('Month', { exact: true }).selectOption('02'); await expect(page.getByRole('group', { name: 'Savings goal comparison', exact: true })).toContainText('PKR 100.00 to your savings goal');
-  await page.getByLabel('Month', { exact: true }).selectOption('all'); await expect(page.getByText('Select a year and month to compare.', { exact: true })).toBeVisible();
+  await openBudget(page);const expense = page.locator('.main-budget-row.expense'); await expect(expense).toContainText('PKR 50.00 · Over budget');
+  await openBudget(page);await expect(page.locator('.main-budget-row.saving')).toContainText('PKR 60.00 · To target');
+  await page.getByLabel('Month', { exact: true }).selectOption('02'); await openBudget(page);await expect(page.locator('.main-budget-row.saving')).toContainText('PKR 100.00 · To target');
+  await page.getByLabel('Month', { exact: true }).selectOption('all'); await expect(page.getByText('Compare with the previous month',{exact:true})).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

@@ -1,0 +1,6 @@
+import {it,expect} from 'vitest';
+import {newDemo} from '../src/demo';
+import {expenseDraft,validateExpenseDraft} from '../src/ExpenseBatchForm';
+import {expenseChoices,customCategoryChoice} from '../src/expenseChoices';
+it('validates each expense and infers its parent without changing another row',()=>{const l=newDemo('PKR');const row=expenseDraft(l);let result=validateExpenseDraft(l,row,'PKR');expect(Object.keys(result.errors)).toEqual(['choice','amount']);const choice=expenseChoices(l)[0];row.choice=choice.value;row.amount='150000';result=validateExpenseDraft(l,row,'PKR');expect(result.errors).toEqual({});expect(result.submission.entry).toMatchObject({id:row.id,category_id:choice.categoryId,subcategory_id:choice.subcategoryId,amount_minor:15000000,withdrawal:false});});
+it('keeps invalid dates, precision and custom names out of a save payload',()=>{const l=newDemo('PKR');const row={...expenseDraft(l),choice:customCategoryChoice,customName:'',amount:'10.10',date:'2026-02-30'};expect(validateExpenseDraft(l,row,'JPY').errors).toMatchObject({amount:expect.any(String),date:expect.any(String),customName:expect.any(String)});row.amount='10';row.date='2026-10-08';row.customName='Office supplies';expect(validateExpenseDraft(l,row,'JPY').submission).toMatchObject({customName:'Office supplies',entry:{amount_minor:10}});});

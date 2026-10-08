@@ -30,7 +30,7 @@ test('percentage goals recalculate, save amounts and preserve amount entry',asyn
 test('custom plan confirms only the selected month and keeps category limits',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();await page.getByRole('button',{name:'Goals',exact:true}).click();
  await page.getByLabel('Goal month').fill('2026-04');await page.getByLabel('Earnings target',{exact:true}).fill('1000');
- await page.getByText('Category spending limits (optional)',{exact:true}).click();await page.locator('.category-budget-editor').getByLabel('Food',{exact:true}).fill('200');
+ await page.getByText('Category limits & targets (optional)',{exact:true}).click();await page.locator('.category-budget-editor').getByLabel('Food',{exact:true}).fill('200');
  await page.getByText('Need help splitting your earnings?',{exact:true}).click();await page.getByRole('combobox',{name:'Planning example',exact:true}).selectOption('custom');
  await page.getByLabel('Spending %',{exact:true}).fill('85');await expect(page.getByRole('alert')).toContainText('100% or less');await expect(page.getByRole('button',{name:/^Save plan for/})).toHaveCount(0);
  await page.getByLabel('Spending %',{exact:true}).fill('60');await page.getByLabel('Cash savings %',{exact:true}).fill('25');await page.getByLabel('Investments %',{exact:true}).fill('10');
@@ -44,9 +44,9 @@ test('custom plan confirms only the selected month and keeps category limits',as
 test('income summary uses all categories and avoids negative balances without income',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
  const activeMonth=await page.getByLabel('Month',{exact:true}).inputValue();const year=await page.getByLabel('Year',{exact:true}).inputValue();const emptyMonth=activeMonth==='06'?'07':'06';
- const summary=page.getByRole('group',{name:'Income remaining summary'});const original=await summary.innerText();
+ const summary=page.locator('.summary-card.remaining');const original=await summary.innerText();
  await page.getByRole('combobox',{name:'Filter category',exact:true}).selectOption({label:'Food'});await expect(summary).toHaveText(original);await page.getByRole('combobox',{name:'Filter category',exact:true}).selectOption('all');
- await openQuickExpense(page);await page.getByLabel('Expense category',{exact:true}).selectOption({label:'Groceries'});await page.getByLabel('Expense amount',{exact:false}).fill('1');await page.getByText('Change date or add a note',{exact:true}).click();const currentDate=await page.getByLabel('Expense date',{exact:true}).inputValue();await page.getByLabel('Expense date',{exact:true}).fill(`${year}-${emptyMonth}-01`);await page.getByRole('button',{name:'Save expense',exact:true}).click();
+ await openQuickExpense(page);await page.getByLabel('Expense category',{exact:true}).selectOption({label:'Groceries'});await page.getByLabel('Expense amount',{exact:false}).fill('1');await page.getByText('Date, payment type & note',{exact:true}).click();const currentDate=await page.getByLabel('Expense date',{exact:true}).inputValue();await page.getByLabel('Expense date',{exact:true}).fill(`${year}-${emptyMonth}-01`);await page.getByRole('button',{name:'Save expense',exact:true}).click();
  await expect(summary).toContainText('Income not recorded');await expect(summary.locator(':scope>strong')).toHaveText('—');
  await page.getByRole('combobox',{name:'Month',exact:true}).selectOption(activeMonth);await page.getByLabel('Expense date',{exact:true}).fill(currentDate);
  await page.getByLabel('Expense category',{exact:true}).selectOption({label:'Groceries'});await page.getByLabel('Expense amount',{exact:false}).fill('1000000');await page.getByRole('button',{name:'Save expense',exact:true}).click();await expect(summary).toContainText('Above recorded income');await expect(summary.locator(':scope>strong')).not.toContainText('-');

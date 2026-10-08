@@ -100,3 +100,38 @@ it('supports private savings and investment subcategories without weakening pare
  expect((await asUser(e,'select * from subcategories')).rows).toHaveLength(36);
  await asUser(e,"delete from subcategories where name='Stocks'");await asUser(e,'select initialize_ledger()');expect((await asUser(e,'select * from subcategories')).rows).toHaveLength(35);
 });
+
+it('bulk insert is atomic, enforces ownership for every row and preserves legitimate identical expenses',async()=>{
+ const first='00000000-0000-4000-8000-000000000091',second='00000000-0000-4000-8000-000000000092';
+ await expect(asUser(a,"insert into entries(id,user_id,category_id,date,amount_minor,currency) values($1,$2,$3,'2026-10-08',100,'PKR'),($4,$2,$5,'2026-10-08',100,'PKR')",[first,a,aCat,second,bCat])).rejects.toThrow();
+ expect((await asUser(a,'select * from entries where id in ($1,$2)',[first,second])).rows).toHaveLength(0);
+ await asUser(a,"insert into entries(id,user_id,category_id,date,amount_minor,currency) values($1,$2,$3,'2026-10-08',100,'PKR'),($4,$2,$3,'2026-10-08',100,'PKR')",[first,a,aCat,second]);
+ expect((await asUser(a,'select * from entries where id in ($1,$2)',[first,second])).rows).toHaveLength(2);
+ await expect(asUser(a,"insert into entries(id,user_id,category_id,date,amount_minor,currency) values($1,$2,$3,'2026-10-08',100,'PKR')",[first,a,aCat])).rejects.toThrow();
+ expect((await asUser(b,'select * from entries where id in ($1,$2)',[first,second])).rows).toHaveLength(0);
+});
+
+it('category contribution targets preserve private access and match the parent financial kind',async()=>{
+ await db.exec(readFileSync(new URL('../supabase/migrations/010_contribution_category_targets.sql',import.meta.url),'utf8'));
+ const saving=String((await asUser(a,"select id from categories where kind='saving'")).rows[0].id);
+ const investment=String((await asUser(a,"select id from categories where kind='investment'")).rows[0].id);
+ await asUser(a,"select replace_period_goals('2026-10','PKR',$1::jsonb)",[JSON.stringify([{kind:'saving',category_id:saving,target_minor:0},{kind:'investment',category_id:investment,target_minor:100}])]);
+ expect((await asUser(a,"select * from period_goals where period='2026-10'")).rows).toHaveLength(2);
+ await expect(asUser(b,"select * from period_goals where user_id=$1",[a])).resolves.toMatchObject({rows:[]});
+ for(const forged of [{kind:'expense',category_id:saving},{kind:'saving',category_id:investment},{kind:'investment',category_id:bCat},{kind:'income',category_id:saving}])await expect(asUser(a,"select replace_period_goals('2026-10','PKR',$1::jsonb)",[JSON.stringify([{...forged,target_minor:100}])])).rejects.toThrow();
+ expect((await asUser(a,"select * from period_goals where period='2026-10'")).rows).toHaveLength(2);
+ await db.exec('set role anon');await expect(db.query('select * from period_goals')).rejects.toThrow();await db.exec('reset role');
+});
+
+it('seeds income choices once and keeps payment metadata private and expense-only',async()=>{
+ await db.exec(readFileSync(new URL('../supabase/migrations/009_currency_and_starters.sql',import.meta.url),'utf8'));
+ await db.exec(readFileSync(new URL('../supabase/migrations/011_income_and_payment_types.sql',import.meta.url),'utf8'));
+ for(const name of ['Salary','Business','Freelance','Gifts','Rental income','Investment returns','Other income'])expect((await asUser(a,"select * from categories where name=$1 and kind='income'",[name])).rows).toHaveLength(1);
+ const salary=String((await asUser(a,"select id from categories where name='Salary'")).rows[0].id);
+ await asUser(a,"delete from categories where id=$1",[salary]);await asUser(a,'select initialize_ledger()');expect((await asUser(a,"select * from categories where name='Salary'")).rows).toHaveLength(0);
+ const newUser='00000000-0000-4000-8000-000000000066';await db.query('insert into auth.users values($1)',[newUser]);await asUser(newUser,'select initialize_ledger()');expect((await asUser(newUser,"select * from categories where kind='income'")).rows).toHaveLength(7);
+ const row=await asUser(a,"insert into entries(user_id,category_id,date,amount_minor,currency,payment_method) values($1,$2,'2026-10-08',123,'PKR','Bank Account') returning id",[a,aCat]);const id=String(row.rows[0].id);expect((await asUser(b,'select * from entries where id=$1',[id])).rows).toHaveLength(0);expect((await asUser(a,'select payment_method from entries where id=$1',[id])).rows[0].payment_method).toBe('Bank Account');
+ const savings=String((await asUser(a,"select id from categories where kind='saving'")).rows[0].id);await expect(asUser(a,"insert into entries(user_id,category_id,date,amount_minor,currency,payment_method) values($1,$2,'2026-10-08',123,'PKR','Cash')",[a,savings])).rejects.toThrow('Payment type applies only to expenses');
+ for(const value of ['', ' Cash ', 'Cheque', 'x'.repeat(61)])await expect(asUser(a,'update entries set payment_method=$1 where id=$2',[value,id])).rejects.toThrow();
+ await db.exec('set role anon');await expect(db.query('select payment_method from entries')).rejects.toThrow();await db.exec('reset role');
+});

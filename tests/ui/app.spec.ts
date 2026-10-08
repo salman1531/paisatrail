@@ -14,11 +14,11 @@ test('daily entry, correction, category rename/archive, reporting and Excel down
   await expect(page.getByText('PKR 0.39', { exact: true }).first()).toBeVisible();
   const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Export Excel' }).click(); expect((await download).suggestedFilename()).toBe('paisatrace-2026-01.xlsx');
   await page.getByRole('button', { name: 'Categories', exact: true }).click(); await page.getByRole('button', { name: 'Edit Test groceries', exact: true }).click(); await page.getByLabel('Name', { exact: true }).fill('My groceries'); await page.getByRole('button', { name: 'Save category' }).click();
-  await page.getByRole('button', { name: 'Delete My groceries', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Archive this category?' })).toBeVisible(); await page.getByRole('button', { name: 'Confirm' }).click();
+  await page.getByRole('button', { name: 'Delete My groceries', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Archive this category?' })).toBeVisible(); await page.getByRole('button', { name: 'Archive category',exact:true }).click();
   await page.getByRole('button', { name: 'Money Log', exact: true }).click(); await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();
   await page.reload(); await page.getByRole('button', { name: 'Explore the demo' }).click(); await page.getByRole('button', { name: 'Money Log', exact: true }).click(); await page.getByLabel('Year', { exact: true }).selectOption('2026'); await page.getByLabel('Month', { exact: true }).selectOption('01'); await page.getByLabel('Search entries').fill('=1+1');
   await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();
-  await entryAction(page, 'Delete entry My groceries 2026-01-15'); await page.getByRole('button', { name: 'Confirm' }).click(); await expect(page.getByRole('heading', { name: 'No entries match this view' })).toBeVisible();
+  await entryAction(page, 'Delete entry My groceries 2026-01-15'); await page.getByRole('button', { name: 'Delete entry',exact:true }).click(); await expect(page.getByRole('heading', { name: 'No entries match this view' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true); expect(errors).toEqual([]);
 });
 test('planning, currency precision and viewport layout', async ({ page }) => {

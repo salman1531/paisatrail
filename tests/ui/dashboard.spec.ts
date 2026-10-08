@@ -1,17 +1,7 @@
-import { expect, test } from '@playwright/test';
-test('dashboard charts drill into a month and handle empty income without overflow', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Explore the demo' }).click();
-  await expect(page.getByRole('heading', { name: 'Income & spending', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Where your spending goes' })).toBeVisible();
-  const month = await page.getByLabel('Month', { exact: true }).inputValue();
-  await page.getByRole('button', { name: /^Jan: income/ }).click();
-  await expect(page.getByLabel('Month', { exact: true })).toHaveValue('01');
-  await expect(page.getByRole('group',{name:'Income remaining summary'})).toContainText('Income not recorded');
-  await expect(page.getByText('No expenses in this view.', { exact: false })).toBeVisible();
-  await page.getByLabel('Month', { exact: true }).selectOption(month);
-  await page.getByText('View chart data', { exact: true }).click();
-  await expect(page.locator('.chart-data tbody tr')).toHaveCount(12);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await expect(page.getByRole('button', { name: /Emergency savings/ })).toBeVisible();
+import {openBudget} from './helpers';
+import {expect,test} from '@playwright/test';
+test('dashboard compares plans, drills into a month and handles an empty period',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();await openBudget(page);await expect(page.getByRole('heading',{name:'Plan vs. actual',exact:true})).toBeVisible();
+ const month=await page.getByLabel('Month',{exact:true}).inputValue();await page.getByLabel('Month',{exact:true}).selectOption('all');await page.getByText('Income & spending trend',{exact:true}).click();await page.getByRole('button',{name:/^2026-01: income/}).click();await expect(page.getByLabel('Month',{exact:true})).toHaveValue('01');await expect(page.locator('.summary-card.remaining')).toContainText('Income not recorded');await expect(page.getByText('No recorded activity for this period.',{exact:true})).toBeVisible();
+ await page.getByLabel('Month',{exact:true}).selectOption(month);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await expect(page.getByRole('button',{name:/Emergency savings/})).toBeVisible();
 });

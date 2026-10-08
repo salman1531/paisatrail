@@ -21,7 +21,7 @@ test('public policy drafts and discovery files work before sign-in', async ({ pa
   await page.getByRole('navigation', {name:'Public pages'}).first().getByRole('link', {name:'User guide',exact:true}).click();
   await expect(page).toHaveTitle(/PaisaTrace user guide/);
   await expect(page.getByRole('navigation',{name:'Guide contents'})).toBeVisible();
-  await page.getByRole('navigation',{name:'Guide contents'}).getByRole('link',{name:'7. Set goals for one month',exact:true}).click();
+  await page.getByRole('navigation',{name:'Guide contents'}).getByRole('link',{name:/Set goals for one month$/}).click();
   await expect(page.getByRole('heading',{name:'Set goals for one month',exact:true})).toBeVisible();
   await expect(page.locator('#goals')).toContainText('Saving stores that calculated amount');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
