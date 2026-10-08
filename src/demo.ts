@@ -13,7 +13,7 @@ export function newDemo(currency:Currency='PKR'): Ledger {
   function sample(date:string,parent:string,child:string|null,amount:number,notes:string,withdrawal=false){if(date>day)return;const category=categories.find(c=>c.name===parent)!;const sub=subcategories.find(s=>s.category_id===category.id&&s.name===child);entries.push({id:crypto.randomUUID(),user_id:user,category_id:category.id,subcategory_id:sub?.id??null,date,amount_minor:minor(amount),currency,notes,withdrawal});}
   for(let back=0;back<4;back++){
     const month=new Date(Date.UTC(Number(day.slice(0,4)),Number(day.slice(5,7))-1-back,1)).toISOString().slice(0,7);const variation=1+back*.025;
-    sample(`${month}-01`,'Income',null,salary,'Monthly salary');
+    sample(`${month}-01`,'Salary',null,salary,'Monthly salary');
     sample(`${month}-01`,'Home','Rent',salary*.25,'Monthly rent');
     sample(`${month}-02`,'Food','Groceries',salary*.045*variation,'Weekly groceries');
     sample(`${month}-03`,'Food','Dining',salary*.009,'Lunch with friends');
@@ -24,11 +24,11 @@ export function newDemo(currency:Currency='PKR'): Ledger {
     sample(`${month}-02`,'Investments','Mutual funds',salary*.10,'Monthly contribution');
     if(back===1)sample(`${month}-12`,'Savings','Travel savings',salary*.015,'Weekend trip withdrawal',true);
   }
-  return {categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:minor(salary),spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
+  return {incomeChoicesInitialized:true,categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:minor(salary),spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
 }
 const storageKey = 'pocket-ledger-demo-v1';
 export function readDemo(): Ledger {
-  try { const raw = localStorage.getItem(storageKey); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v.categories) && Array.isArray(v.entries) && v.profile?.user_id === user) return { ...v, subcategories: Array.isArray(v.subcategories) ? v.subcategories : [], profile: { ...v.profile, planning_currency:v.profile.planning_currency??v.profile.currency,saving_target: v.profile.saving_target ?? v.profile.emergency_contribution } }; } } catch { /* Start a fresh demo if saved data is unavailable. */ }
+  try { const raw = localStorage.getItem(storageKey); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v.categories) && Array.isArray(v.entries) && v.profile?.user_id === user) { if(!v.incomeChoicesInitialized){for(const name of ['Salary', 'Business', 'Freelance', 'Gifts', 'Rental income', 'Investment returns', 'Other income']){if(!v.categories.some((c:Category)=>c.kind==='income'&&c.name.toLowerCase()===name.toLowerCase()))v.categories.push({id:crypto.randomUUID(),user_id:user,name,kind:'income',archived:false,essential:false,emergency:false});}v.incomeChoicesInitialized=true;localStorage.setItem(storageKey,JSON.stringify(v));}return { ...v, subcategories: Array.isArray(v.subcategories) ? v.subcategories : [], profile: { ...v.profile, planning_currency:v.profile.planning_currency??v.profile.currency,saving_target: v.profile.saving_target ?? v.profile.emergency_contribution } }; } } } catch { /* Start a fresh demo if saved data is unavailable. */ }
   return newDemo();
 }
 export function persistDemo(ledger: Ledger) { localStorage.setItem(storageKey, JSON.stringify(ledger)); }

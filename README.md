@@ -144,3 +144,13 @@ Migration `009_currency_and_starters.sql` preserves existing profile planning am
 Money Log uses stacked rows with an Actions menu on narrow screens. Demo scenarios provide four months of fictional values for each supported currency. Goals label default plans explicitly and offer Customize or Use defaults. Settings contains all-record export and support/deletion request links; deletion requests still require operator handling and ownership verification.
 
 Money Log is the transaction page on desktop and mobile: “Everything you earn, spend, and set aside.” Its search, category and entry-currency filters apply to the list/export; report currency is independent. Goals drafts remain available across tabs, with a discard warning before sign-out and month preservation across currency changes.
+
+### 8 October enhancements
+
+Overview includes a clickable income/expense category-and-subcategory ring. Expand Budget progress & category limits for a planned-versus-actual column chart, net savings/investment targets, threshold warnings and record drill-down. Month/year/custom reporting scopes use one currency at a time; partial months prorate monthly plans by calendar days.
+
+Use Add multiple expenses to review up to 50 rows and save in one atomic statement, or Save & add another for individual records. Category tools offer compact grouped rows, search/status filters and history-preserving archives. Mobile sign-in starts with the fields. The guide screenshots use full-width native captures.
+
+Income starters include Salary, Business, Freelance, Gifts, Rental income, Investment returns and Other income. Expenses optionally record one of five fixed payment types: Cash, Credit Card, Debit Card, Bank Account or Others. Money Log filters and Excel exports include payment type. These labels never link financial accounts.
+
+On a fresh database, apply010_contribution_category_targets.sql and011_income_and_payment_types.sql after 009. Both migrations were already applied to the existing production project on 8 October 2026; do not repeat them there. See docs/ENHANCEMENT_REVIEW_2026-10-08.md for tested behavior and the local standalone Chrome runner limitation.

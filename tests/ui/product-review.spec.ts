@@ -3,7 +3,7 @@ import {entryAction} from './helpers';
 
 test('overview leads with answers and entry-list filters cannot change report totals or charts',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
- const summary=page.locator('.overview-summary'),charts=page.locator('.dashboard-charts');const before=await summary.innerText(),chartBefore=await charts.innerText();
+ const summary=page.locator('.overview-summary'),charts=page.locator('.cash-flow-panel');const before=await summary.innerText(),chartBefore=await charts.innerText();
  expect(await summary.evaluate(e=>e.getBoundingClientRect().top)).toBeLessThan(await page.locator('.compact-expense').evaluate(e=>e.getBoundingClientRect().top));
  await expect(page.getByLabel('Expense amount',{exact:false})).toBeHidden();
  await page.getByLabel('Filter category',{exact:true}).selectOption({label:'Food'});await page.getByLabel('Search entries',{exact:true}).fill('Lunch');

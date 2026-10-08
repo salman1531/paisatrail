@@ -13,7 +13,7 @@ export function periodGoalRows(ledger: Ledger, filter: Filter) {
   });
   const categoryRows = goals.filter(g => g.category_id !== null).map(g => {
     const category = ledger.categories.find(c => c.id === g.category_id)!;
-    return { key: g.id, kind: g.kind, category_id: g.category_id, label: `${category.name}${category.archived ? ' · archived' : ''}`, target: g.target_minor, actual: ledger.entries.filter(e => e.category_id === g.category_id && e.currency === g.currency && e.date.startsWith(period)).reduce((v,e)=>v+e.amount_minor,0), source: 'Category expense limit' };
+    return { key: g.id, kind: g.kind, category_id: g.category_id, label: `${category.name}${category.archived ? ' · archived' : ''}`, target: g.target_minor, actual: ledger.entries.filter(e => e.category_id === g.category_id && e.currency === g.currency && e.date.startsWith(period)).reduce((v,e)=>v+e.amount_minor*(e.withdrawal?-1:1),0), source: g.kind==='expense'?'Category expense limit':'Category contribution target' };
   });
   return [...overall, ...categoryRows];
 }

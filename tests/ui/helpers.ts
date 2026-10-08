@@ -5,3 +5,5 @@ export async function entryAction(page:Page, name:string|RegExp) {
  await button.click();
 }
 export async function openQuickExpense(page:Page){if(!await page.getByLabel('Expense amount',{exact:false}).isVisible())await page.locator('.compact-expense>summary').click();}
+
+export async function openBudget(page:Page){const details=page.locator('details.budget-progress');if(await details.count()&&await details.getAttribute('open')===null)await details.locator('summary').click();}

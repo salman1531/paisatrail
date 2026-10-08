@@ -1,7 +1,8 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useId, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
-export default function Modal({ title, children, close }: { title: string; children: ReactNode; close: () => void }) {
+export default function Modal({ title, children, close, wide = false }: { wide?: boolean; title: string; children: ReactNode; close: () => void }) {
+  const titleId=useId();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const old = document.activeElement as HTMLElement | null;
@@ -18,5 +19,5 @@ export default function Modal({ title, children, close }: { title: string; child
       window.scrollTo({ left: x, top: y, behavior: 'instant' });
     };
   }, []);
-  return <dialog ref={ref} onCancel={e => { e.preventDefault(); close(); }} onClick={e => { if (e.target === e.currentTarget) close(); }} aria-labelledby="dialog-title"><div className="modal-content"><div className="modal-head"><h2 id="dialog-title">{title}</h2><button className="icon-button" onClick={close} aria-label="Close dialog"><X size={20}/></button></div>{children}</div></dialog>;
+  return <dialog className={wide?'wide-dialog':undefined} ref={ref} onCancel={e => { e.preventDefault(); close(); }} onClick={e => { if (e.target === e.currentTarget) close(); }} aria-labelledby={titleId}><div className="modal-content"><div className="modal-head"><h2 id={titleId}>{title}</h2><button className="icon-button" onClick={close} aria-label="Close dialog"><X size={20}/></button></div>{children}</div></dialog>;
 }

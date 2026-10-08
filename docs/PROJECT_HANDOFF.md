@@ -97,3 +97,18 @@ Guide copy and desktop overview/entries screenshots refreshed from fictional Sep
 The operator selected **Money Log** for desktop/mobile navigation, page title and guide. Subtitle: “Everything you earn, spend, and set aside.” UI selectors and current public copy use this name; internal entries storage/routes stay the same.
 
 Publication workflow: publish this follow-up on codex/money-log-review and merge after checking the remote source tree against the tested local files. The signed-in browser fallback recovered after connector errors. No database migration is needed.
+
+## 8 October enhancement brief
+
+Google Analytics and SEO setup are paused at the user's request. The initial-homepage guide-link edit in index.html predates this work and is separate from the enhancement release.
+
+- Overview: six compact clickable summaries, planned/actual comparison for expenses, net savings and net investments, category breakdown ordered by actual amount, top-five/all toggle, configurable in-view 80/90/100% expense warning threshold and parent/child transaction drill-down. Income/spending trend and calculation explanations are optional disclosures. Negative expense variance means overspending; negative contribution variance means above target.
+- Reports: month, year, all history and inclusive custom date range. Year comparisons add monthly plans, ignoring preserved annual records. Partial-month plans prorate by calendar days, rounding each month in minor units; any missing month's plan/limit makes the aggregated comparison Not set. List type/category/subcategory/currency filters affect only Money Log and its export. No currency conversion.
+- Categories: sticky Add/search/type/status toolbar, compact financial rows and expandable children. Dialog edits keep scroll; linked choices archive after confirmation. Income categories remain supported.
+- Expense sessions: up to 50 rows, each with a stable UUID/category/date/amount/note; one currency and a running total. Single statement inserts are atomic under existing RLS. Exact-payload checks before insert and after ambiguous errors make retries safe without collapsing legitimate identical purchases. Bulk errors retain the draft and Cancel confirms before discarding. Single entries also retain IDs across retries and offer Save & add another.
+- Monthly Goals: optional parent-category savings and investment targets alongside expense limits. These are included within overall targets. Child limits are not separately tracked. Migration **010_contribution_category_targets.sql** extends type-matching validation without new grants or policies; do not re-run it once applied.
+- Mobile login: form first in DOM, with branding and submit visible before marketing content on phones. Preview image remains on larger screens.
+
+Verification and release status are recorded in docs/ENHANCEMENT_REVIEW_2026-10-08.md. No real users or financial records are deleted or modified as tests.
+
+8 October additional steering: Income starters are Salary, Business, Freelance, Gifts, Rental income, Investment returns and Other income. Preserve existing generic/custom/archived income history. Migration 011 adds these once and nullable expense-only payment_method with the fixed values Cash, Credit Card, Debit Card, Bank Account and Others. No custom payment labels or account numbers. Both 010 and 011 have been applied and their production constraints/owner RLS verified; do not rerun. Primary Overview chart is a native SVG category/subcategory ring with Income/Expenses toggle and record drill-down. Budget progress is secondary and expandable; its proper column comparison graph has planned/actual amounts and a signed scale for withdrawals.
