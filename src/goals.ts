@@ -9,7 +9,7 @@ export function periodGoalRows(ledger: Ledger, filter: Filter) {
   const overall = kinds.map(kind => {
     const explicit = goals.find(g => g.kind === kind && g.category_id === null);
     const fallback = period.length === 7 && ledger.profile.currency === (ledger.profile.planning_currency ?? ledger.profile.currency) ? ledger.profile[profileKeys[kind]] : 0;
-    return { key: kind, kind, category_id: null, label: kind === 'expense' ? 'Expense limit' : `${kind === 'income' ? 'Earnings' : kind === 'saving' ? 'Savings' : 'Investment'} goal`, target: explicit?.target_minor ?? (fallback > 0 ? fallback : null), actual: actual[kind], source: explicit ? 'Saved for this period' : fallback > 0 ? 'Using default plan' : 'No goal set' };
+    return { key: kind, kind, category_id: null, label: kind === 'expense' ? 'Expense limit' : `${kind === 'income' ? 'Earnings' : kind === 'saving' ? 'Savings' : 'Investment'} goal`, target: explicit ? explicit.target_minor : (fallback > 0 ? fallback : null), actual: actual[kind], source: explicit ? 'Saved for this period' : fallback > 0 ? 'Using default plan' : 'No goal set' };
   });
   const categoryRows = goals.filter(g => g.category_id !== null).map(g => {
     const category = ledger.categories.find(c => c.id === g.category_id)!;

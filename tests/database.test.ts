@@ -135,3 +135,15 @@ it('seeds income choices once and keeps payment metadata private and expense-onl
  for(const value of ['', ' Cash ', 'Cheque', 'x'.repeat(61)])await expect(asUser(a,'update entries set payment_method=$1 where id=$2',[value,id])).rejects.toThrow();
  await db.exec('set role anon');await expect(db.query('select payment_method from entries')).rejects.toThrow();await db.exec('reset role');
 });
+
+it('stores unset and zero goals separately, keeps owner isolation and rejects nullable category targets atomically',async()=>{
+ await db.exec(readFileSync(new URL('../supabase/migrations/012_optional_monthly_targets.sql',import.meta.url),'utf8'));
+ const plan=[{kind:'expense',category_id:null,target_minor:null},{kind:'saving',category_id:null,target_minor:0}];
+ await asUser(a,"select replace_period_goals('2026-11','PKR',$1::jsonb)",[JSON.stringify(plan)]);
+ const rows=(await asUser(a,"select kind,target_minor from period_goals where period='2026-11' order by kind")).rows;expect(rows).toEqual([{kind:'expense',target_minor:null},{kind:'saving',target_minor:0}]);
+ expect((await asUser(b,"select * from period_goals where user_id=$1 and period='2026-11'",[a])).rows).toHaveLength(0);
+ await expect(asUser(a,"select replace_period_goals('2026-11','PKR',$1::jsonb)",[JSON.stringify([{kind:'expense',category_id:aCat,target_minor:null}])])).rejects.toThrow();
+ expect((await asUser(a,"select kind,target_minor from period_goals where period='2026-11' order by kind")).rows).toEqual(rows);
+ await expect(asUser(a,"update period_goals set target_minor=-1 where period='2026-11'")).rejects.toThrow();
+ await db.exec('set role anon');await expect(db.query('select * from period_goals')).rejects.toThrow();await db.exec('reset role');
+});
