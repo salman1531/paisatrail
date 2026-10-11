@@ -1,3 +1,4 @@
+import {spendingSummary,periodForDate} from './planning';
 import { filtered, totals, validDate } from './finance';
 import type { Filter, Kind, Ledger } from './types';
 
@@ -23,6 +24,15 @@ export function reportMonths(filter: Filter): MonthSlice[] {
   return result;
 }
 export function reportTarget(ledger: Ledger, filter: Filter, kind: Kind, categoryId: string | null = null) {
+  if(kind==='income')return {target:null,source:'Income is recorded as received; no income target'};
+  if(ledger.spendingBudgets!==undefined){
+   const p=filter.startDate&&filter.endDate?{start:filter.startDate,end:filter.endDate}:filter.year!=='all'&&filter.month!=='all'?periodForDate(filter.year+'-'+filter.month+'-01',[],true):null;
+   if(!p)return {target:null,source:'Plans belong to exact period dates'};
+   if(kind==='expense') {const spending=spendingSummary(ledger,p,ledger.profile.currency),items=spending.items.filter(i=>i.category_id===categoryId);return {target:categoryId===null?spending.target:items.length?items.reduce((n,i)=>n+i.target,0):null,source:'Spending plan · selected period'};}
+   const ids=new Set((ledger.namedGoals??[]).filter(g=>g.currency===ledger.profile.currency&&g.funding_kind===kind).map(g=>g.id));
+   const plans=(ledger.contributionPlans??[]).filter(plan=>ids.has(plan.goal_id)&&plan.period_start===p.start&&plan.period_end===p.end);
+   return {target:categoryId===null&&plans.length?plans.reduce((n,plan)=>n+plan.amount_minor,0):null,source:'Named goal contribution plans · selected period'};
+  }
   const months = reportMonths(filter);
   if (!months.length) return {target:null,source:'Select a period to compare monthly plans'};
   let target = 0, missing = 0, defaults = 0;

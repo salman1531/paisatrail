@@ -25,7 +25,7 @@ export function newDemo(currency:Currency='PKR'): Ledger {
     sample(`${month}-02`,'Investments','Mutual funds',salary*.10,'Monthly contribution');
     if(back===1)sample(`${month}-12`,'Savings','Travel savings',salary*.015,'Weekend trip withdrawal',true);
   }
-  const result:Ledger={incomeChoicesInitialized:true,categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:minor(salary),spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
+  const result:Ledger={incomeChoicesInitialized:true,categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:0,spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
   const p=periodForDate(day,[],true),budgetId=crypto.randomUUID(),sourceId=crypto.randomUUID(),paymentId=crypto.randomUUID(),goalId=crypto.randomUUID();
   result.incomeSources=[{id:sourceId,user_id:user,name:'Example employer',category_id:categories.find(c=>c.name==='Salary')!.id,pattern:'regular',currency,archived:false}];
   result.expectedPayments=[{id:paymentId,user_id:user,source_id:sourceId,category_id:result.incomeSources[0].category_id,name:'Monthly salary',currency,amount_minor:minor(salary),period_start:p.start,period_end:p.end,cancelled:false}];

@@ -55,13 +55,13 @@ Free hosting is subject to provider quotas. [Cloudflare static asset requests](h
 ## Financial behavior
 
 - Money uses integer minor units with currency-specific precision. PKR, USD, EUR, GBP, AED, JPY and KWD remain separate; nothing is converted automatically.
-- Income shows Received, Expected and Still expected. Only dated income entries count as received. Sources name payers; forecasts never become available money. Partial receipts are ordinary linked income records, not duplicate transactions.
-- Budgets store independent allowances for exact periods and currencies. Blank overall allowance uses category limits, or No target set when there are none; zero is intentional. Budget remaining is an allowance, not bank cash. Use a parent allowance or its children, never both. Optional rollover carries positive unused allowance in the same currency. Copy/previous spending/percentage helpers fill editable drafts and require saving.
+- Income leads with Received income. Upcoming income (Not received yet) and Income sources are optional secondary sections. Only dated income entries count as received. Sources name payers; forecasts never become available money. Partial receipts are ordinary linked income records, not duplicate transactions.
+- Money Plan’s Spending plan stores independent allowances for exact periods and currencies. Blank overall allowance uses category limits, or No spending limit set when there are none; zero is intentional. Budget remaining is an allowance, not bank cash. Use a parent allowance or its children, never both. Optional rollover carries positive unused allowance in the same currency. Copy/previous spending/percentage helpers fill editable drafts and require saving.
 - Named goals are lifetime outcomes. Starting savings plus linked contributions minus withdrawals determines progress. A period contribution plan does not record money. Existing entries are linked only by an explicit choice; the same money must not also be included in starting savings. Investment goals measure contributions, not returns or market value.
 - Calendar months are the default. Settings can schedule a payday cycle at a future boundary of the existing schedule. Short months clamp days 29–31; a transition period may be shorter. All actual dates and previously saved plan ranges stay intact.
 - Overview leads with remaining budget and Add expense. Money Log owns transaction filters/export; Reports owns detailed actual-activity comparisons and calendar/year/custom ranges. Neither changes the shared budget context by silently applying entry-list filters.
 - Savings/investments are net contributions, separate from expenses. Income left after allocations is recorded income minus expenses and net contributions; it is not a reconciled bank balance.
-- Migration013 preserves old transactions and monthly/yearly goal records, migrating saved monthly expense limits into Budgets. Earlier income/contribution plans can be reviewed and reused explicitly. Legacy history remains in Excel exports.
+- Migration013 preserves old transactions and monthly/yearly goal records, migrating saved monthly expense limits into Money Plan’s Spending plan. Earlier income targets remain historical and never enter current calculations. Earlier savings plans can be explicitly assigned to one named goal. Legacy history remains in Excel exports.
 
 ## Verification
 
@@ -77,9 +77,9 @@ These local checks do not replace testing live email delivery and the deployed S
 
 ## Quick expenses and planning
 
-Choose Add expense on Overview or Add entry/Add multiple expenses in Money Log. Plans and sources are optional. Use Income for forecasts, Budgets for spending limits, and Goals for named outcomes. All three use the shared exact-date period selector. The user guide contains the complete workflows and synthetic screenshots.
+Choose Add expense on Overview or Add entry/Add multiple expenses in Money Log. Plans and sources are optional. Use Income to record receipts, with optional Upcoming income. Use Money Plan for goals first and spending limits below. All three use the shared exact-date period selector. The user guide contains the complete workflows and synthetic screenshots.
 
-Migration013 must precede the updated frontend. Apply every migration once, in order, on a new environment; never rerun migrations001–013 on production.
+Migrations013 and014 must precede the updated frontend. Apply every migration once, in order, on a new environment; never rerun migrations001–013 on production.
 
 ## Public-launch review and licenses
 
@@ -152,4 +152,8 @@ On a fresh database, apply010_contribution_category_targets.sql and011_income_an
 
 ## 11 October planning and responsive update
 
-The independent Income/Budgets/Goals model above replaces the earlier monthly Goals panel. Production migration013 was approved and applied; all seven new tables were confirmed to have RLS. The complete local unit/database suite passes. Browser checks covered all eight destinations at 320,390,660,768,1024 and1440px, plus short phone dialogs and authentication. Headless Chrome aborts before assertions on this host; this is recorded as a tooling limitation, not a passing UI automation run. Superseded planning UI tests were replaced with tests for the new flows; transaction/authentication tests remain. Analytics work is paused.
+The Income and connected Money Plan model above replaces the earlier monthly Goals panel. Production migration013 was approved and applied; all seven new tables were confirmed to have RLS. The complete local unit/database suite passes. Browser checks covered all eight destinations at 320,390,660,768,1024 and1440px, plus short phone dialogs and authentication. Headless Chrome aborts before assertions on this host; this is recorded as a tooling limitation, not a passing UI automation run. Superseded planning UI tests were replaced with tests for the new flows; transaction/authentication tests remain. Analytics work is paused.
+
+## Money Plan consolidation — 11 October
+
+Primary navigation is Overview, Money Log, Income, Money Plan and Reports. Goals precede Spending plan in one page with a shared period/currency. Whole-period allocation totals exclude forecasts, lifetime targets and actual contributions already posted. No income target is required or used. Saved commitments include paused/completed goals until explicitly cleared for the selected period. Category limits must fit inside an explicit base overall limit; rollover remains separate. See [release mapping and acceptance evidence](docs/MONEY_PLAN_RELEASE.md). Apply rerunnable migration014 before this frontend; it preserves records and existing private access.
