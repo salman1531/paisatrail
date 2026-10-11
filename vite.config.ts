@@ -4,7 +4,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');
   const site = env.VITE_SITE_URL?.replace(/\/$/, '');
   const publicReady = Boolean(site && env.VITE_OPERATOR_NAME && env.VITE_CONTACT_EMAIL && (env.VITE_PUBLIC_POLICY_REVIEWED ?? env.VITE_POLICY_REVIEWED) === 'true');
-  return { plugins: [react(), {name: 'public-metadata', transformIndexHtml() {
+  return { server:{watch:{usePolling:true,interval:300}}, plugins: [react(), {name: 'public-metadata', transformIndexHtml() {
     const description='Track daily expenses, income, savings and investments with PaisaTrace. Set monthly budgets in PKR or other currencies and review your spending. Free for personal use.';
     const sharing = [
       {tag:'meta',attrs:{property:'og:site_name',content:'PaisaTrace'}},

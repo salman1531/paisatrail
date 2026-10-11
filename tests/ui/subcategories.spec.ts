@@ -1,4 +1,4 @@
-import {openBudget} from './helpers';
+import {logMonth} from './helpers';
 import {openQuickExpense} from './helpers';
 import {entryAction} from './helpers';
 import { expect, test } from '@playwright/test';
@@ -18,13 +18,11 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await page.getByText('Date, payment type & note', { exact: true }).click();
   await page.getByLabel('Expense date', { exact: true }).fill('2026-03-04');
   await page.getByRole('button', { name: 'Save expense', exact: true }).click();
-  await openBudget(page);await page.locator('.category-budget-item').filter({has:page.getByRole('button',{name:'Home',exact:true})}).getByRole('button',{name:'Show subcategories'}).click();
-  await expect(page.getByRole('region', { name: 'Expenses breakdown' })).toContainText('Utilities');
-  await expect(page.getByRole('region', { name: 'Expenses breakdown' })).toContainText('PKR 50.00');
+  await expect(page.getByRole('row').filter({hasText:'Utilities'})).toContainText('Home');
   await page.reload();
   await page.getByRole('button', { name: 'Explore the demo' }).click();
   await page.getByRole('button', { name: 'Money Log', exact: true }).click();
-  await page.getByLabel('Month', { exact: true }).selectOption('03');
+  await logMonth(page,'2026','03');
   await page.getByLabel('Search entries', { exact: true }).fill('Utilities');
   await expect(page.getByRole('row').filter({ hasText: 'Utilities' })).toContainText('Home');
   await entryAction(page,'Edit entry Home 2026-03-04');

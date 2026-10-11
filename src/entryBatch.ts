@@ -1,7 +1,7 @@
 import type { Entry } from './types';
 
 export function sameEntry(a: Entry, b: Entry) {
-  return ['id','user_id','category_id','date','amount_minor','currency','notes','withdrawal'].every(key=>a[key as keyof Entry]===b[key as keyof Entry]) && (a.subcategory_id??null)===(b.subcategory_id??null) && (a.payment_method??null)===(b.payment_method??null);
+  return ['id','user_id','category_id','date','amount_minor','currency','notes','withdrawal'].every(key=>a[key as keyof Entry]===b[key as keyof Entry]) && (a.subcategory_id??null)===(b.subcategory_id??null) && (a.payment_method??null)===(b.payment_method??null) && ['income_source_id','expected_payment_id','named_goal_id'].every(key=>(a[key as keyof Entry]??null)===(b[key as keyof Entry]??null));
 }
 export function reconcileEntries(requested: Entry[], saved: Entry[]) {
   if (!saved.length) return false;

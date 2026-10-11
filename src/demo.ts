@@ -1,4 +1,5 @@
 import { today, precision } from './finance';
+import {migrateExpensePlans,periodForDate} from './planning';
 import { starterCategories } from './starterCategories';
 import type { Ledger, Category, Entry, Currency, Subcategory } from './types';
 const user = 'demo';
@@ -24,11 +25,19 @@ export function newDemo(currency:Currency='PKR'): Ledger {
     sample(`${month}-02`,'Investments','Mutual funds',salary*.10,'Monthly contribution');
     if(back===1)sample(`${month}-12`,'Savings','Travel savings',salary*.015,'Weekend trip withdrawal',true);
   }
-  return {incomeChoicesInitialized:true,categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:minor(salary),spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
+  const result:Ledger={incomeChoicesInitialized:true,categories,subcategories,entries,profile:{user_id:user,currency,planning_currency:currency,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,income_target:minor(salary),spending_target:minor(salary*.65),saving_target:minor(salary*.15),investment_target:minor(salary*.1),emergency_target:minor(salary*3),emergency_contribution:minor(salary*.12)}};
+  const p=periodForDate(day,[],true),budgetId=crypto.randomUUID(),sourceId=crypto.randomUUID(),paymentId=crypto.randomUUID(),goalId=crypto.randomUUID();
+  result.incomeSources=[{id:sourceId,user_id:user,name:'Example employer',category_id:categories.find(c=>c.name==='Salary')!.id,pattern:'regular',currency,archived:false}];
+  result.expectedPayments=[{id:paymentId,user_id:user,source_id:sourceId,category_id:result.incomeSources[0].category_id,name:'Monthly salary',currency,amount_minor:minor(salary),period_start:p.start,period_end:p.end,cancelled:false}];
+  for(const e of entries)if(e.category_id===result.incomeSources[0].category_id){e.income_source_id=sourceId;if(e.date>=p.start&&e.date<=p.end)e.expected_payment_id=paymentId;}
+  result.spendingBudgets=[{id:budgetId,user_id:user,period_start:p.start,period_end:p.end,currency,total_minor:minor(salary*.65),rollover:false}];result.budgetAllocations=[];
+  result.namedGoals=[{id:goalId,user_id:user,name:'Emergency cushion',currency,target_minor:minor(salary*3),starting_minor:0,deadline:null,funding_kind:'saving',status:'active'}];
+  for(const e of entries)if(subcategories.find(s=>s.id===e.subcategory_id)?.name==='Emergency fund')e.named_goal_id=goalId;
+  result.contributionPlans=[{id:crypto.randomUUID(),user_id:user,goal_id:goalId,period_start:p.start,period_end:p.end,amount_minor:minor(salary*.12)}];result.budgetCycles=[];return result;
 }
 const storageKey = 'pocket-ledger-demo-v1';
 export function readDemo(): Ledger {
-  try { const raw = localStorage.getItem(storageKey); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v.categories) && Array.isArray(v.entries) && v.profile?.user_id === user) { if(!v.incomeChoicesInitialized){for(const name of ['Salary', 'Business', 'Freelance', 'Gifts', 'Rental income', 'Investment returns', 'Other income']){if(!v.categories.some((c:Category)=>c.kind==='income'&&c.name.toLowerCase()===name.toLowerCase()))v.categories.push({id:crypto.randomUUID(),user_id:user,name,kind:'income',archived:false,essential:false,emergency:false});}v.incomeChoicesInitialized=true;localStorage.setItem(storageKey,JSON.stringify(v));}return { ...v, subcategories: Array.isArray(v.subcategories) ? v.subcategories : [], profile: { ...v.profile, planning_currency:v.profile.planning_currency??v.profile.currency,saving_target: v.profile.saving_target ?? v.profile.emergency_contribution } }; } } } catch { /* Start a fresh demo if saved data is unavailable. */ }
+  try { const raw = localStorage.getItem(storageKey); if (raw) { const v = JSON.parse(raw); if (Array.isArray(v.categories) && Array.isArray(v.entries) && v.profile?.user_id === user) { if(!v.incomeChoicesInitialized){for(const name of ['Salary', 'Business', 'Freelance', 'Gifts', 'Rental income', 'Investment returns', 'Other income']){if(!v.categories.some((c:Category)=>c.kind==='income'&&c.name.toLowerCase()===name.toLowerCase()))v.categories.push({id:crypto.randomUUID(),user_id:user,name,kind:'income',archived:false,essential:false,emergency:false});}v.incomeChoicesInitialized=true;localStorage.setItem(storageKey,JSON.stringify(v));}return migrateExpensePlans({ ...v, subcategories: Array.isArray(v.subcategories) ? v.subcategories : [], profile: { ...v.profile, planning_currency:v.profile.planning_currency??v.profile.currency,saving_target: v.profile.saving_target ?? v.profile.emergency_contribution } }); } } } catch { /* Start a fresh demo if saved data is unavailable. */ }
   return newDemo();
 }
 export function persistDemo(ledger: Ledger) { localStorage.setItem(storageKey, JSON.stringify(ledger)); }
