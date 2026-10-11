@@ -21,9 +21,9 @@ test('public policy drafts and discovery files work before sign-in', async ({ pa
   await page.getByRole('navigation', {name:'Public pages'}).first().getByRole('link', {name:'User guide',exact:true}).click();
   await expect(page).toHaveTitle(/PaisaTrace user guide/);
   await expect(page.getByRole('navigation',{name:'Guide contents'})).toBeVisible();
-  await page.getByRole('navigation',{name:'Guide contents'}).getByRole('link',{name:/Set goals for one month$/}).click();
-  await expect(page.getByRole('heading',{name:'Set goals for one month',exact:true})).toBeVisible();
-  await expect(page.locator('#goals')).toContainText('Saving stores that calculated amount');
+  await page.getByRole('navigation',{name:'Guide contents'}).getByRole('link',{name:/Save toward a named outcome$/}).click();
+  await expect(page.getByRole('heading',{name:'Save toward a named outcome',exact:true})).toBeVisible();
+  await expect(page.locator('#goals')).toContainText('Goal progress never resets at the month boundary');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   if (!draft) expect(await sitemap.text()).toContain('/guide.html</loc>');
   const robots = await request.get('/robots.txt');

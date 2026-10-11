@@ -13,8 +13,5 @@ test('entry shortcuts select the intended type and planning help is optional', a
   await page.getByRole('button',{name:'Clear entry filters',exact:true}).click();
   await expect(page.getByRole('combobox',{name:'Filter category',exact:true})).toHaveValue('all');
   await expect(page.locator('header').getByRole('link',{name:'User guide ↗',exact:true})).toHaveAttribute('target','_blank');
-  await page.getByRole('button',{name:'Goals',exact:true}).click();
-  await expect(page.getByRole('combobox',{name:'Planning example',exact:true})).toBeHidden();
-  await page.getByText('Need help splitting your earnings?',{exact:true}).click();
-  await expect(page.getByRole('combobox',{name:'Planning example',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Budgets',exact:true}).click();await page.getByRole('button',{name:'Edit budget',exact:true}).click();await expect(page.getByLabel('Percentage')).toBeHidden();await page.getByText('Percentage planning helper',{exact:true}).click();await expect(page.getByLabel('Percentage')).toBeVisible();
 });

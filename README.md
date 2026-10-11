@@ -1,6 +1,6 @@
 # PaisaTrace
 
-A simple responsive personal finance app: email-and-password sign-in, dated expenses/income, savings and investment contributions, monthly/yearly reporting, editable categories, emergency planning, and Excel export.
+A responsive personal finance app with password sign-in, dated transactions, optional income forecasts and sources, independent spending budgets, named savings goals, flexible monthly budget cycles, reports and Excel export.
 
 ## Try it locally
 
@@ -54,17 +54,14 @@ Free hosting is subject to provider quotas. [Cloudflare static asset requests](h
 
 ## Financial behavior
 
-- New accounts and fresh demos default to PKR. Existing currency preferences are preserved. Use Settings to change a saved preference, or Reset demo to load fresh PKR sample data.
-- Record as many separate entries on the same date as you need, including multiple entries in the same category. Each entry has its own identity; recording another entry never replaces the previous one.
-- Store money as integer minor units. Supported currencies: USD, PKR, EUR, GBP, AED, JPY, KWD; their precision is respected. Dates are calendar dates with the selected timezone used for today's default.
-- Savings and investments are contributions minus withdrawals; they are not consumption expenses or investment returns.
-- “Remaining income” is income minus expenses and net savings/investment contributions for the selected period. Excess outgoings show as “Above recorded income”; missing earnings show “Income not recorded”. It is not a reconciled bank balance.
-- Different currencies are never added together. Dashboard totals use the selected display currency; entries and exports retain the original currency. Reporting currency and the default for new entries are separate. Changing the entry default previews the effect and preserves legacy plans in their original planning currency; saved monthly plans retain their currencies. No conversion is performed.
-- Emergency progress includes only savings categories marked as emergency funds, including their historical and archived entries. Estimates assume fixed contributions and no interest or withdrawals.
-- The overview compares each category in a selected month against the previous calendar month; January compares with December of the prior year. Missing baselines show new activity rather than an infinite percentage.
-- Goal comparisons use all categories in the selected reporting currency. Saved monthly targets apply only to their month and currency. Existing default targets prefill months until independent monthly goals are saved. Emergency contributions are included within total savings and are not subtracted twice.
-- Monthly planning amounts are optional user targets. A deficit is shown rather than silently reducing allocations. No investment advice or promised returns are provided.
-- Excel export applies year/month/category/search filters. It includes typed dates and amounts, literal notes, and summaries grouped by month, category, subcategory, financial type, and currency. Formula-like notes are never executed as formulas. An empty export still contains headers.
+- Money uses integer minor units with currency-specific precision. PKR, USD, EUR, GBP, AED, JPY and KWD remain separate; nothing is converted automatically.
+- Income shows Received, Expected and Still expected. Only dated income entries count as received. Sources name payers; forecasts never become available money. Partial receipts are ordinary linked income records, not duplicate transactions.
+- Budgets store independent allowances for exact periods and currencies. Blank overall allowance uses category limits, or No target set when there are none; zero is intentional. Budget remaining is an allowance, not bank cash. Use a parent allowance or its children, never both. Optional rollover carries positive unused allowance in the same currency. Copy/previous spending/percentage helpers fill editable drafts and require saving.
+- Named goals are lifetime outcomes. Starting savings plus linked contributions minus withdrawals determines progress. A period contribution plan does not record money. Existing entries are linked only by an explicit choice; the same money must not also be included in starting savings. Investment goals measure contributions, not returns or market value.
+- Calendar months are the default. Settings can schedule a payday cycle at a future boundary of the existing schedule. Short months clamp days 29–31; a transition period may be shorter. All actual dates and previously saved plan ranges stay intact.
+- Overview leads with remaining budget and Add expense. Money Log owns transaction filters/export; Reports owns detailed actual-activity comparisons and calendar/year/custom ranges. Neither changes the shared budget context by silently applying entry-list filters.
+- Savings/investments are net contributions, separate from expenses. Income left after allocations is recorded income minus expenses and net contributions; it is not a reconciled bank balance.
+- Migration013 preserves old transactions and monthly/yearly goal records, migrating saved monthly expense limits into Budgets. Earlier income/contribution plans can be reviewed and reused explicitly. Legacy history remains in Excel exports.
 
 ## Verification
 
@@ -78,15 +75,11 @@ The UI suite uses installed Google Chrome. Run `npx playwright install chromium`
 
 These local checks do not replace testing live email delivery and the deployed Supabase project. The app loads all history in paginated requests; it does not silently assume the API's first page contains every entry. For much larger deployments, move aggregate calculations and export streaming to authenticated server operations while retaining row-level authorization.
 
-## Quick expenses and period goals
+## Quick expenses and planning
 
-The dashboard opens with **Budget remaining**, spending against the plan and a progress bar. **Add expense** opens a form immediately; quick capture lives in Money Log. Enter an amount, deliberately choose a category, and save. Today is preselected in your timezone; expand the optional details to change the date or add a note. Saving an expense opens its reporting month. Other entry types and currencies remain available through Add entry.
+Choose Add expense on Overview or Add entry/Add multiple expenses in Money Log. Plans and sources are optional. Use Income for forecasts, Budgets for spending limits, and Goals for named outcomes. All three use the shared exact-date period selector. The user guide contains the complete workflows and synthetic screenshots.
 
-Use **Goals** to save earnings, expense, savings and investment targets independently for each month. Choose a month with one month picker and saved-status indicator. Optional expense-category limits are included within the overall spending limit. Blank overall amounts save as No target set; entering 0 saves an intentional zero. Blank category limits remove that limit. Existing monthly defaults prefill unsaved months, with an explanatory label. Emergency fund settings are optional inside the same panel. Annual goal records are preserved in the database but no annual goal controls appear in the app.
-
-Dashboard goals show actual activity, remaining amounts or overspending, percentage progress, and elapsed period time. They ignore the entry search/category filter so an overall goal always reflects the whole period. Currency changes preserve saved period goals in their original currency. Savings and investment targets measure net contributions rather than returns; emergency contributions count within savings once.
-
-For an existing Supabase project, apply **004_period_goals.sql** once before using this version. Do not re-run earlier migrations. This migration adds the goal table, ownership policies, category validation, and transactional goal saving. Categories referenced by goals are archived instead of deleted. The app reads goals in paginated requests.
+Migration013 must precede the updated frontend. Apply every migration once, in order, on a new environment; never rerun migrations001–013 on production.
 
 ## Public-launch review and licenses
 
@@ -156,3 +149,7 @@ Income starters include Salary, Business, Freelance, Gifts, Rental income, Inves
 On a fresh database, apply010_contribution_category_targets.sql and011_income_and_payment_types.sql after 009. Both migrations were already applied to the existing production project on 8 October 2026; do not repeat them there. See docs/ENHANCEMENT_REVIEW_2026-10-08.md for tested behavior and the local standalone Chrome runner limitation.
 
 8 October UX update: grouped native category pickers support search and recent choices. Used category actions explicitly say Archive, preserving history. Mobile sign-in shows a short benefit statement and demo action before authentication. Expense dialogs have a scrolling body, persistent save footer and optional More details. Apply **012_optional_monthly_targets.sql** once before this frontend; it allows null only for overall targets, changes no policies/grants and preserves existing numeric goals. It was applied to the production project on 8 October 2026.
+
+## 11 October planning and responsive update
+
+The independent Income/Budgets/Goals model above replaces the earlier monthly Goals panel. Production migration013 was approved and applied; all seven new tables were confirmed to have RLS. The complete local unit/database suite passes. Browser checks covered all eight destinations at 320,390,660,768,1024 and1440px, plus short phone dialogs and authentication. Headless Chrome aborts before assertions on this host; this is recorded as a tooling limitation, not a passing UI automation run. Superseded planning UI tests were replaced with tests for the new flows; transaction/authentication tests remain. Analytics work is paused.

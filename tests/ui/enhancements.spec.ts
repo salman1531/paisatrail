@@ -1,4 +1,3 @@
-import {openBudget} from './helpers';
 import {test,expect} from '@playwright/test';
 import {entryAction} from './helpers';
 
@@ -15,13 +14,6 @@ test('bulk expenses validate, remove, save once, recalculate and survive reload'
  await page.getByRole('button',{name:'Money Log',exact:true}).click();await expect(page.getByRole('row').filter({hasText:'PKR 2,500.00'})).toHaveCount(1);await expect(page.getByRole('row').filter({hasText:'PKR 1,200.00'})).toHaveCount(1);
  await page.reload();await page.getByRole('button',{name:'Explore the demo'}).click();await page.getByRole('button',{name:'Money Log',exact:true}).click();await expect(page.getByRole('row').filter({hasText:'PKR 2,500.00'})).toHaveCount(1);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-});
-
-test('custom-date plans and drill-down use the same period and currency',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();await page.getByRole('button',{name:'Money Log',exact:true}).click();await page.getByRole('button',{name:'Custom dates',exact:true}).click();await page.getByLabel('Start date').fill('2026-09-01');await page.getByLabel('End date').fill('2026-09-15');await page.getByRole('button',{name:'Apply dates',exact:true}).click();
- await openBudget(page);await expect(page.getByRole('region',{name:'Plan vs. actual'})).toContainText('prorated by calendar days');await page.getByRole('button',{name:'Food',exact:true}).click();await expect(page.getByRole('heading',{name:'Money Log',exact:true})).toBeVisible();await expect(page.getByLabel('Filter category')).toHaveValue(/./);await expect(page.getByLabel('Filter entry currency')).toHaveValue('PKR');
- for(const date of await page.locator('.transaction-row').evaluateAll(rows=>rows.map(r=>r.querySelector('.transaction-date')?.textContent))){expect(date).toMatch(/Sep/);}
- await page.getByRole('button',{name:'Money Log',exact:true}).click();await page.getByRole('button',{name:'Use month / year',exact:true}).click();await page.getByLabel('Month',{exact:true}).selectOption('all');await openBudget(page);await expect(page.getByRole('region',{name:'Plan vs. actual'})).toContainText('12 months');
 });
 
 test('category search and compact dialogs preserve linked history',async({page})=>{

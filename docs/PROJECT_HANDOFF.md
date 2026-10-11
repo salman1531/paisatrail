@@ -1,5 +1,16 @@
 # PaisaTrace handoff — updated 7 October 2026
 
+## Current work — 11 October2026
+
+Independent Income, Budgets and named Goals now replace the earlier monthly Goals panel. See README Financial behavior and the final AGENTS update for the current accounting contracts. Migration013 was approved and applied in production; seven-table metadata confirmed RLS. No existing transactions were rewritten. Old expense plans migrate; earlier income and contribution goals remain preserved for explicit review/export.
+
+Navigation: Overview · Money Log · Income · Budgets · Goals · Reports, with secondary Categories/Settings. Period controls are compact and shared; Money Log and Reports have optional local reporting ranges. Phone forms scroll independently with fixed save footers. Updated guide images contain synthetic demo data only.
+
+Verification: all8pages across6widths (320–1440px), phone authentication and planning/entry forms; actual partial receipt, source plus first expectation, and goal contribution flows checked in the isolated demo. Unit/database suite passes, including RLS ownership, atomic rollback, duplicate receipt IDs, negative goal protection and account-cascade cleanup. Headless Chrome SIGABRT occurs before assertions; new UI specifications are present but not reported as passed. Analytics/SEO remain paused. The pre-existing index.html change is excluded from this release.
+
+Earlier dated notes below are historical; current planning rules above supersede them.
+
+
 React, TypeScript, Vite and Supabase. Repository: https://github.com/salman1531/paisatrail. Production: https://paisatrace.vercel.app/. Clone the repository, run `npm ci`, copy `.env.example` to `.env.local`, set the public Supabase values and run `npm run dev`. Secrets never belong in `VITE_` values or Git.
 
 ## Implemented and configured

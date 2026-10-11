@@ -1,20 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {entryAction} from './helpers';
 
-test('goals keep all draft fields across tabs, preserve month across currencies and guard sign-out',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await page.getByRole('button',{name:'Goals',exact:true}).click();
- await page.getByLabel('Goal month').fill('2026-11');
- for(const currency of ['USD','PKR']){await page.getByLabel('Goal currency',{exact:true}).selectOption(currency);await expect(page.getByLabel('Goal month',{exact:true})).toHaveValue('2026-11');}
- await page.getByLabel('Earnings target',{exact:true}).fill('200000');await page.getByRole('radio',{name:'Percentages of earnings',exact:true}).check();await page.getByLabel('Savings target percentage',{exact:true}).fill('12');
- await page.getByText('Need help splitting your earnings?',{exact:true}).click();await page.getByLabel('Planning example').selectOption('custom');await page.getByLabel('Cash savings %',{exact:true}).fill('17');
- await page.getByText('Category limits & targets (optional)',{exact:true}).click();await page.locator('.category-budget-editor').getByLabel('Food',{exact:true}).fill('1234');
- await page.getByText('Emergency fund · PKR (optional)',{exact:true}).click();await page.getByLabel('Emergency fund target',{exact:true}).fill('34567');
- for(const tab of ['Overview','Money Log','Categories','Settings']){await page.getByRole('button',{name:tab,exact:true}).click();await page.getByRole('button',{name:'Goals',exact:true}).click();await expect(page.getByLabel('Goal month',{exact:true})).toHaveValue('2026-11');await expect(page.getByLabel('Savings target percentage',{exact:true})).toHaveValue('12');await expect(page.getByLabel('Cash savings %',{exact:true})).toHaveValue('17');await expect(page.getByLabel('Emergency fund target',{exact:true})).toHaveValue('34567');await expect(page.locator('.category-budget-editor').getByLabel('Food',{exact:true})).toHaveValue('1234');}
- await page.getByLabel('Goal currency',{exact:true}).selectOption('USD');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByLabel('Savings target percentage',{exact:true})).toHaveValue('12');
- await page.getByRole('button',{name:'Exit demo',exact:true}).click();await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.getByLabel('Emergency fund target',{exact:true})).toHaveValue('34567');
- await page.getByRole('button',{name:'Exit demo',exact:true}).click();await page.getByRole('button',{name:'Discard and exit demo',exact:true}).click();await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await expect(page.getByRole('heading',{name:'Your money, at a glance.',exact:true})).toBeVisible();
-});
-
 test('entry currency controls the list and export, while specific deletion can be cancelled',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await page.getByRole('button',{name:'Add expense',exact:true}).click();
  await page.getByLabel('Currency',{exact:true}).selectOption('USD');await page.getByLabel('Amount',{exact:true}).fill('10.25');await page.getByLabel('Category',{exact:true}).selectOption({label:'Food → Groceries'});await page.getByRole('dialog').getByText('More details',{exact:true}).click();await page.getByRole('dialog').getByLabel('Note',{exact:false}).fill('Currency filter test');await page.getByRole('button',{name:'Save entry',exact:true}).click();
