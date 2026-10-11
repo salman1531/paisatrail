@@ -16,3 +16,10 @@ export function ringPath(start:number,end:number,inner:number,outer:number){
  const finish=Math.min(end,start+Math.PI*2-0.000001);const point=(a:number,r:number)=>`${160+Math.cos(a)*r},${160+Math.sin(a)*r}`;const large=finish-start>Math.PI?1:0;
  return `M ${point(start,outer)} A ${outer},${outer} 0 ${large} 1 ${point(finish,outer)} L ${point(finish,inner)} A ${inner},${inner} 0 ${large} 0 ${point(start,inner)} Z`;
 }
+
+/** Existing broad Expenses parents retain ownership and history; only their display changes. */
+export function cashFlowDisplay(ledger:Ledger,filter:Filter,kind:'income'|'expense') {
+ const data=cashFlowSlices(ledger,filter,kind),parent=data.rows[0];
+ const foreground=kind==='expense'&&data.rows.length===1&&/^(expenses?|spending)( · archived)?$/i.test(parent.name)&&parent.children.some(c=>c.subcategoryId);
+ return {...data,rows:foreground?parent.children:data.rows,foreground};
+}

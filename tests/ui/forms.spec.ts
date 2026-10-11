@@ -1,5 +1,6 @@
+import {logFilters,logActions} from './helpers';
 import {planningDate} from './helpers';
-import {openSupportingTotals,openQuickExpense} from './helpers';
+import {openSupportingTotals} from './helpers';
 import {entryAction} from './helpers';
 import { expect, test } from '@playwright/test';
 test('popup restores scrolling and amount words reflect currency precision', async ({page})=>{
@@ -19,7 +20,7 @@ test('popup restores scrolling and amount words reflect currency precision', asy
 test('supporting income remains independent of entry filters and shows a deficit honestly',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();await openSupportingTotals(page);
  const period=new Date().toISOString().slice(0,7);const summary=page.locator('.summary-card.remaining');const original=await summary.innerText();
- await page.getByRole('button',{name:'Money Log',exact:true}).click();await page.getByLabel('Filter category',{exact:true}).selectOption({label:'Food'});await openSupportingTotals(page);await expect(summary).toHaveText(original);
+ await page.getByRole('button',{name:'Money Log',exact:true}).click();await logFilters(page);await page.getByLabel('Filter category',{exact:true}).selectOption({label:'Food'});await openSupportingTotals(page);await expect(summary).toHaveText(original);
  await page.getByRole('button',{name:'Add expense',exact:true}).click();await page.getByLabel('Category',{exact:true}).selectOption({label:'Food → Groceries'});await page.getByLabel('Amount',{exact:true}).fill('1000000');await page.getByLabel('Date',{exact:true}).fill(period+'-01');await page.getByRole('button',{name:'Save entry',exact:true}).click();await expect(summary.locator(':scope>strong')).toContainText('-');
  await planningDate(page,'2026-01-01');await expect(summary.locator(':scope>strong')).toHaveText('—');await expect(summary).toContainText('Record income to see this total');
 });
