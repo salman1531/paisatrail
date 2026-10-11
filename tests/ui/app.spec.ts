@@ -1,3 +1,4 @@
+import {logFilters,logActions} from './helpers';
 import {logMonth} from './helpers';
 import {entryAction} from './helpers';
 import { expect, test } from '@playwright/test';
@@ -9,11 +10,11 @@ test('daily entry, correction, category rename/archive, reporting and Excel down
   await page.getByLabel('Name', { exact: true }).fill('Test groceries'); await page.getByRole('button', { name: 'Save category' }).click();
   await page.getByRole('button', { name: 'Money Log', exact: true }).click(); await page.getByRole('button', { name: 'Add entry', exact: true }).first().click();
   await page.getByLabel('Amount', { exact: true }).fill('0.29'); await page.getByLabel('Category', { exact: true }).selectOption({ label: 'Test groceries' }); await page.getByLabel('Date', { exact: true }).fill('2026-01-15'); await page.getByRole('dialog').getByText('More details',{exact:true}).click(); await page.getByLabel('Note', { exact: false }).fill('=1+1'); await page.getByRole('button', { name: 'Save entry' }).click();
-  await logMonth(page,'2026','01'); await page.getByLabel('Filter category').selectOption({ label: 'Test groceries' });
+  await logMonth(page,'2026','01'); await logFilters(page);await page.getByLabel('Filter category').selectOption({ label: 'Test groceries' });
   await expect(page.getByText('PKR 0.29', { exact: true }).first()).toBeVisible();
   await entryAction(page, 'Edit entry Test groceries 2026-01-15'); await page.getByLabel('Amount', { exact: true }).fill('0.39'); await page.getByRole('button', { name: 'Save entry' }).click();
   await expect(page.getByText('PKR 0.39', { exact: true }).first()).toBeVisible();
-  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Export Excel' }).click(); expect((await download).suggestedFilename()).toBe('paisatrace-2026-01.xlsx');
+  const download = page.waitForEvent('download'); await logActions(page);await page.getByRole('button', { name: 'Export Excel' }).click(); expect((await download).suggestedFilename()).toBe('paisatrace-2026-01.xlsx');
   await page.getByRole('button', { name: 'Categories', exact: true }).click(); await page.getByRole('button', { name: 'Edit Test groceries', exact: true }).click(); await page.getByLabel('Name', { exact: true }).fill('My groceries'); await page.getByRole('button', { name: 'Save category' }).click();
   await page.getByRole('button', { name: 'Archive My groceries', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Archive this category?' })).toBeVisible(); await page.getByRole('button', { name: 'Archive category',exact:true }).click();
   await page.getByRole('button', { name: 'Money Log', exact: true }).click(); await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();

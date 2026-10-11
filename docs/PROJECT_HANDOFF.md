@@ -1,5 +1,13 @@
 # PaisaTrace handoff — updated 7 October 2026
 
+## Latest review follow-up — 11 October 2026
+
+Password sign-in stays primary, confirmed again by the operator. No authentication provider or database permissions changed. Analytics/SEO remains paused; exclude the pre-existing index.html edit from this release.
+
+Implemented: readable income-left summary including negative values; compact Money Log with search and date mode first, counted Filters and secondary More actions; filter/date/scroll preservation after edits with explicit out-of-scope View entry; shared list/export predicate; one analysis Date mode; as-of/elapsed-day comparison with full-prior opt-in and missing-activity labels; remaining period contribution suggestions and Plan met; basic goal creation with examples/optional planning and More actions; legacy broad Expenses chart foregrounds children without recategorizing; Income received-records route and deliberate matching of generic receipts; cycle changes default to next known boundary with optional later scheduling and mandatory preview. Guide copy and five demo screenshots refreshed.
+
+Verification: 109 unit/database tests passed, production build passed. Direct in-app browser checks cover all eight destinations at 320/390/660/768/1024/1440px, small-phone menus/date filters/save footer, negative contrast, preserved filters after correction, explicit scope recovery, goal met-state, intentional partial receipt and elapsed/full report comparisons. Headless Chrome still SIGABRTs before assertions; the seven new UI cases are collected but not claimed as executed. Actual phone keyboards and screen readers remain unverified. Optional legacy history organization is a separate future feature; historical category IDs were not changed.
+
 ## Current work — 11 October2026
 
 Independent Income, Budgets and named Goals now replace the earlier monthly Goals panel. See README Financial behavior and the final AGENTS update for the current accounting contracts. Migration013 was approved and applied in production; seven-table metadata confirmed RLS. No existing transactions were rewritten. Old expense plans migrate; earlier income and contribution goals remain preserved for explicit review/export.

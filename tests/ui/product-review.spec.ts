@@ -1,3 +1,4 @@
+import {logFilters,logActions} from './helpers';
 import {test,expect} from '@playwright/test';
 import {entryAction} from './helpers';
 
@@ -6,7 +7,7 @@ test('overview leads with answers and entry-list filters cannot change report to
  const summary=page.locator('.overview-summary'),charts=page.locator('.cash-flow-panel');const before=await summary.innerText(),chartBefore=await charts.innerText();
  expect(await summary.evaluate(e=>e.getBoundingClientRect().top)).toBeLessThan(await charts.evaluate(e=>e.getBoundingClientRect().top));await expect(page.getByLabel('Search entries',{exact:true})).toHaveCount(0);
  await expect(page.getByLabel('Expense amount',{exact:false})).toBeHidden();
- await page.getByRole('button',{name:'Money Log',exact:true}).click();await page.getByLabel('Filter category',{exact:true}).selectOption({label:'Food'});await page.getByLabel('Search entries',{exact:true}).fill('Lunch');
+ await page.getByRole('button',{name:'Money Log',exact:true}).click();await logFilters(page);await page.getByLabel('Filter category',{exact:true}).selectOption({label:'Food'});await page.getByLabel('Search entries',{exact:true}).fill('Lunch');
  await expect(page.locator('.transaction-row')).toHaveCount(1);await page.getByRole('button',{name:'Overview',exact:true}).click();await expect(summary).toHaveText(before);await expect(charts).toHaveText(chartBefore);
  await page.getByRole('button',{name:'Money Log',exact:true}).click();await expect(page.locator('.overview-summary')).toHaveCount(0);await expect(page.locator('.entries-budget-summary')).toHaveCount(0);await expect(page.locator('.transaction-row')).toHaveCount(1);
  await entryAction(page,/^Edit entry Food/);await expect(page.getByRole('dialog')).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();

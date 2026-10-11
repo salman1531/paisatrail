@@ -1,3 +1,4 @@
+import {logFilters,logActions} from './helpers';
 import {expect,test} from '@playwright/test';
 test('budget leads overview and recent activity shares its currency scope',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Explore the demo',exact:true}).click();
@@ -5,7 +6,7 @@ test('budget leads overview and recent activity shares its currency scope',async
  await expect(page.getByLabel('Search entries',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Export Excel',exact:true})).toHaveCount(0);
  const before=await hero.innerText();await page.getByRole('button',{name:'Add expense',exact:true}).click();await page.getByLabel('Currency',{exact:true}).selectOption('USD');await page.getByLabel('Category',{exact:true}).selectOption({label:'Food → Groceries'});await page.getByLabel('Amount',{exact:true}).fill('23');await page.getByRole('button',{name:'Save entry',exact:true}).click();
  await page.getByLabel('Reporting currency').selectOption('PKR');await expect(hero).toHaveText(before);await expect(page.locator('.transaction-row').filter({hasText:'USD'})).toHaveCount(0);await page.getByLabel('Reporting currency').selectOption('USD');await expect(page.locator('.transaction-row').filter({hasText:'23.00'})).toHaveCount(1);
- await page.getByRole('button',{name:'Money Log',exact:true}).click();await page.getByLabel('Filter entry currency').selectOption('all');await expect(page.getByLabel('Search entries',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Export Excel',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Money Log',exact:true}).click();await logFilters(page);await page.getByLabel('Filter entry currency').selectOption('all');await expect(page.getByLabel('Search entries',{exact:true})).toBeVisible();await logActions(page);await expect(page.getByRole('button',{name:'Export Excel',exact:true})).toBeVisible();
 });
 test('category search, optional details and save footer fit a shortened phone screen',async({page})=>{
  await page.setViewportSize({width:390,height:500});await page.goto('/');await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await page.getByRole('button',{name:'Add expense',exact:true}).click();await page.getByRole('dialog').getByRole('button',{name:'Search',exact:true}).click();await page.getByLabel('Search category',{exact:true}).fill('groc');await expect(page.getByLabel('Category',{exact:true}).locator('option')).toContainText(['Choose what this is for','Food → Groceries','Other — enter a custom name']);await page.getByLabel('Category',{exact:true}).selectOption({label:'Food → Groceries'});
