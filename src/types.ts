@@ -17,4 +17,4 @@ export type ExpectedPayment = {id:string;user_id:string;source_id:string|null;ca
 export type SpendingBudget = {id:string;user_id:string;period_start:string;period_end:string;currency:Currency;total_minor:number|null;rollover:boolean};
 export type BudgetAllocation = {id:string;user_id:string;budget_id:string;category_id:string;subcategory_id:string|null;amount_minor:number};
 export type NamedGoal = {id:string;user_id:string;name:string;currency:Currency;target_minor:number;starting_minor:number;deadline:string|null;funding_kind:'saving'|'investment';status:'active'|'paused'|'complete'};
-export type GoalContributionPlan = {id:string;user_id:string;goal_id:string;period_start:string;period_end:string;amount_minor:number};
+export type GoalContributionPlan = {id:string;user_id:string;goal_id:string;period_start:string;period_end:string;amount_minor:number;legacy_goal_id?:string|null};

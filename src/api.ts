@@ -76,5 +76,15 @@ async function savePlanning(table:string,row:{id:string;user_id:string},editing:
 export async function saveIncomeSource(row:IncomeSource,payment?:ExpectedPayment){const r=await db().rpc('save_income_source',{p_source:row,p_payment:payment??null});assert(r.error);}
 export async function saveExpectedPayment(row:ExpectedPayment,editing:boolean){await savePlanning('expected_payments',row,editing);}
 export async function saveSpendingBudget(budget:SpendingBudget,items:BudgetAllocation[]){const r=await db().rpc('replace_spending_budget',{p_budget:budget,p_items:items});assert(r.error);}
-export async function saveNamedGoal(goal:NamedGoal,period:PlanningPeriod,amount:number|null){const r=await db().rpc('save_named_goal',{p_goal:goal,p_start:period.start,p_end:period.end,p_amount:amount});assert(r.error);}
+export async function saveNamedGoal(goal:NamedGoal,period:PlanningPeriod,amount:number|null,legacyId?:string){const r=await db().rpc('save_named_goal',{p_goal:legacyId?{...goal,legacy_goal_id:legacyId}:goal,p_start:period.start,p_end:period.end,p_amount:amount});assert(r.error);}
 export async function saveBudgetCycle(cycle:BudgetCycle){await savePlanning('budget_cycles',cycle,false);}
+
+/** Association-only compare-and-set: another device cannot silently reassign a linked entry. */
+export async function linkGoalEntry(entry:Entry){
+ if(!entry.named_goal_id)throw new Error('Choose a goal to link.');
+ const client=db();const result=await client.from('entries').update({named_goal_id:entry.named_goal_id}).eq('id',entry.id).eq('user_id',entry.user_id).is('named_goal_id',null).select('id');assert(result.error);
+ if(result.data?.length===1)return;
+ const existing=await client.from('entries').select('named_goal_id').eq('id',entry.id).eq('user_id',entry.user_id).maybeSingle();assert(existing.error);
+ if(existing.data?.named_goal_id===entry.named_goal_id)return; // Safe retry after a lost response.
+ throw new Error('This entry is no longer unlinked. Refresh and edit its association in Money Log if you want to move it.');
+}

@@ -10,11 +10,11 @@ const steps = [
     'Choose these before entering your own data. The timezone sets today’s default date; entries keep the dates you selected.',
     'Choose Reporting currency on Overview or Reports to change the report without changing the entry default. An individual entry can use another supported currency through Add entry.'
   ], 'Currencies are kept separate and are never converted. Changing the entry default previews the effect before saving. Existing entries, budgets, named goals and earlier planning/emergency amounts retain their original currencies. No plans are reset.'],
-  ['income', 'Plan income and record receipts', [
-    'Open Income. Received shows actual income recorded in the selected date range and currency; View received records opens that income history in Money Log. Expected is your planned income; Still expected is the outstanding remainder.',
+  ['income', 'Record income as it arrives', [
+    'Open Income. Income received totals saved actual records for the selected dates and currency. No income target or source setup is required. View received records opens your income history in Money Log.',
     'Choose Record income for money already received. Sources and expectations are optional; unexpected and unassigned income are valid. The income entry form offers Match expected payment for an intentional association; matching never happens automatically.',
-    'Choose Add source to name an employer, client, business or property. Select its category, regular or variable pattern and default currency. You can optionally add an expectation for the current period. A source is who pays you; Freelance is a category, while Client A is a source.',
-    'Choose Add expected payment for anticipated income. When it arrives, choose Record receipt. Review the prefilled category, source, currency, date and amount, then Save entry. For a partial receipt, enter only the amount that arrived.',
+    'Open optional Income sources and choose Add source to name an employer, client, business or property. Select its category, regular or variable pattern and default currency. You can optionally add an expectation for the current period. A source is who pays you; Freelance is a category, while Client A is a source.',
+    'Open optional Upcoming income → Add expected payment for money not received yet. When it arrives, choose Record receipt. Review the prefilled category, source, currency, date and amount, then Save entry. For a partial receipt, enter only the amount that arrived.',
     'A PKR 30,000 expectation with a PKR 20,000 receipt leaves PKR 10,000 still expected. Edit expectation to revise its total, or Cancel remainder. Edit or delete the linked Money Log entry to correct a receipt.'
   ], 'Expected payments never increase actual income or available money. Each receipt is one transaction, linked to its expectation. Received uses the receipt date; the expectation remains in its original planning period.'],
   ['expenses', 'Add everyday expenses', [
@@ -39,35 +39,43 @@ const steps = [
     'Open Categories. Search by category or subcategory name, filter by type and Active/Archived status, and choose the reporting period and currency.',
     'Choose Other — enter a custom name in an entry form to create a reusable category without leaving the form. Or use Add category for a main group. Expand Subcategories & details, then use Add subcategory to [category name] for detail within expenses, savings or investments—for example Home → Rent and Bills.',
     'Use the edit pencil to rename a choice or restore an archived choice. Archive hides a linked choice while its existing entries stay intact. Delete appears only for unused choices.'
-  ], 'Main totals include their subcategories once. Expense limits are set in Budgets. Named savings and investment contribution outcomes are set in Goals. Their actual amounts include subcategories once; archiving a linked choice keeps its history intact.'],
-  ['budgets', 'Create a spending budget', [
-    'Open Budgets. Check the selected period dates and reporting currency. Choose Create budget or Edit budget.',
-    'Start from scratch, Copy previous plan, or Use previous spending. These fill editable drafts and do not save automatically.',
-    'Set an optional overall allowance and category limits. Choose a parent to include all its children, or allocate individual children. A parent and its children cannot both receive limits in the same plan.',
-    'Blank overall allowance uses the sum of category limits, or No target set when no limits exist. Zero is an intentional zero allowance. Category limits are included inside an explicit overall allowance.',
-    'The percentage helper previews a share of Received income or Expected income, labelled explicitly. Apply it to the draft, then Save budget. Later income changes do not alter your saved amount.',
-    'Optional rollover adds positive unused allowance from the immediately previous saved period in the same currency. Overspending does not roll forward. Matching category limits can carry their own unused amount.'
-  ], 'Budget remaining is a spending allowance, not a bank balance. Saved earlier monthly expense limits move here; original planning records remain available in your all-records export.'],
+  ], 'Main totals include their subcategories once. Money Plan connects named savings and investment goals with optional spending limits. Their actual amounts include subcategories once; archiving a linked choice keeps its history intact.'],
+  ['money-plan', 'Make one connected Money Plan', [
+    'Open Money Plan. One period and reporting currency govern its summary, Goals and Spending plan. Goals appear first; you can start planning before any income arrives.',
+    'Income received is actual recorded income. Planned goal contributions add only saved contribution amounts for these exact dates and currency, including paused or completed goals whose plans you kept. Lifetime targets and upcoming income are excluded.',
+    'Income not yet allocated = income received − planned goal contributions − effective spending limit. It measures whole-period commitments; recording a planned contribution or expense does not subtract it again.',
+    'If no spending limit exists, the summary says Income after planned goals and Spending has not been planned. A negative amount says Plan exceeds received income; you can edit goals or spending, record income, or keep the plan.',
+    'Open Recorded activity for spending, net savings, net investment contributions and recorded income left. These recorded totals are distinct from plan commitments.',
+    'Example: PKR 100,000 received − PKR 20,000 goal contributions planned − PKR 65,000 spending limit = PKR 15,000 unallocated. Recording PKR 5,000 savings and PKR 10,000 expenses leaves that plan figure unchanged, while recorded income left becomes PKR 85,000.'
+  ], 'Plans are optional and currencies stay separate. These are planning and record-based figures, never cash or bank balances.'],
+  ['budgets', 'Set optional spending limits', [
+    'In Money Plan, scroll to Spending plan. Check the selected dates and reporting currency. Choose Set spending limit or Edit spending plan.',
+    'Start from scratch, Copy previous plan, or Use previous spending fill editable drafts only. They never create entries. Save spending plan confirms your changes.',
+    'Set an optional overall base limit and category limits inside it. Choose a parent including its children, or individual children, never both. If categories exceed the overall base, the difference is shown; raise the overall or reduce categories before saving.',
+    'Blank uses the sum of category limits, or No spending limit set when none exist. Zero is an intentional zero limit. Expenses can still be recorded after a limit is reached; overspending stays visible.',
+    'The optional percentage helper uses received income only. Apply to draft limit, then Save spending plan. Later income never resizes the saved amount.',
+    'Opt-in rollover adds positive unused allowance from the immediately previous saved period in the same currency. Base limit, Rollover adjustment and Effective limit are shown separately. Matching category limits can carry unused amounts; they are not added twice to the overall allowance. Overspending and goal plans do not roll forward.'
+  ], 'Spending limits are allowances. Saving a spending plan does not change goals, income, transaction history or bank balances.'],
   ['goals', 'Save toward a named outcome', [
-    'Open Goals and choose Add goal. Enter a name, target and currency. Name examples include Emergency fund, Laptop and Holiday. Starting savings & deadline and Contribution planning & funding type are optional sections.',
-    'Set an optional contribution plan for the selected period. Blank means No target set; zero is intentional. Earlier savings or investment targets can fill this amount only when you choose Review earlier plan.',
-    'Choose Add contribution when you put money aside. Its suggestion uses the remaining contribution plan for this period. Plan met leaves the amount empty; extra contributions are optional. More → Withdraw records money taken back out. Both create one savings or investment movement; neither creates income or expenses.',
+    'In Money Plan → Goals, choose Add goal. Enter a name, target and currency. Name examples include Emergency fund, Laptop and Holiday. Starting savings & deadline and Contribution planning & funding type are optional sections.',
+    'Set an optional contribution plan for the selected period. Blank means No contribution planned; zero is intentional. A lifetime target of PKR 200,000 and a PKR 5,000 period plan allocate only PKR 5,000. To reuse an earlier general savings plan, first save a named goal, then Edit goal → Use an earlier savings plan. Choose Review earlier plan and Save goal to confirm; it can be assigned to only one goal.',
+    'Choose Add contribution when you put money aside. Its suggestion uses the remaining contribution plan for this period. Plan met or Above plan leaves the amount empty; extra contributions are optional. More → Withdraw records money taken back out. Both create one savings or investment movement; neither creates income or expenses.',
     'Use More → Link existing entry to assign an unlinked savings or investment record to the goal without adding another transaction. Do not link money already counted in starting savings.',
-    'Progress is starting savings plus linked contributions minus withdrawals across all periods. Open More to edit, pause, resume or link an entry. Complete appears when the target is reached.'
+    'Progress is starting savings plus linked contributions minus withdrawals across all periods. Open More to edit, pause, resume or link an entry. Complete becomes available when the lifetime target is reached. Pause or Complete asks whether to keep or clear the current contribution plan; older plans and all recorded progress stay intact. New periods have no contribution plan unless you set one.'
   ], 'A deadline provides an approximate per-period contribution guide, without assumed interest or returns. Investment goals track contributions, not market value. Goal progress never resets at the month boundary.'],
   ['cycles', 'Choose calendar months or a budget cycle', [
-    'Overview, Income, Budgets and Goals share the planning period selector. Use Previous period, Next period, Go to date or Current period. Money Log and Reports have their own Date mode, with Budget period selected initially. The actual start and end dates are always shown.',
+    'Overview, Income and Money Plan share the planning period selector. Use Previous period, Next period, Go to date or Current period. Money Log and Reports have their own Date mode, with Budget period selected initially. The actual start and end dates are always shown.',
     'In Settings, choose a monthly cycle start day. Start from next available period displays its known date; Schedule a later start is optional. Preview and confirm the change. A day-25 cycle runs from the 25th to the 24th.',
     'The first period after a change may be shorter while boundaries align. Days 29–31 clamp to the last available day in shorter months.',
     'The change starts only at the future boundary. Past plans and transaction dates stay unchanged. Choose Calendar month in View for ordinary calendar reporting; the same transactions can appear in either date-based view.'
   ], 'A plan belongs to its exact saved dates and currency. Future plans for older date ranges remain in your exported history; create or copy a plan for the new range. Comparisons use the same selected cycle.'],
   ['overview', 'Read your overview and reports', [
     'Budget remaining is the main figure. Read spending against the saved allowance, its progress bar and any rollover, then choose Add expense. Missing plans show Budget not set; overspending remains visible.',
-    'Open Income, savings & investments for supporting recorded totals. Forecast still expected is labelled separately and never enters actual arithmetic. Named goal progress shows lifetime amounts.',
+    'Open Income, savings & investments for supporting recorded totals. Upcoming income stays in the optional Income section and never enters actual arithmetic. Named goal progress shows lifetime amounts.',
     'See where your money goes switches between expenses and actual income. The inner ring shows categories and the outer ring their subcategories. A single broad Expenses category shows spending areas directly while preserving its history. On Overview, select a slice to open its Money Log records.',
     'Open Reports for recorded totals. In progress comparisons show the as-of date and compare matching elapsed days by default. Full previous period is an explicit alternative. No prior activity is labelled separately. Date mode offers Budget period, Calendar month, Full year, Custom dates and All history. Forecasts are excluded.',
     'Money Log has search, entry filters, corrections and Excel export. Date mode supports calendar months, full years, all history and custom dates without changing Overview’s planning context.'
-  ], 'Income left after allocations = income received minus spending and net savings/investment contributions. It is a record-based figure, not a bank balance. Currencies are never combined or converted. Detailed Money Log filters affect only its list and export.'],
+  ], 'Recorded income left = income received minus spending and net savings/investment contributions. It is a record-based figure, not a bank balance. Currencies are never combined or converted. Detailed Money Log filters affect only its list and export.'],
   ['entries', 'Find, correct and export records', [
     'Open Money Log — everything you earn, spend, and set aside. Choose the period, search by note, category, subcategory or type. Open Filters for category, entry type, payment or currency; the active count remains visible. Chart drill-down also filters the chosen subcategory.',
     'Choose Clear entry filters to remove search, type, category, subcategory, payment-type and entry-currency filters. Choose another period if the record is still missing.',
@@ -78,13 +86,13 @@ const steps = [
 
 const questions = [
   ['I did not receive a signup email. What next?', 'If you already confirmed the address, use Sign in instead. For a new or unverified account, check spam and that the email is correct, wait at least a minute, and try again. If it still fails, contact support. Do not share passwords or email-link tokens.'],
-  ['Why does a budget not show in Overview?', 'Choose its exact saved period dates and reporting currency. Named goals track lifetime progress separately. A plan does not create actual transactions.'],
+  ['Why does my plan not show in Overview?', 'Choose its exact saved period dates and reporting currency. Named goals track lifetime progress separately. A plan does not create actual transactions.'],
   ['Where is my saved entry?', 'Check the entry date, reporting year/month, category/entry currency filters and search. Clear entry filters. Another currency may appear in the entry list without being included in the display-currency totals.'],
   ['Will rent or subscriptions be added automatically?', 'No. Entries are manual. Record recurring payments when they occur. Automatic recurring entries, bill reminders and debt tracking are not currently available.'],
   ['Can I use another phone or computer?', 'Yes: sign in to the same account. The demo stays in its own browser; real account records are stored online. If a save reports an error, retry after checking your connection rather than assuming it succeeded.']
 ];
 
-const screenshots = {'bulk-expenses':['bulk-expenses-mobile.jpg','Review several expenses and their combined total before saving','phone'],expenses:['expense-mobile.jpg','Record an expense with an amount, category and date','phone'],goals:['goals-mobile.jpg','Track a named outcome with lifetime progress and a period contribution plan','phone'],overview:['overview.jpg','Budget remaining leads your overview with spending against its plan','wide'],entries:['entries.jpg','Use Money Log to find and review the selected month','wide']};
+const screenshots = {'bulk-expenses':['bulk-expenses-mobile.jpg','Review several expenses and their combined total before saving','phone'],expenses:['expense-mobile.jpg','Record an expense with an amount, category and date','phone'],'money-plan':['money-plan-mobile.jpg','Plan goal contributions and spending limits together for the selected period','phone'],goals:['goals-mobile.jpg','Track a named outcome with lifetime progress and a period contribution plan','phone'],overview:['overview.jpg','Budget remaining leads your overview with spending against its plan','wide'],entries:['entries.jpg','Use Money Log to find and review the selected month','wide']};
 
 function guideScreenshot(id,escape,versions) {
  const shot=screenshots[id];if(!shot)return '';

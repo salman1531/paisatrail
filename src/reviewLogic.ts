@@ -12,7 +12,8 @@ export function entryMatchesView(ledger:Ledger,entry:Entry,filter:Filter,search=
 export function contributionState(ledger:Ledger,goal:NamedGoal,period:PlanningPeriod) {
  const plan=ledger.contributionPlans?.find(p=>p.goal_id===goal.id&&p.period_start===period.start&&p.period_end===period.end);
  const added=ledger.entries.filter(e=>e.named_goal_id===goal.id&&within(e.date,period)).reduce((sum,e)=>sum+(e.withdrawal?-e.amount_minor:e.amount_minor),0);
- return {planned:plan?.amount_minor??null,added,remaining:plan?Math.max(0,plan.amount_minor-added):null,met:!!plan&&added>=plan.amount_minor};
+ const withdrawn=ledger.entries.filter(e=>e.named_goal_id===goal.id&&e.withdrawal&&within(e.date,period)).reduce((sum,e)=>sum+e.amount_minor,0);
+ return {planned:plan?.amount_minor??null,added,withdrawn,above:!!plan&&added>plan.amount_minor,remaining:plan?Math.max(0,plan.amount_minor-added):null,met:!!plan&&added>=plan.amount_minor};
 }
 export function comparisonRanges(period:PlanningPeriod,previous:PlanningPeriod,asOf:string,fullPrevious=false) {
  const inProgress=period.start<=asOf&&asOf<period.end,notStarted=asOf<period.start;
