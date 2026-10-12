@@ -3,7 +3,7 @@ import {test,expect} from '@playwright/test';
 import {entryAction} from './helpers';
 
 test('overview leads with answers and entry-list filters cannot change report totals or charts',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
+ await page.goto('/');await page.getByRole('link',{name:'Explore the demo'}).click();
  const summary=page.locator('.overview-summary'),charts=page.locator('.cash-flow-panel');const before=await summary.innerText(),chartBefore=await charts.innerText();
  expect(await summary.evaluate(e=>e.getBoundingClientRect().top)).toBeLessThan(await charts.evaluate(e=>e.getBoundingClientRect().top));await expect(page.getByLabel('Search entries',{exact:true})).toHaveCount(0);
  await expect(page.getByLabel('Expense amount',{exact:false})).toBeHidden();
@@ -15,10 +15,10 @@ test('overview leads with answers and entry-list filters cannot change report to
 });
 
 test('default currency changes preserve plans, reporting scope and deliberate category choice',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();const summary=await page.locator('.overview-summary').innerText();
+ await page.goto('/');await page.getByRole('link',{name:'Explore the demo'}).click();const summary=await page.locator('.overview-summary').innerText();
  await page.getByRole('button',{name:'Add expense',exact:true}).click();await expect(page.getByLabel('Category',{exact:true})).toHaveValue('');await page.getByRole('button',{name:'Cancel',exact:true}).click();
  await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByLabel('Default entry currency').selectOption('USD');await page.getByRole('button',{name:'Save settings'}).click();await expect(page.getByRole('dialog')).toContainText('No currency conversion');await page.getByRole('button',{name:'Confirm currency change'}).click();
  await page.getByRole('button',{name:'Overview',exact:true}).click();await expect(page.locator('.overview-summary')).toHaveText(summary);await expect(page.getByLabel('Reporting currency')).toHaveValue('PKR');
  await page.getByRole('button',{name:'Add expense',exact:true}).click();await expect(page.getByLabel('Currency',{exact:true})).toHaveValue('USD');await page.getByRole('button',{name:'Cancel',exact:true}).click();
- await page.getByRole('button',{name:'Money Plan',exact:true}).click();await expect(page.locator('.planning-summary')).toContainText('117,000');await page.getByLabel('Reporting currency').selectOption('USD');await expect(page.locator('.planning-summary')).toContainText('No spending limit set');await page.getByLabel('Reporting currency').selectOption('PKR');await expect(page.locator('.planning-summary')).toContainText('117,000');
+ await page.getByRole('button',{name:'Money Plan',exact:true}).click();await expect(page.locator('#money-plan-spending')).toContainText('117,000');await page.getByLabel('Reporting currency').selectOption('USD');await expect(page.locator('#money-plan-spending')).toContainText('No spending limit');await page.getByLabel('Reporting currency').selectOption('PKR');await expect(page.locator('#money-plan-spending')).toContainText('117,000');
 });

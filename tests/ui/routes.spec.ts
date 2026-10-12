@@ -1,0 +1,12 @@
+import {test,expect} from '@playwright/test';
+test('public home, auth URLs and history are separate from demo pages',async({page})=>{
+ await page.goto('/');await expect(page.getByRole('heading',{name:'Track spending. Know what remains.'})).toBeVisible();await expect(page.getByLabel('Email address')).toHaveCount(0);
+ await page.getByRole('link',{name:'Sign in',exact:true}).click();await expect(page).toHaveURL(/\/login$/);await page.getByRole('button',{name:'Create account',exact:true}).click();await expect(page).toHaveURL(/\/signup$/);await expect(page.getByLabel('Confirm password')).toBeVisible();await page.goBack();await expect(page).toHaveURL(/\/login$/);
+ await page.getByRole('button',{name:'Explore the demo',exact:true}).click();await expect(page).toHaveURL(/\/demo\/overview$/);await page.getByRole('button',{name:'Money Log',exact:true}).click();await expect(page).toHaveURL(/\/demo\/money-log$/);await page.reload();await expect(page.getByRole('heading',{name:'Money Log',exact:true})).toBeVisible();await page.goBack();await expect(page).toHaveURL(/\/demo\/overview$/);await page.goForward();await expect(page).toHaveURL(/\/demo\/money-log$/);
+});
+test('private deep links require sign-in, demo deep links and public documents reload',async({page})=>{
+ await page.goto('/app/reports');await expect(page).toHaveURL(/\/login$/);await expect(page.getByLabel('Email address')).toBeVisible();
+ for(const path of ['income','money-plan','reports','categories','settings']){await page.goto('/demo/'+path);await expect(page.locator('.main h1')).toBeVisible();await expect(page.locator('meta[name=robots]')).toHaveAttribute('content','noindex, follow');await expect(page.locator('body')).toHaveJSProperty('scrollWidth',await page.locator('body').evaluate(el=>el.clientWidth));}
+ await page.goto('/guide');await expect(page.getByRole('heading',{name:'Open a page directly'})).toBeVisible();await expect(page.getByRole('link',{name:'Demo Money Log'})).toHaveAttribute('href','/demo/money-log');await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href','https://paisatrace.hirubix.com/guide');
+});
+test('sign-in fits representative laptop and tablet screens',async({page})=>{await page.goto('/login');for(const size of [{width:1366,height:768},{width:1024,height:768},{width:768,height:1024},{width:768,height:700}]){await page.setViewportSize(size);expect(await page.evaluate(()=>document.documentElement.scrollHeight)).toBeLessThanOrEqual(size.height);await expect(page.getByRole('button',{name:'Sign in',exact:true})).toBeInViewport();}});
