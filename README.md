@@ -157,3 +157,13 @@ The Income and connected Money Plan model above replaces the earlier monthly Goa
 ## Money Plan consolidation — 11 October
 
 Primary navigation is Overview, Money Log, Income, Money Plan and Reports. Goals precede Spending plan in one page with a shared period/currency. Whole-period allocation totals exclude forecasts, lifetime targets and actual contributions already posted. No income target is required or used. Saved commitments include paused/completed goals until explicitly cleared for the selected period. Category limits must fit inside an explicit base overall limit; rollover remains separate. See [release mapping and acceptance evidence](docs/MONEY_PLAN_RELEASE.md). Apply rerunnable migration014 before this frontend; it preserves records and existing private access.
+
+## Current public domain and page routes — 12 October 2026
+
+Production is https://paisatrace.hirubix.com. Set VITE_SITE_URL to that origin. Supabase Site URL uses this domain; the exact allowed email return destination is https://paisatrace.hirubix.com/auth/callback. Earlier Vercel redirects remain allowed for existing emails. Password sign-in stays primary.
+
+Public home `/`, `/about`, `/guide`, `/privacy`, and `/terms` have canonical URLs and are the only sitemap pages. Legacy `.html` policy/guide links redirect permanently to their clean URLs. Discovery files `/sitemap.xml`, `/robots.txt`, `/llms.txt`, and `/llm.txt` use the custom domain. Sign-in `/login`, account creation `/signup`, recovery `/forgot-password`, and `/auth/callback` are separate and excluded from indexing.
+
+Workspace routes are `/app/overview`, `/app/money-log`, `/app/income`, `/app/money-plan`, `/app/reports`, `/app/categories`, `/app/settings`; `/app/admin` also requires server-authorized admin membership. The same seven workspace paths under `/demo/` open isolated browser-only sample data directly. Private links redirect to sign-in and remember only an allow-listed return path. Reload, Back and Forward retain the destination. Vercel serves route-specific noindex HTML shells, rather than exposing account pages as public content. Unknown URLs have no catch-all rewrite.
+
+Page navigation changes the browser pathname and document title, so an approved future GA4 integration can measure route changes without hash-based page names. Analytics remains paused; no visitor tracking is enabled by this release. Paths contain no email, financial amounts or authentication tokens. Sessions and demo data on an earlier origin cannot be shared automatically with this new origin: existing users sign in normally and retain their server-held ledger.

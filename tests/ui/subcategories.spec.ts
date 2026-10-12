@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
 
 test('optional expense subcategories persist and keep parent totals', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Explore the demo' }).click();
+  await page.getByRole('link', { name: 'Explore the demo' }).click();
   await page.getByRole('button', { name: 'Categories', exact: true }).click();
   await page.locator('.compact-category-family').filter({has:page.getByText('Home',{exact:true})}).locator('summary').click();
   await page.getByRole('button', { name: 'Add subcategory to Home', exact: true }).click();
@@ -21,7 +21,6 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await page.getByRole('button',{name:'View entry',exact:true}).click();
   await expect(page.getByRole('row').filter({hasText:'Utilities'})).toContainText('Home');
   await page.reload();
-  await page.getByRole('button', { name: 'Explore the demo' }).click();
   await page.getByRole('button', { name: 'Money Log', exact: true }).click();
   await logMonth(page,'2026','03');
   await page.getByLabel('Search entries', { exact: true }).fill('Utilities');
@@ -35,7 +34,7 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
 });
 
  test('savings and investments pick subcategories and preserve parent totals',async({page})=>{
- await page.goto('/');await page.getByRole('button',{name:'Explore the demo'}).click();
+ await page.goto('/');await page.getByRole('link',{name:'Explore the demo'}).click();
  for(const [kind,choice,amount] of [['Savings','Travel savings','100'],['Investments','Stocks','200']]){
  await page.getByRole('button',{name:'Add expense',exact:true}).first().click();await page.getByRole('radio',{name:kind,exact:true}).check();await page.getByLabel('Category',{exact:true}).selectOption({label:kind+' → '+choice});await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:'Save entry',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
  await expect(page.getByText(choice,{exact:true})).toBeVisible();

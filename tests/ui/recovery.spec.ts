@@ -14,7 +14,7 @@ test('verified recovery opens password form, survives reload, and updates the sa
   await expect(page.getByRole('heading',{name:'Set your password',exact:true})).toHaveCount(0);
   await page.getByLabel('Your email address',{exact:true}).fill(user.email);
   await page.getByRole('button',{name:'Continue to password recovery',exact:true}).click();
-  await expect(page.getByRole('heading', {name:'Set your password',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading', {name:'Set your password',exact:true})).toBeVisible();await expect(page).toHaveURL(/\/auth\/callback$/);await expect(page.getByRole('button',{name:'Sign in',exact:true})).toHaveCount(0);
   await page.reload(); await expect(page.getByRole('heading', {name:'Set your password',exact:true})).toBeVisible();
   await page.getByLabel('Password',{exact:true}).fill('fixture phrase only'); await page.getByLabel('Confirm password').fill('fixture phrase only');
   await page.getByRole('button',{name:'Save password'}).click(); await expect(page.getByRole('heading',{name:'Set your password',exact:true})).toHaveCount(0); expect(updated).toBe(true);

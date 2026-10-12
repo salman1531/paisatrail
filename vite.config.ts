@@ -1,10 +1,21 @@
+import {parseRoute,routeTitle,migratedOrigin} from './src/routes';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');
-  const site = env.VITE_SITE_URL?.replace(/\/$/, '');
+  const site = migratedOrigin(env.VITE_SITE_URL?.replace(/\/$/, '')||'');
   const publicReady = Boolean(site && env.VITE_OPERATOR_NAME && env.VITE_CONTACT_EMAIL && (env.VITE_PUBLIC_POLICY_REVIEWED ?? env.VITE_POLICY_REVIEWED) === 'true');
-  return { server:{watch:{usePolling:true,interval:300}}, plugins: [react(), {name: 'public-metadata', transformIndexHtml() {
+  return { server:{watch:{usePolling:true,interval:300}}, plugins: [react(), {name: 'public-metadata', enforce:'post', configureServer(server){server.middlewares.use((req,_res,next)=>{const request=req as unknown as {url?:string};const [path,query]=String(request.url).split('?');if(['/guide','/about','/privacy','/terms'].includes(path.replace(/\/$/,'')))request.url=path.replace(/\/$/,'')+'.html'+(query?'?'+query:'');next();});}, transformIndexHtml: {order:'post',handler(html,ctx) {
+    const route=parseRoute(ctx.path==='/'||ctx.path==='/index.html'?'/':ctx.path);
+    if(route.area!=='home'){html=html.replace(/<title>[^<]*<\/title>/,'<title>'+routeTitle(route)+'</title>');}
+    return {html,tags: metadata(route.area==='home')};
+  }}, generateBundle: {order:"post",handler(_options,bundle){
+    const entry=bundle['index.html'];if(!entry||entry.type!=='asset')return;
+    const original=String(entry.source);
+    const paths=['login','signup','forgot-password','auth/callback',...['app','demo'].flatMap(area=>['overview','money-log','income','money-plan','reports','categories','settings',...(area==='app'?['admin']:[])].map(page=>area+'/'+page))];
+    for(const path of paths){const html=original.replace(/<title>[^<]*<\/title>/,'<title>'+routeTitle(parseRoute('/'+path))+'</title>').replace(/(<meta name="robots" content=")[^"]*/,'$1noindex, follow').replace(/(<link rel="canonical" href=")[^"]*/, '$1'+site+'/'+path).replace(/(<meta property="og:url" content=")[^"]*/, '$1'+site+'/'+path);this.emitFile({type:'asset',fileName:path+'/index.html',source:html});}
+  }}}] };
+  function metadata(home:boolean) {
     const description='Track daily expenses, income, savings and investments with PaisaTrace. Set monthly budgets in PKR or other currencies and review your spending. Free for personal use.';
     const sharing = [
       {tag:'meta',attrs:{property:'og:site_name',content:'PaisaTrace'}},
@@ -17,6 +28,6 @@ export default defineConfig(({ mode }) => {
       ...(site ? [{tag:'meta',attrs:{property:'og:url',content:site+'/'}},{tag:'meta',attrs:{property:'og:image',content:site+'/social-card.png'}},{tag:'meta',attrs:{property:'og:image:alt',content:'PaisaTrace — Track spending. Plan your month.'}},{tag:'meta',attrs:{property:'og:image:width',content:'1200'}},{tag:'meta',attrs:{property:'og:image:height',content:'630'}},{tag:'meta',attrs:{name:'twitter:image',content:site+'/social-card.png'}},
       {tag:'script',attrs:{type:'application/ld+json'},children:JSON.stringify({'@context':'https://schema.org','@type':'WebSite',name:'PaisaTrace',alternateName:'Paisa Trace',url:site+'/',inLanguage:'en',description}).replace(/</g,'\\u003c')}] : [])
     ].map(tag=>({...tag,injectTo:'head' as const}));
-    return [...sharing, {tag: 'meta', attrs: {name: 'robots', content: publicReady ? 'index, follow' : 'noindex, follow'}, injectTo: 'head'}, ...(site ? [{tag: 'link', attrs: {rel: 'canonical', href: site + '/'}, injectTo: 'head' as const}] : [])];
-  }}] };
+    return [...sharing, {tag: 'meta', attrs: {name: 'robots', content: publicReady && home ? 'index, follow' : 'noindex, follow'}, injectTo: 'head' as const}, ...(site ? [{tag: 'link', attrs: {rel: 'canonical', href: site + '/'}, injectTo: 'head' as const}] : [])];
+  }
 });
