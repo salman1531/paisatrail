@@ -9,7 +9,7 @@ export default function OverviewSummary({ledger,filter,editGoals,details,addExpe
  const monthly=!filter.startDate&&filter.year!=='all'&&filter.month!=='all';
  const cards=[
   {id:'income',name:'Income recorded',amount:values.income,foot:'Money received',kind:'income' as Kind},
-  {id:'remaining',name:'Income left after allocations',amount:values.income<=0?null:left,foot:values.income<=0?'Record income to see this total':'Income − spending − net contributions',negative:values.income>0&&left<0},
+  {id:'remaining',name:'Income left (recorded)',amount:values.income<=0?null:left,foot:values.income<=0?'Record income to see this total':'Income − spending − net contributions',negative:values.income>0&&left<0},
   {id:'saving',name:'Savings added, net',amount:values.saving,foot:'Contributions minus withdrawals',kind:'saving' as Kind},
   {id:'investment',name:'Investments added, net',amount:values.investment,foot:'Contributions, not market value',kind:'investment' as Kind}
  ];

@@ -1,0 +1,15 @@
+# Recorded money, drill-down and sign-in refinement — 13 October 2026
+
+Money Plan leads with Recorded money and visible Income left (recorded), followed by income, spending and net savings/investment contributions. Planned commitments groups goal plans and spending limits separately. Unassigned in plan is inside Plan details; over-allocation warnings remain visible. Existing moneyPlanSummary calculations, ownership and persistence are unchanged. Overview uses the same recorded-income label.
+
+Money Log headings name the selected type and actual count. Removable chips expose type, currency, category, child, payment and search. Removing a chip leaves unrelated scopes and applied dates intact; category removal preserves an independently selected child. Compact applied dates have Edit dates, opening the existing date modes/inputs. List, export and post-save scope still use one entryMatchesView predicate.
+
+Matching unlinked contributions expose Use existing savings (investment goals use Use existing investments). The existing explicit association-only linking flow remains in use; currency, funding type and ownership must match. More retains existing withdrawal linking. Duplicate-starting-savings warnings remain at the choice; linking never creates another transaction.
+
+Sign-in is a contained two-panel card with reduced laptop gutters, a wider form and mobile form-first layout. Terms and Privacy sit beside Create account and signup submission, opening separately so drafts remain intact. Password authentication, redirects and the five main navigation tabs remain unchanged. Registration errors, verification notices and expanded footer links may require natural scrolling on short screens.
+
+Guide instructions, four synthetic screenshots and LLM navigation reflect the refinement. No privacy/terms data practices, database schema, permissions or analytics changed.
+
+Verification: 130 unit/database tests, including ownership/currency/funding eligibility, unchanged recorded-vs-planned amounts and identical rendered financial/action labels for demo and ordinary-account fixtures. Connected browser checks cover eight actual sign-in sizes (1800×1040 through 320×740), and three changed financial pages at six actual widths (320, 390, 660, 768, 1024, 1440). No excess initial sign-in height or horizontal page overflow remained. Expense drill-down showed Expenses · 5 and independent Expenses/PKR chips; Edit dates opened inputs. Linking the October 5,400 PKR sample raised goal savings to 91,800 while actual totals and nine current-period records remained unchanged. Five mobile tabs confirmed.
+
+The Playwright run was attempted but Chrome SIGABRT blocked launch before assertions. UI specifications were updated and added; they are not claimed as passing runs. Label parity used the shared rendered components; a live ordinary-account sign-in and physical-device keyboard/assistive technology were not exercised. Publication/build/readbacks are recorded in the workspace release output after deployment. Keep the preexisting index.html edit out of publication.
