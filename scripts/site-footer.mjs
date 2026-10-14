@@ -2,7 +2,7 @@
 export function footerGroups(email = '') {
   const support = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? [{label:'Contact support',href:`mailto:${email}?subject=PaisaTrace%20support`}] : [];
   return [
-    {title:'Explore',links:[{label:'Home',href:'/'},{label:'About PaisaTrace',href:'/about'},{label:'Demo workspace',href:'/demo/overview'}]},
+    {title:'Explore',links:[{label:'Home',href:'/'},{label:'About PaisaTrace',href:'/about'},{label:'Blog',href:'/blog'},{label:'Demo workspace',href:'/demo/overview'}]},
     {title:'Account',links:[{label:'Account sign-in',href:'/login'},{label:'Create an account',href:'/signup'},{label:'Reset password',href:'/forgot-password'}]},
     {title:'Help',links:[{label:'User guide',href:'/guide'},...support]},
     {title:'Legal',links:[{label:'Privacy policy',href:'/privacy'},{label:'Terms and conditions',href:'/terms'},{label:'Third-party notices',href:'/third-party-notices.txt'}]},

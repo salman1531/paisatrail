@@ -172,6 +172,22 @@
     {
       "source": "/terms",
       "destination": "/terms/index.html"
+    },
+    {
+      "source": "/blog",
+      "destination": "/blog/index.html"
+    },
+    {
+      "source": "/blog/how-to-track-daily-expenses",
+      "destination": "/blog/how-to-track-daily-expenses/index.html"
+    },
+    {
+      "source": "/blog/budget-around-payday",
+      "destination": "/blog/budget-around-payday/index.html"
+    },
+    {
+      "source": "/blog/budget-with-irregular-income",
+      "destination": "/blog/budget-with-irregular-income/index.html"
     }
   ],
   "redirects": [

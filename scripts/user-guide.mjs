@@ -16,7 +16,7 @@ const steps = [
     'Open optional Income sources and choose Add source to name an employer, client, business or property. Select its category, regular or variable pattern and default currency. You can optionally add an expectation for the current period. A source is who pays you; Freelance is a category, while Client A is a source.',
     'Open optional Upcoming income → Add expected payment for money not received yet. When it arrives, choose Record receipt. Review the prefilled category, source, currency, date and amount, then Save entry. For a partial receipt, enter only the amount that arrived.',
     'A PKR 30,000 expectation with a PKR 20,000 receipt leaves PKR 10,000 still expected. Edit expectation to revise its total, or Cancel remainder. Edit or delete the linked Money Log entry to correct a receipt.'
-  ], 'Expected payments never increase actual income or available money. Each receipt is one transaction, linked to its expectation. Received uses the receipt date; the expectation remains in its original planning period.'],
+  ], 'Expected payments never increase actual income or recorded-money totals. Each receipt is one transaction, linked to its expectation. Received uses the receipt date; the expectation remains in its original planning period.'],
   ['expenses', 'Add everyday expenses', [
     'Choose Add expense beneath Budget remaining on Overview. In Money Log, choose Add entry and select Expenses. Enter the amount and choose what you spent on, such as Home → Rent or Transport → Petrol. The picker groups choices by parent, offers recent selections first, and has Search for finding a name.',
     'For a choice that is missing, select Other — enter a custom name and enter a spending name. It becomes a reusable expense category.',
@@ -36,7 +36,7 @@ const steps = [
     'For money taken back out, choose Withdrawal and enter a positive amount. The app subtracts it from that type’s net contributions.'
   ], 'These totals measure money contributed minus withdrawals, not your bank balance or market returns. Record each movement once; moving money into savings is not also an expense.'],
   ['categories', 'Make categories fit your life', [
-    'Open Categories. Search by category or subcategory name, filter by type and Active/Archived status,.',
+    'Open Categories. Search by category or subcategory name, filter by type and Active/Archived status.',
     'Choose Other — enter a custom name in an entry form to create a reusable category without leaving the form. Or use Add category for a main group. Expand Subcategories, then use Add subcategory to [category name] for detail within expenses, savings or investments—for example Home → Rent and Bills.',
     'Open More → Edit to rename a category or restore an archived category. Archive hides a linked choice while its existing entries stay intact. Delete appears only for unused choices.'
   ], 'Main totals include their subcategories once. Money Plan connects named savings and investment goals with optional spending limits. Their actual amounts include subcategories once; archiving a linked choice keeps its history intact.'],
