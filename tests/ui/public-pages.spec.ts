@@ -1,5 +1,23 @@
 import { expect, test } from '@playwright/test';
 
+test('homepage HTTP response contains the product and crawlable public links before JavaScript',async({request})=>{
+ const response=await request.get('/');expect(response.status()).toBe(200);const html=await response.text();
+ expect(html).toContain('Track expenses.<br/>Know what remains.');expect(html).toContain('A free expense tracker and budget planner for everyday life.');expect(html).not.toContain('Loading PaisaTrace');
+ for(const path of ['/about','/guide','/privacy','/terms','/signup','/demo/overview'])expect(html).toContain(`href="${path}"`);
+ expect((html.match(/<h1\b/g)||[]).length).toBe(1);expect(html).toContain('Track expenses, record income and plan your budget with PaisaTrace.');
+ const about=await request.get('/about');expect(await about.text()).toContain('<title>About PaisaTrace — Simple Personal Finance Tracking</title>');
+});
+
+test('private route HTTP shells stay noindex and omit duplicate public landing content',async({request})=>{
+ for(const path of ['/login','/auth/callback','/app/settings','/demo/money-log']){const response=await request.get(path);expect(response.status()).toBe(200);const html=await response.text();expect(html).toContain('noindex, follow');expect(html).not.toContain('home-hero');expect(html).toContain('Opening PaisaTrace');}
+});
+
+test('blog HTTP responses contain all supplied articles and matching visible structured metadata',async({request})=>{
+ const hub=await request.get('/blog');expect(hub.status()).toBe(200);const html=await hub.text();
+ for(const slug of ['how-to-track-daily-expenses','budget-around-payday','budget-with-irregular-income']){expect(html).toContain(`href="/blog/${slug}"`);const response=await request.get('/blog/'+slug);expect(response.status()).toBe(200);const article=await response.text();expect(article).not.toContain('AI-assisted');expect(article).toContain('datetime="2026-10-14"');expect(article).toContain('"@type":"BlogPosting"');expect(article).toContain('"@type":"BreadcrumbList"');expect(article).not.toContain('human editorial review required');}
+ const sitemap=await request.get('/sitemap.xml');expect(await sitemap.text()).toContain('/blog/budget-with-irregular-income</loc>');
+});
+
 test('public policy drafts and discovery files work before sign-in', async ({ page, request }) => {
   await page.goto('/');
   await expect(page).toHaveTitle('PaisaTrace — Expense Tracker & Monthly Budget');

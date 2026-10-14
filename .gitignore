@@ -29,3 +29,6 @@ public/about/
 public/guide/
 public/privacy/
 public/terms/
+
+.generated/
+public/blog/
