@@ -22,3 +22,9 @@ export function comparisonRanges(period:PlanningPeriod,previous:PlanningPeriod,a
  const priorEnd=inProgress&&!fullPrevious?addDays(previous.start,elapsed-1):previous.end;
  return {current,previous:{start:previous.start,end:priorEnd>previous.end?previous.end:priorEnd},inProgress,notStarted,asOf};
 }
+
+/** Linking reuses owned records with the goal's fixed currency and funding type. */
+export function eligibleGoalEntries(ledger:Ledger,goal:NamedGoal,contributionsOnly=false) {
+ if(goal.user_id!==ledger.profile.user_id)return [];
+ return ledger.entries.filter(e=>e.user_id===ledger.profile.user_id&&!e.named_goal_id&&e.currency===goal.currency&&(!contributionsOnly||(!e.withdrawal&&e.amount_minor>0))&&ledger.categories.some(c=>c.id===e.category_id&&c.user_id===ledger.profile.user_id&&c.kind===goal.funding_kind));
+}
