@@ -173,3 +173,5 @@ Page navigation changes the browser pathname and document title, so an approved 
 13 October clarity update: Money Plan separates recorded money from planned commitments, with Unassigned in plan in optional Plan details. Money Log names its selected type/count and provides removable filter chips plus Edit dates. Eligible goals offer Use existing savings without creating another entry. Authentication has a compact card and policy links beside account creation. See docs/CLARITY_RELEASE.md.
 
 14 October SEO release: the shared homepage is prerendered at build time; account/demo code loads on demand. The supplied three articles live in content/blog, generated under /blog with sitemap/LLM/navigation links. Run node scripts/check-public-build.mjs after the production build. See docs/SEO_RELEASE.md for checks and limits.
+
+15 October SEO reinspection: organization bylines, matching author metadata, original article diagrams, worked examples and blank worksheets strengthen the three supplied guides. The blog hub and homepage explanations are clearer; sitemap remains nine public URLs. See docs/SEO_REINSPECTION_RELEASE.md for verification and limits.

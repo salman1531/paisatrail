@@ -140,3 +140,5 @@ Verification: 83 unit/database tests and production build pass. Chrome UI suite 
 ## Money Plan consolidation — current release
 
 The supplied 11 October Money Plan requirements supersede separate Budgets/Goals presentation and legacy income-target prompts. Read `docs/MONEY_PLAN_RELEASE.md` for domain mapping, calculations, migration014 and acceptance evidence. Money Plan has summary → Goals → Spending plan → optional Recorded activity, with one exact period/currency. Income leads with received money; expectations and sources are secondary. Plans do not resize after posting activity or receiving more income. Pause/complete offers keep or clear current plan. Existing financial history and private access remain intact.
+
+15 October SEO reinspection is documented in docs/SEO_REINSPECTION_RELEASE.md. Article authorship is PaisaTrace, linked to About editorial responsibility. Public examples and worksheet assets are synthetic; existing demo edits and real records remain intact. Search Console ownership and sitemap were explicitly approved for the custom domain; final live results are recorded in release evidence. GA remains paused.
