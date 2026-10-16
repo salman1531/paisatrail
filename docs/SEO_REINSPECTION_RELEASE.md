@@ -21,3 +21,9 @@ Connected-browser checks cover seven pages at 1440, 768, 390 and 320px: Home, Bl
 PageSpeed API returned 429 for Home, Blog and an article, so no Lighthouse score or field Core Web Vitals result is claimed. Search indexing and rich-result display remain Google decisions. Release evidence outside Git records the deployment and actual Search Console results.
 
 Keep the preexisting unstaged index.html guide-link edit separate from this release. Build assets and blank worksheets are generated; diagrams are committed and their reproducible local generator is included. The production build does not require Python.
+
+## 17 October publication verification
+
+PR11 was merged and deployed successfully. Search Console ownership is verified; sitemap status is Success with nine discovered pages. Home and all three articles are indexed, with matching declared/selected custom-domain canonicals. All five live tests (Home, Blog and three articles) succeed. Blog is discovered but not yet indexed; Google accepted its indexing request. Field Core Web Vitals has insufficient mobile/desktop data, and PageSpeed still returns429.
+
+Google Rich Results Test accepts Article and Breadcrumb data. Its optional date/time warnings are addressed using recorded release times: PR10 publication at 2026-10-14T07:06:31Z and PR11 substantive update publication at 2026-10-16T19:51:16Z. Values include the operator's +05:00 timezone; the visible update date is therefore17 October. These are known release timestamps, not guessed writing times. Shared-template tests protect valid timestamps and visible/structured date agreement.
