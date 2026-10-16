@@ -11,17 +11,6 @@ export default function MoneyPlan({ledger,period,currency,busy,saveBudget,saveGo
  useEffect(()=>{if(section)focusSection(section.name);},[section?.request]);
  const otherCurrencies=[...new Set((ledger.namedGoals??[]).filter(g=>g.currency!==currency).map(g=>g.currency))];
  return <div className="money-plan-page">
- <section className="panel recorded-money" aria-label="Recorded money">
-  <div className="panel-head"><h2>Recorded money</h2><details className="context-help"><summary>How income left is calculated</summary><p>Income recorded − spending − net savings − net investments. Starting goal savings and upcoming income are excluded. This is based on your records, not a bank balance.</p></details></div>
-  <dl className="recorded-money-values">
-   <div className={summary.recordedLeft<0?'recorded-income-left recorded-deficit':'recorded-income-left'}><dt>Income left (recorded)</dt><dd><MoneyValue amount={summary.recordedLeft} currency={currency}/></dd></div>
-   <div><dt>Income recorded</dt><dd><MoneyValue amount={summary.received} currency={currency}/></dd></div>
-   <div><dt>Spending recorded</dt><dd><MoneyValue amount={summary.actual.expense} currency={currency}/></dd></div>
-   <div><dt>Savings added, net</dt><dd><MoneyValue amount={summary.actual.saving} currency={currency}/></dd></div>
-   <div><dt>Investments added, net</dt><dd><MoneyValue amount={summary.actual.investment} currency={currency}/></dd></div>
-  </dl>
-  <div className="planning-actions"><button className="text-button" disabled={busy} onClick={()=>entry('income')}>Record income</button><button className="text-button" disabled={busy} onClick={()=>entry('expense')}>Record expense</button><button className="text-button" onClick={records}>View Money Log</button></div>
- </section>
  <section className="panel money-plan-summary" aria-label="Period plan summary">
   <div className="panel-head"><h2>Planned commitments</h2></div>
   <dl className="plan-total-grid plan-commitment-values">
@@ -36,6 +25,18 @@ export default function MoneyPlan({ledger,period,currency,busy,saveBudget,saveGo
  {otherCurrencies.length>0&&<p className="other-currency-goals">You also have goals in {otherCurrencies.join(', ')}. {otherCurrencies.map(c=><button className="text-button" key={c} onClick={()=>changeCurrency(c)}>View {c} goals</button>)}</p>}
  <div ref={goalsRef}><GoalsPanel ledger={ledger} period={period} currency={currency} busy={busy} save={saveGoal} entry={entry} link={link}/></div>
  <div ref={spendingRef}><BudgetsPanel ledger={ledger} period={period} currency={currency} busy={busy} save={saveBudget} editRequest={editRequest}/></div>
+ <section className="panel recorded-money" aria-label="Recorded money">
+  <div className="panel-head"><h2>Recorded money</h2><details className="context-help"><summary>How income left is calculated</summary><p>Income recorded − spending − net savings − net investments. Starting goal savings and upcoming income are excluded. This is based on your records, not a bank balance.</p></details></div>
+  <dl className="recorded-money-values">
+   <div className={summary.recordedLeft<0?'recorded-income-left recorded-deficit':'recorded-income-left'}><dt>Income left (recorded)</dt><small>Income after recorded outflows</small><dd><MoneyValue amount={summary.recordedLeft} currency={currency}/></dd></div>
+   <div><dt>Income recorded</dt><dd><MoneyValue amount={summary.received} currency={currency}/></dd></div>
+   <div><dt>Spending recorded</dt><dd><MoneyValue amount={summary.actual.expense} currency={currency}/></dd></div>
+   <div><dt>Savings added, net</dt><dd><MoneyValue amount={summary.actual.saving} currency={currency}/></dd></div>
+   <div><dt>Investments added, net</dt><dd><MoneyValue amount={summary.actual.investment} currency={currency}/></dd></div>
+  </dl>
+  <div className="planning-actions"><button className="text-button" disabled={busy} onClick={()=>entry('income')}>Record income</button><button className="text-button" disabled={busy} onClick={()=>entry('expense')}>Record expense</button><button className="text-button" onClick={records}>View Money Log</button></div>
+ </section>
+
 
  </div>;
 }
