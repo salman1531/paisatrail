@@ -14,7 +14,7 @@ test('private route HTTP shells stay noindex and omit duplicate public landing c
 
 test('blog HTTP responses contain all supplied articles and matching visible structured metadata',async({request})=>{
  const hub=await request.get('/blog');expect(hub.status()).toBe(200);const html=await hub.text();
- for(const slug of ['how-to-track-daily-expenses','budget-around-payday','budget-with-irregular-income']){expect(html).toContain(`href="/blog/${slug}"`);const response=await request.get('/blog/'+slug);expect(response.status()).toBe(200);const article=await response.text();expect(article).not.toContain('AI-assisted');expect(article).toContain('datetime="2026-10-14"');expect(article).toContain('"@type":"BlogPosting"');expect(article).toContain('"@type":"BreadcrumbList"');expect(article).not.toContain('human editorial review required');}
+ for(const slug of ['how-to-track-daily-expenses','budget-around-payday','budget-with-irregular-income']){expect(html).toContain(`href="/blog/${slug}"`);const response=await request.get('/blog/'+slug);expect(response.status()).toBe(200);const article=await response.text();expect(article).not.toContain('AI-assisted');expect(article).toContain('datetime="2026-10-14"');expect(article).toContain('"@type":"BlogPosting"');expect(article).toContain('rel="author" href="/about#editorial">PaisaTrace');expect(article).toContain('id="try-it"');expect(article).toContain('datetime="2026-10-15"');expect(article).toContain('"@type":"BreadcrumbList"');expect(article).not.toContain('human editorial review required');}
  const sitemap=await request.get('/sitemap.xml');expect(await sitemap.text()).toContain('/blog/budget-with-irregular-income</loc>');
 });
 

@@ -219,3 +219,5 @@ html{scrollbar-gutter:stable}dialog{overscroll-behavior:contain}.amount-field{mi
 @media(min-width:701px) and (max-width:900px) and (max-height:800px){.auth-page .login-main{padding-block:18px}}
 
 .home-page header,.home-page header nav{flex-wrap:wrap}
+
+.home-workflow-links{color:#526a5b;font-size:14px;line-height:1.9;margin-top:22px}.home-workflow-links a{display:inline-block;min-height:40px;font-weight:650;text-underline-offset:4px}.demo-banner label{display:flex;align-items:center;gap:8px}.demo-currency-label{font-size:12px;white-space:nowrap}@media(max-width:700px){.money-log-page .demo-currency-label,.money-plan-layout .demo-currency-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}}

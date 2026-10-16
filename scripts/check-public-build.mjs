@@ -3,6 +3,7 @@ import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
 import {homeDescription} from './seo-html.mjs';
 import {posts,blogPaths} from './blog.mjs';
+import {resources} from './blog-resources.mjs';
 const dir=resolve(process.argv[2]||'dist');
 const read=path=>readFile(resolve(dir,path),'utf8');
 const home=await read('index.html');
@@ -13,6 +14,7 @@ assert.equal((home.match(/<h1\b/g)||[]).length,1);
 assert(home.includes('Track expenses.<br/>Know what remains.'));
 assert(home.includes(homeDescription));
 assert(!home.includes('Loading PaisaTrace'));
+assert(home.includes('8SimNb7oI6D1mlfI4svzAxFIQzMrrgFuaPt_sHxb4gU'),'Approved Search Console verification remains in initial HTML');
 for(const path of ['/signup','/login','/demo/overview','/about','/guide','/privacy','/terms','/blog'])assert(home.includes(`href="${path}"`),`Initial HTML must link ${path}`);
 const schemas=[...home.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));
 assert(schemas.some(s=>s['@type']==='WebSite'&&s.url===canonical));
@@ -43,6 +45,9 @@ for(const post of posts){
  assert.equal((html.match(/<h1\b/g)||[]).length,1);
  assert(html.includes('index, follow'));assert(!html.includes('AI-assisted'));
  const schema=JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+ assert.equal(schema['@graph'][0].author.name,'PaisaTrace');assert.equal(schema['@graph'][0].author.url,origin+'/about#editorial');assert((await read('about/index.html')).includes('id="editorial"'));assert.equal(schema['@graph'][0].dateModified,post.modified);assert(html.includes(`datetime="${post.modified}"`));
+ const visual=resources[post.slug];assert.equal(schema['@graph'][0].image,origin+'/blog-images/'+visual.image);assert(html.includes(`src="/blog-images/${visual.image}"`));const image=await readFile(resolve(dir,'blog-images/'+visual.image));assert.equal(image.readUInt32BE(16),1200);assert.equal(image.readUInt32BE(20),675);
+ for(const link of html.matchAll(/href="#([^"]+)"/g))assert(html.includes(`id="${link[1]}"`));
  assert.equal(schema['@graph'][0].datePublished,post.published);assert.equal(schema['@graph'][0].headline,post.title);
  for(const match of html.matchAll(/href="(\/[^"?#]*)(#[^"]+)?"/g)){
   await stat(resolve(dir,match[1]==='/'?'index.html':match[1].slice(1)+(/\.[a-z]+$/.test(match[1])?'':'/index.html')));
