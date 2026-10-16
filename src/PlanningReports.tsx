@@ -15,7 +15,7 @@ export default function PlanningReports({ledger,period,calendar,changePeriod,cha
  const previous=periodForDate(addDays(period.start,-1),ledger.budgetCycles,calendar),ranges=comparisonRanges(period,previous,today(ledger.profile.timezone),fullPrevious);
  const currentEntries=filtered(ledger.entries,{...periodFilter(ranges.current),currency}),priorEntries=filtered(ledger.entries,{...periodFilter(ranges.previous),currency});
  const current=totals(ledger,currentEntries,currency),before=totals(ledger,priorEntries,currency);
- return <><AnalysisScope ledger={ledger} period={period} filter={custom} change={setCustom} changePeriod={changePeriod} currency={currency} changeCurrency={changeCurrency}/>
+ return <><AnalysisScope ledger={ledger} period={period} filter={custom} change={setCustom} changePeriod={changePeriod} currency={currency} changeCurrency={c=>changeCurrency(c as Ledger['profile']['currency'])}/>
  <section className="panel report-actuals"><div className="panel-head"><h2>Recorded activity</h2><details className="context-help"><summary>About these totals</summary><p>Savings and investments are contributions minus withdrawals. Upcoming income is excluded. Open a total to see its Money Log records.</p></details></div>
  <div className="summary-grid">{activity.map(k=><button className="summary-card" key={k} onClick={()=>records({kind:k},filter)} aria-label={'View '+labels[k]+' records'}><span>{labels[k]}</span><strong><MoneyValue amount={values[k]} currency={currency}/></strong></button>)}</div></section>
  <CashFlowChart ledger={ledger} filter={filter} drill={scope=>records(scope,filter)} showScope={false}/>
