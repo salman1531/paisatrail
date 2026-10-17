@@ -12,7 +12,7 @@ export default function PeriodControls({label,title,caption,previous,next,curren
  function toggle(){setExpanded(!isOpen);onOpenChange?.(!isOpen);}
  return <section className="period-control" aria-label={label}>
   <div className="period-control-bar"><div className="period-control-dates">{previous&&<button type="button" className="icon-button" aria-label="Previous period" onClick={previous}>‹</button>}<div><strong>{title}</strong><span>{caption}</span></div>{next&&<button type="button" className="icon-button" aria-label="Next period" onClick={next}>›</button>}</div>
-   {currency&&<label className="period-control-currency"><span className="sr-only">{currency.label}</span><select aria-label={currency.label} value={currency.value} onChange={e=>currency.change(e.target.value as Currency|'all')}>{currency.allowAll&&<option value="all">All currencies</option>}{currencies.map(c=><option key={c}>{c}</option>)}</select></label>}
+   {currency&&<label className="period-control-currency"><span className="period-currency-label">{currency.label==='Reporting currency'?'Reporting':'Entries'}</span><select aria-label={currency.label} title={currency.label==='Reporting currency'?'Filters totals by currency; does not convert amounts':'Filters this entry list and its export'} value={currency.value} onChange={e=>currency.change(e.target.value as Currency|'all')}>{currency.allowAll&&<option value="all">All currencies</option>}{currencies.map(c=><option key={c}>{c}</option>)}</select></label>}
    <button type="button" className="text-button period-edit" aria-expanded={isOpen} aria-controls={id} onClick={toggle}>{isOpen?'Close dates':'Edit dates'}</button>
   </div>
   {isOpen&&<div id={id} className="period-control-fields">{children}</div>}
