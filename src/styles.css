@@ -263,3 +263,4 @@ html{scrollbar-gutter:stable}dialog{overscroll-behavior:contain}.amount-field{mi
 @media(min-width:1100px){.overview-summary.with-goals>.overview-goals{height:auto}.overview-summary .budget-hero .context-help{margin:0}}
 
 .home-budget-preview{aspect-ratio:717/280}.home-budget-preview img{position:static;width:100%;max-width:100%;height:auto;left:auto;top:auto}
+@media(max-width:767px){.money-log-page .grouped-transactions .transaction-row,.money-log-page .grouped-transactions .transaction-row:has(.money-value[data-wide="true"]){padding-top:4px;padding-bottom:4px;min-height:52px}.money-log-page .grouped-transactions .transaction-date-group{padding-top:2px;padding-bottom:2px}.money-log-page .log-scope-summary{font-size:11px;line-height:1.4;margin:4px 0 6px}.money-log-page .log-filter-toolbar{margin-top:4px;margin-bottom:6px}}

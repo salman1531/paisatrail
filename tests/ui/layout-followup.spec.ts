@@ -13,7 +13,7 @@ test('reports show four compact desktop totals and bars agree with displayed per
 });
 test('headers stay compact, short notes stay plain and phone Money Log shows at least four records',async({page})=>{
  await page.setViewportSize({width:390,height:844});for(const destination of ['overview','money-log','income','money-plan','reports']){await page.goto('/demo/'+destination);await expect(page.getByRole('heading',{level:1})).toBeVisible();const header=await page.locator('.page-header').boundingBox();expect(header!.height).toBe(44);}
- await page.goto('/demo/money-log');const visible=await page.locator('.transaction-row').evaluateAll(rows=>rows.filter(row=>row.getBoundingClientRect().bottom<innerHeight-76).length);expect(visible).toBeGreaterThanOrEqual(4);await expect(page.locator('.transaction-row').filter({hasText:'Fuel refill'}).locator('.transaction-note-details')).toHaveCount(0);
+ await page.goto('/demo/money-log');const visible=await page.locator('.transaction-row').evaluateAll(rows=>rows.filter(row=>row.getBoundingClientRect().bottom<innerHeight-76).length);expect(visible).toBeGreaterThanOrEqual(4);await expect(page.locator('.transaction-row').filter({hasText:'Fuel refill'}).locator('.transaction-note-details')).toHaveCount(0);await page.setViewportSize({width:390,height:660});const shorter=await page.locator('.transaction-row').evaluateAll(rows=>rows.filter(row=>row.getBoundingClientRect().bottom<innerHeight-76).length);expect(shorter).toBeGreaterThanOrEqual(3);
  await page.getByLabel('About demo and reporting currencies').click();await expect(page.locator('.demo-currency-help')).toContainText('never converts amounts');
 });
 test('only clipped notes expand and saving keeps recorded and planned balances distinct',async({page})=>{
