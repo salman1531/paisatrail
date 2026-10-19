@@ -40,6 +40,8 @@ assert((await read('about/index.html')).includes('<title>About PaisaTrace — Si
 assert(!(await read('guide/index.html')).includes('status,.'));
 assert((await stat(resolve(dir,'social-card.png'))).size>0);
 const guide=await read('guide/index.html');
+const hosting=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
+for(const path of blogPaths)assert(hosting.rewrites.some(route=>route.source===path&&route.destination===path+'/index.html'),'Public blog route has an explicit hosting rewrite: '+path);
 for(const post of posts){
  const html=await read('blog/'+post.slug+'/index.html');
  assert.equal((html.match(/<h1\b/g)||[]).length,1);
@@ -53,6 +55,8 @@ for(const post of posts){
   await stat(resolve(dir,match[1]==='/'?'index.html':match[1].slice(1)+(/\.[a-z]+$/.test(match[1])?'':'/index.html')));
   if(match[1]==='/guide'&&match[2])assert(guide.includes(`id="${match[2].slice(1)}"`),'Article guide anchor exists');
  }
- assert((await read('llms.txt')).includes(origin+'/blog/'+post.slug));
+ for(const file of ['llms.txt','llm.txt'])assert((await read(file)).includes(origin+'/blog/'+post.slug));
+ assert((await read('blog/index.html')).includes('href="/blog/'+post.slug+'"'));
+ assert((await stat(resolve(dir,'blog-worksheets/'+visual.download))).size>0);
 }
 console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:19,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),checks:'passed'}));

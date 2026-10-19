@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import {posts} from '../../scripts/blog.mjs';
 
 test('homepage HTTP response contains the product and crawlable public links before JavaScript',async({request})=>{
  const response=await request.get('/');expect(response.status()).toBe(200);const html=await response.text();
@@ -14,8 +15,8 @@ test('private route HTTP shells stay noindex and omit duplicate public landing c
 
 test('blog HTTP responses contain all supplied articles and matching visible structured metadata',async({request})=>{
  const hub=await request.get('/blog');expect(hub.status()).toBe(200);const html=await hub.text();
- for(const slug of ['how-to-track-daily-expenses','budget-around-payday','budget-with-irregular-income']){expect(html).toContain(`href="/blog/${slug}"`);const response=await request.get('/blog/'+slug);expect(response.status()).toBe(200);const article=await response.text();expect(article).not.toContain('AI-assisted');expect(article).toContain('datetime="2026-10-14T12:06:31+05:00"');expect(article).toContain('"@type":"BlogPosting"');expect(article).toContain('rel="author" href="/about#editorial">PaisaTrace');expect(article).toContain('id="try-it"');expect(article).toContain('datetime="2026-10-17T00:51:16+05:00"');expect(article).toContain('"@type":"BreadcrumbList"');expect(article).not.toContain('human editorial review required');}
- const sitemap=await request.get('/sitemap.xml');expect(await sitemap.text()).toContain('/blog/budget-with-irregular-income</loc>');
+ for(const post of posts){const slug=post.slug;expect(html).toContain(`href="/blog/${slug}"`);const response=await request.get('/blog/'+slug);expect(response.status()).toBe(200);const article=await response.text();expect(article).not.toContain('AI-assisted');expect(article).toContain(`datetime="${post.published}"`);expect(article).toContain('"@type":"BlogPosting"');expect(article).toContain('rel="author" href="/about#editorial">PaisaTrace');expect(article).toContain('id="try-it"');expect(article).toContain(`datetime="${post.modified}"`);expect(article).toContain('"@type":"BreadcrumbList"');expect(article).not.toContain('human editorial review required');}
+ const sitemap=await request.get('/sitemap.xml');expect(await sitemap.text()).toContain('/blog/how-to-save-for-a-big-purchase</loc>');
 });
 
 test('public policy drafts and discovery files work before sign-in', async ({ page, request }) => {
