@@ -175,3 +175,7 @@ Page navigation changes the browser pathname and document title, so an approved 
 14 October SEO release: the shared homepage is prerendered at build time; account/demo code loads on demand. The supplied three articles live in content/blog, generated under /blog with sitemap/LLM/navigation links. Run node scripts/check-public-build.mjs after the production build. See docs/SEO_RELEASE.md for checks and limits.
 
 15 October SEO reinspection: organization bylines, matching author metadata, original article diagrams, worked examples and blank worksheets strengthen the three supplied guides. The blog hub and homepage explanations are clearer; sitemap remains nine public URLs. See docs/SEO_REINSPECTION_RELEASE.md for verification and limits.
+
+## 19 October recording update
+
+Shared Record action, optional general savings, existing-record goal previews, dated expectations and receipt matching, recoverable entry removal, visible Money Log type filters, and browser-only optional diagnostics. Apply migrations015 and016 before deploying this UI (approved/applied in the existing project). Existing IDs/dates, exact currency arithmetic and five familiar destinations are preserved. See docs/RECORDING_RELEASE.md for contracts, recovery conditions, verification and remaining usability research. Recovery records stay private until restored or account deletion; external Google Analytics remains paused.

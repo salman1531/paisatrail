@@ -1,4 +1,5 @@
-import { useRef, useState, type FormEvent } from 'react';
+import {validateRecordedAmount} from './recording';
+import { useRef, useState, useEffect, type FormEvent } from 'react';
 import CategoryPicker from './CategoryPicker';
 import PaymentTypeField, {validatePaymentType} from './PaymentTypeField';
 import { Plus, Trash2 } from 'lucide-react';
@@ -17,7 +18,7 @@ export function validateExpenseDraft(ledger:Ledger, draft:ExpenseDraft, currency
   const custom=draft.choice===customCategoryChoice;
   if(!selected&&!custom)errors.choice='Choose an expense category.';
   if(custom&&(!draft.customName.trim()||draft.customName.trim().length>60))errors.customName='Enter a name between 1 and 60 characters.';
-  let amount=0;try{amount=parseAmount(draft.amount,currency);}catch(e){errors.amount=(e as Error).message;}
+  let amount=0;try{amount=validateRecordedAmount(draft.amount,currency);}catch(e){errors.amount=(e as Error).message;}
   if(!validDate(draft.date))errors.date='Choose a valid date between 1900 and 2100.';
   let payment:string|null=null;try{payment=validatePaymentType(draft.payment);}catch(e){errors.payment=(e as Error).message;}
   if(draft.notes.length>500)errors.notes='Use no more than 500 characters.';
@@ -34,6 +35,7 @@ export default function ExpenseBatchForm({ledger,busy,close,save}:{ledger:Ledger
   const total=rows.reduce((v,r)=>{try{return v+parseAmount(r.amount,currency,true);}catch{return v;}},0);
   const invalidAmount=rows.some(r=>{if(!r.amount.trim())return false;try{parseAmount(r.amount,currency,true);return false;}catch{return true;}});
   const dirty=rows.some(r=>r.choice||r.amount||r.notes||r.customName||r.payment)||rows.length>1;
+  useEffect(()=>{if(!dirty)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
   function requestClose(){if(busy||pending.current)return;if(dirty)setDiscard(true);else close();}
   function update(id:string,key:keyof ExpenseDraft,value:string){setRows(rows=>rows.map(r=>r.id===id?{...r,[key]:value}:r));setErrors(old=>({...old,[id]:{...old[id],[key]:undefined}}));setError('');}
   async function submit(e:FormEvent){
@@ -51,7 +53,7 @@ export default function ExpenseBatchForm({ledger,busy,close,save}:{ledger:Ledger
       <div className="amount-field"><label>Amount · {currency}<input aria-label={`Expense ${i+1} amount`} inputMode="decimal" placeholder="0.00" value={r.amount} onChange={e=>update(r.id,'amount',e.target.value)} aria-invalid={!!rowError.amount} aria-describedby={rowError.amount?prefix+'-amount':undefined}/>{rowError.amount&&<small className="field-error" id={prefix+'-amount'}>{rowError.amount}</small>}</label><AmountWords value={r.amount} currency={currency}/></div>
       <label>Date<input aria-label={`Expense ${i+1} date`} type="date" min="1900-01-01" max="2100-12-31" value={r.date} onChange={e=>update(r.id,'date',e.target.value)} onInput={e=>update(r.id,'date',e.currentTarget.value)} aria-invalid={!!rowError.date}/>{rowError.date&&<small className="field-error">{rowError.date}</small>}</label>
       {r.choice===customCategoryChoice&&<label className="batch-custom">Custom spending name<input aria-label={`Expense ${i+1} custom name`} maxLength={60} value={r.customName} onChange={e=>update(r.id,'customName',e.target.value)} aria-invalid={!!rowError.customName}/>{rowError.customName&&<small className="field-error">{rowError.customName}</small>}</label>}
-      </div><PaymentTypeField label={`Expense ${i+1} payment type (optional)`} value={r.payment} onChange={value=>update(r.id,'payment',value)}/>{rowError.payment&&<small className="field-error">{rowError.payment}</small>}<details className="batch-note" open={!!r.notes}><summary>Add a note (optional)</summary><label><span className="sr-only">Expense {i+1} note</span><input maxLength={500} value={r.notes} placeholder="What was it for?" onChange={e=>update(r.id,'notes',e.target.value)}/></label></details>
+      </div><details className="batch-more-details"><summary>More details (optional)</summary><PaymentTypeField label={`Expense ${i+1} payment type (optional)`} value={r.payment} onChange={value=>update(r.id,'payment',value)}/>{rowError.payment&&<small className="field-error">{rowError.payment}</small>}<details className="batch-note" open={!!r.notes}><summary>Add a note (optional)</summary><label><span className="sr-only">Expense {i+1} note</span><input maxLength={500} value={r.notes} placeholder="What was it for?" onChange={e=>update(r.id,'notes',e.target.value)}/></label></details></details>
     </fieldset>;})}</div>
     <button type="button" className="button secondary batch-add" disabled={busy||rows.length>=50} onClick={()=>{setRows(rows=>[...rows,expenseDraft(ledger,rows.at(-1)?.choice===customCategoryChoice?'':rows.at(-1)?.choice)]);setError('');}}><Plus size={17}/>Add another expense</button>
     {error&&<p className="form-error" role="alert">{error}</p>}
