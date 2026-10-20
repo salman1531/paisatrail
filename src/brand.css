@@ -1,0 +1,6 @@
+.brand-lockup{display:inline-flex;align-items:center;gap:10px;flex-shrink:0;vertical-align:middle;white-space:nowrap;line-height:1}
+.brand-lockup .brand-icon{display:block;width:36px;height:36px;flex-shrink:0;object-fit:contain}
+.brand-lockup .brand-wordmark{font-family:Arial,sans-serif;font-size:22px;font-weight:700;letter-spacing:-.045em;line-height:1.15;color:var(--brand-wordmark,#162b24)}
+.sidebar,.login-story,.site-footer{--brand-wordmark:#f1f6f2}
+a:has(>.brand-lockup){text-decoration:none}
+@media(max-width:360px){.brand-lockup{gap:8px}.brand-lockup .brand-icon{width:32px;height:32px}.brand-lockup .brand-wordmark{font-size:20px}}

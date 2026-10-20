@@ -29,6 +29,12 @@ for(const path of ['login','signup','forgot-password','auth/callback',...['app',
  assert(!page.includes('home-hero'),path+' has no public homepage duplication');
  assert(page.includes(`href="${origin}/${path}"`),path+' canonical stays route-specific');
 }
+// Every public header and full footer must carry the same monogram + wordmark.
+const brand='<span class="brand-wordmark">PaisaTrace</span>';
+for(const path of ['index.html','about/index.html','guide/index.html','privacy/index.html','terms/index.html','blog/index.html',...posts.map(post=>'blog/'+post.slug+'/index.html')]){
+ const page=await read(path);assert(page.includes('class="brand-lockup"'),path+' includes the shared identity');assert(page.includes(brand),path+' uses the PaisaTrace wordmark');assert(page.includes('class="brand-icon" src="/favicon.svg"'),path+' uses the canonical monogram');
+}
+const favicon=await read('favicon.svg');const social=await read('social-card.svg');assert(social.includes(favicon.replace(/<svg[^>]*>|<\/svg>/g,'').trim()),'Social preview uses the same monogram');
 const sitemap=await read('sitemap.xml');
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
 assert.deepEqual(urls,['/','/about','/guide','/privacy','/terms',...blogPaths].map(p=>origin+p));

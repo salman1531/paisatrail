@@ -1,0 +1,9 @@
+# Brand consistency — 20 October 2026
+
+Every existing branded header/footer now uses the same lime tile monogram and single-weight PaisaTrace wordmark. The monogram is the canonical public/favicon.svg asset; React BrandIdentity and the static brand helper share src/brand.css for dimensions, font, spacing and responsive behavior. Dark surfaces use a light wordmark for contrast. Full public footers now carry the logo, matching the homepage footer. Authentication, workspace, confirmation, recovery and error branding use the same identity. Five-tab navigation and the compact workspace footer remain unchanged.
+
+The social preview no longer uses a separate plain P. Its SVG generator reads the canonical monogram; the committed PNG was exported from that SVG. Overview and Money Log guide screenshots were recaptured from synthetic local demo data so they no longer display the earlier wordmark. No user account or financial records were modified.
+
+Validation: 158 unit/database tests, TypeScript, production build and public-output checks passed. All ten public pages contain the shared identity and the social SVG contains the canonical monogram. Connected-browser checks covered 20 public/auth/demo pages at 1440, 768, 390 and 320px (80 checks), confirming exact PaisaTrace text, canonical asset, consistent weight and no document overflow. The signed-in workspace reuses the same App component; authenticated writes were not retested for this visual change. Three Playwright HTTP tests passed; the browser-dependent test could not start installed Chrome (SIGABRT before assertions). Physical devices and complete screen-reader behavior were not certified.
+
+Preserve the unrelated local index.html edit. Sitemap URLs, public/private indexing boundaries, authentication, financial calculations and paused remote analytics are unchanged.
