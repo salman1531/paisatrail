@@ -28,3 +28,11 @@ export function eligibleGoalEntries(ledger:Ledger,goal:NamedGoal,contributionsOn
  if(goal.user_id!==ledger.profile.user_id)return [];
  return ledger.entries.filter(e=>e.user_id===ledger.profile.user_id&&!e.named_goal_id&&e.currency===goal.currency&&(!contributionsOnly||(!e.withdrawal&&e.amount_minor>0))&&ledger.categories.some(c=>c.id===e.category_id&&c.user_id===ledger.profile.user_id&&c.kind===goal.funding_kind));
 }
+
+/** Describe observed records without judging a user's financial health. */
+export function activityChange(current:number,previous:number,currentCount:number,previousCount:number){
+ if(!previousCount)return {change:null,percent:null,message:'No earlier records for these dates; a comparison is unavailable.'};
+ if(!currentCount)return {change:null,percent:null,message:'No current records for these dates; a change is not calculated.'};
+ const change=current-previous;
+ return {change,percent:previous>0?change/previous*100:null,message:change===0?'Unchanged across these comparison dates.':change<0?'Lower across these comparison dates.':'Higher across these comparison dates.'};
+}

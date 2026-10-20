@@ -17,7 +17,7 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
   await expect(page.getByLabel('Subcategory (optional)', { exact: true })).toHaveCount(0);
   await page.getByLabel('Amount', { exact: true }).fill('50');
   await page.getByLabel('Date', { exact: true }).fill('2026-03-04');
-  await page.getByRole('button', { name: 'Save entry', exact: true }).click();
+  await page.getByRole('button', { name: /^Save (?:expense|income|savings|investment|withdrawal)$/, exact: true }).click();
   await expect(page.getByRole('button',{name:'View entry',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'View entry',exact:true}).click();
   await expect(page.getByRole('row').filter({hasText:'Utilities'})).toContainText('Home');
@@ -37,7 +37,7 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
  test('savings and investments pick subcategories and preserve parent totals',async({page})=>{
  await page.goto('/');await page.getByRole('link',{name:'Explore the demo'}).click();
  for(const [kind,choice,amount] of [['Savings','Travel savings','100'],['Investments','Stocks','200']]){
- await page.getByRole('button',{name:'Add expense',exact:true}).first().click();await page.getByRole('radio',{name:kind,exact:true}).check();await selectCategory(page,'Category',kind+' → '+choice);await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:'Save entry',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
+ await page.getByRole('button',{name:'Add expense',exact:true}).first().click();await page.getByRole('radio',{name:kind,exact:true}).check();await selectCategory(page,'Category',kind+' → '+choice);await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:/^Save (?:expense|income|savings|investment|withdrawal)$/,exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
  await expect(page.getByText(choice,{exact:true})).toBeVisible();
  }
  await entryAction(page,/^Edit entry Investments/);await expect(page.getByLabel('Category',{exact:true})).toHaveValue('Investments → Stocks');await page.getByRole('button',{name:'Cancel',exact:true}).click();
