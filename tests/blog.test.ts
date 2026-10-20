@@ -19,7 +19,7 @@ describe('supplied public articles',()=>{
   const html=files['blog/how-to-save-for-a-big-purchase/index.html'];
   expect(html).toContain('<strong>Record savings</strong>');expect(html).not.toContain('<strong>Add money</strong>');
   expect(html).not.toContain('Publication notes');expect(html).not.toContain('Editorial package');
-  expect(html).toContain('/blog-worksheets/big-purchase-savings-worksheet.csv');expect(html).toContain('19 October 2026');
+  expect(html).toContain('/blog-worksheets/big-purchase-savings-worksheet.csv');expect(html).toContain('20 October 2026');
   expect(html).not.toContain(' · Updated');expect(html).toContain('href="/guide#goals"');expect(html).toContain('<ul><li><strong>What I’m saving for:</strong>');
  });
  it('publishes all supplied articles with matching visible dates, breadcrumbs and honest metadata',async()=>{

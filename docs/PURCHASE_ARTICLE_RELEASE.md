@@ -1,4 +1,4 @@
-# Purchase savings guide — 19 October 2026
+# Purchase savings guide — 20 October 2026
 
 The supplied article is published at /blog/how-to-save-for-a-big-purchase, credited to PaisaTrace with the current publication date and no invented reviewer. Editorial package and publication notes are excluded. The product action is Record savings, matching the current goal workflow. The cited CFPB savings-plan PDF was opened and its basic divide-by-period calculation verified; article examples remain original and fictional.
 
