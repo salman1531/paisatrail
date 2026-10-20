@@ -69,6 +69,6 @@ export function budgetReport(ledger: Ledger, filter: Filter) {
 }
 export function varianceLabel(row: BudgetRow) {
   if (row.remaining===null) return 'Not set';
-  if (row.kind==='expense') return row.remaining<0?'Spending over budget':'Spending budget left';
+  if (row.kind==='expense') return row.remaining<0?'Spending over budget':'Budget remaining';
   return row.remaining<0?'Above target':row.remaining===0?'Target reached':'To target';
 }

@@ -20,7 +20,7 @@ test('password login does not send an email; signup and recovery are separate', 
   await page.getByRole('button', {name: 'Create account', exact: true}).click();
   await expect(page.getByRole('status')).toContainText('verify your email'); expect(requests[1].path).toContain('/signup');
   expect(new URLSearchParams(requests[1].path.split('?')[1]).get('redirect_to')).toBe('https://paisatrace.hirubix.com/auth/callback');
-  await page.getByRole('button', {name: 'Set or reset password'}).click();
+  await page.getByRole('button', {name: 'Forgot password?'}).click();
   await expect(page.getByLabel('Password', {exact: true})).toHaveCount(0);
   // A shared cooldown also prevents immediate repeated emails across forms.
   await expect(page.getByRole('button', {name: /Send again in/})).toBeDisabled();

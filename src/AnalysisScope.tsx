@@ -4,7 +4,7 @@ import {today,validDate} from './finance';
 import {reportPeriodLabel} from './ReportPeriod';
 import PeriodControls,{compactPeriodLabel} from './PeriodControls';
 import {type Ledger,type PlanningPeriod,type Filter,type Currency} from './types';
-export default function AnalysisScope({ledger,period,filter,change,changePeriod,currency,changeCurrency,currencyLabel='Reporting currency',allowAllCurrencies=false}:{currencyLabel?:string;allowAllCurrencies?:boolean;ledger:Ledger;period:PlanningPeriod;filter:Filter|null;change:(f:Filter|null)=>void;changePeriod:(date:string)=>void;currency?:Currency|'all';changeCurrency?:(c:Currency|'all')=>void}) {
+export default function AnalysisScope({ledger,period,filter,change,changePeriod,currency,changeCurrency,currencyLabel='Currency filter',allowAllCurrencies=false}:{currencyLabel?:string;allowAllCurrencies?:boolean;ledger:Ledger;period:PlanningPeriod;filter:Filter|null;change:(f:Filter|null)=>void;changePeriod:(date:string)=>void;currency?:Currency|'all';changeCurrency?:(c:Currency|'all')=>void}) {
  const date=today(ledger.profile.timezone),mode=!filter?'budget':filter.startDate?'custom':filter.year==='all'?'history':filter.month==='all'?'year':'calendar';
  const [editing,setEditing]=useState(false);
  const [start,setStart]=useState(filter?.startDate??period.start),[end,setEnd]=useState(filter?.endDate??period.end),[error,setError]=useState('');
