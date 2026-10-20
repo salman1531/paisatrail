@@ -188,6 +188,10 @@
     {
       "source": "/blog/budget-with-irregular-income",
       "destination": "/blog/budget-with-irregular-income/index.html"
+    },
+    {
+      "source": "/blog/how-to-save-for-a-big-purchase",
+      "destination": "/blog/how-to-save-for-a-big-purchase/index.html"
     }
   ],
   "redirects": [
