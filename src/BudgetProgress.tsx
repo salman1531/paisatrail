@@ -1,0 +1,9 @@
+import {spendingSummary} from './planning';
+import {filtered,totals} from './finance';
+import MoneyValue from './MoneyValue';
+import type {Ledger,PlanningPeriod,Filter} from './types';
+export default function BudgetProgress({ledger,period,filter,edit}:{ledger:Ledger;period:PlanningPeriod;filter:Filter;edit:()=>void}){
+ const s=spendingSummary(ledger,period,ledger.profile.currency),spent=totals(ledger,filtered(ledger.entries,filter),ledger.profile.currency).expense;
+ if(filter.account&&filter.account!=='all')return <section className="panel dashboard-budget"><h2>Budget progress</h2><p>Your spending plan covers all accounts in {ledger.profile.currency}. Choose All accounts and unassigned to compare total spending with the plan.</p><button className="button secondary" onClick={edit}>View Money Plan</button></section>;
+ return <section className="panel dashboard-budget"><div className="panel-head"><div><h2>Budget progress</h2><p>Spending plan · {ledger.profile.currency}</p></div><button className="text-button" onClick={edit}>Edit plan</button></div>{s.target===null?<div className="chart-empty"><p>No spending limit set for this period.</p><button className="button secondary" onClick={edit}>Create spending plan</button></div>:<><div className="budget-progress-total"><strong><MoneyValue amount={spent} currency={ledger.profile.currency}/></strong><span>spent of <MoneyValue amount={s.target} currency={ledger.profile.currency}/></span></div><progress aria-label="Spending budget used" value={s.target>0?Math.min(100,spent/s.target*100):spent?100:0} max={100}/><p className={s.remaining!<0?'status-error':'status-success'}><strong><MoneyValue amount={Math.abs(s.remaining!)} currency={ledger.profile.currency}/></strong> {s.remaining!<0?'over budget':'remaining'}</p><p className="small muted">Category limits are included in the overall budget.</p></>}</section>;
+}

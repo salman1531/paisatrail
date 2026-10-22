@@ -1,0 +1,13 @@
+import {useDisplayPreferences} from './displayPreferences';
+import {filtered,dateLabel} from './finance';
+import {periodFilter} from './planning';
+import MoneyValue from './MoneyValue';
+import type {Ledger,Currency,PlanningPeriod} from './types';
+export default function IncomeActivity({ledger,currency,period,records}:{ledger:Ledger;currency:Currency;period:PlanningPeriod;records:()=>void}){
+ const display=useDisplayPreferences();
+ const incomeIds=new Set(ledger.categories.filter(c=>c.kind==='income').map(c=>c.id));
+ const entries=filtered(ledger.entries,{...periodFilter(period),currency}).filter(e=>incomeIds.has(e.category_id)).sort((a,b)=>b.date.localeCompare(a.date));
+ const total=entries.reduce((sum,e)=>sum+e.amount_minor,0);
+ const sources=new Map<string,number>();for(const e of entries){const name=ledger.incomeSources?.find(s=>s.id===e.income_source_id)?.name??ledger.categories.find(c=>c.id===e.category_id)?.name??'Other income';sources.set(name,(sources.get(name)??0)+e.amount_minor);}
+ return <><div className="income-top"><section className="panel income-received"><div className="panel-head"><h2>Received income</h2><span className="scope-label">Recorded</span></div><strong className="income-received-amount"><MoneyValue amount={total} currency={currency}/></strong><p>{period.start} – {period.end} · {currency} only</p><p>Money recorded as received. Upcoming payments are kept separate.</p></section><section className="panel income-breakdown"><div className="panel-head"><h2>Where income came from</h2></div>{!entries.length?<p className="empty-plan">Your income sources will appear after your first receipt.</p>:<div className="source-bars">{[...sources].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,value])=><div key={name}><div><span>{name}</span><strong><MoneyValue amount={value} currency={currency}/></strong></div><progress value={value/total*100} max={100} aria-label={`${name} share: ${(value/total*100).toFixed(1)}%`}/></div>)}</div>}</section></div><section className="panel received-records"><div className="panel-head"><div><h2>Recent received income</h2><p>{entries.length} {entries.length===1?'record':'records'} in this period</p></div><button className="text-button" onClick={records}>View all</button></div>{entries.length?<ul className="received-list">{entries.slice(0,5).map(e=><li key={e.id}><div><strong>{ledger.incomeSources?.find(s=>s.id===e.income_source_id)?.name??ledger.categories.find(c=>c.id===e.category_id)?.name}</strong><small>{dateLabel(e.date,display.dateFormat)}{e.notes?' · '+e.notes:''}</small></div><MoneyValue amount={e.amount_minor} currency={currency}/></li>)}</ul>:<div className="chart-empty">No income received in this period. Use Add income when money arrives.</div>}</section></>;
+}

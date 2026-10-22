@@ -4,7 +4,7 @@ import SiteFooter from './SiteFooter';
 const features=[
  {title:'Money Log',text:'Record an amount, category and date. Find expenses, income and contributions with search and filters, then export your records to Excel.',path:'money-log',Icon:CalendarDays},
  {title:'Money Plan',text:'Set optional spending limits and goal contributions for your chosen period. Keep planned commitments separate from recorded income and spending.',path:'money-plan',Icon:PiggyBank},
- {title:'Reports',text:'See spending by category and compare recorded activity across periods. Each currency stays separate; savings and investments show contributions, not market returns.',path:'reports',Icon:ChartNoAxesCombined},
+ {title:'Overview',text:'See spending by category and compare recorded activity across periods. Each currency stays separate; savings and investments show contributions, not market returns.',path:'overview',Icon:ChartNoAxesCombined},
 ];
 export default function Home(){return <main className="home-page">
  <header><a href="/" className="brand"><BrandIdentity/></a><nav aria-label="Get started"><a href="/blog" className="home-guide-link">Blog</a><a href="/guide" className="home-guide-link"><BookOpen size={18}/>User guide</a><a href="/login" className="button">Sign in</a></nav></header>

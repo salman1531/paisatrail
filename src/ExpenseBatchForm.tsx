@@ -1,3 +1,5 @@
+import {financialAccountsEnabled} from './productFeatures';
+import {validateAccountEntry} from './accounts';
 import {validateRecordedAmount} from './recording';
 import { useRef, useState, useEffect, type FormEvent } from 'react';
 import CategoryPicker from './CategoryPicker';
@@ -9,7 +11,7 @@ import { money, parseAmount, today, validDate } from './finance';
 import { expenseChoices, customCategoryChoice } from './expenseChoices';
 import { currencies, type Currency, type Entry, type Ledger } from './types';
 
-export type ExpenseDraft = { id:string; choice:string; customName:string; amount:string; date:string; notes:string; payment:string };
+export type ExpenseDraft = { id:string; choice:string; customName:string; amount:string; date:string; notes:string; payment:string; account?:string };
 export type ExpenseSubmission = { entry:Entry; customName?:string };
 export function expenseDraft(ledger:Ledger, choice=''):ExpenseDraft { return {id:crypto.randomUUID(),choice,customName:'',amount:'',date:today(ledger.profile.timezone),notes:'',payment:''}; }
 export function validateExpenseDraft(ledger:Ledger, draft:ExpenseDraft, currency:Currency) {
@@ -22,7 +24,8 @@ export function validateExpenseDraft(ledger:Ledger, draft:ExpenseDraft, currency
   if(!validDate(draft.date))errors.date='Choose a valid date between 1900 and 2100.';
   let payment:string|null=null;try{payment=validatePaymentType(draft.payment);}catch(e){errors.payment=(e as Error).message;}
   if(draft.notes.length>500)errors.notes='Use no more than 500 characters.';
-  const submission:ExpenseSubmission={entry:{id:draft.id,user_id:ledger.profile.user_id,category_id:selected?.categoryId??'',subcategory_id:selected?.subcategoryId??null,currency,amount_minor:amount,date:draft.date,notes:draft.notes.trim(),payment_method:payment,withdrawal:false},customName:custom?draft.customName.trim():undefined};
+  const submission:ExpenseSubmission={entry:{id:draft.id,user_id:ledger.profile.user_id,category_id:selected?.categoryId??'',subcategory_id:selected?.subcategoryId??null,currency,amount_minor:amount,date:draft.date,notes:draft.notes.trim(),payment_method:payment,withdrawal:false,...(ledger.accountsSupported?{account_id:financialAccountsEnabled?draft.account||null:null}:{})},customName:custom?draft.customName.trim():undefined};
+  try{validateAccountEntry(ledger,submission.entry);}catch(e){errors.account=(e as Error).message;}
   return {errors,submission};
 }
 export default function ExpenseBatchForm({ledger,busy,close,save}:{ledger:Ledger;busy:boolean;close:()=>void;save:(entries:ExpenseSubmission[])=>Promise<void>}) {
@@ -34,7 +37,7 @@ export default function ExpenseBatchForm({ledger,busy,close,save}:{ledger:Ledger
   const options=expenseChoices(ledger);
   const total=rows.reduce((v,r)=>{try{return v+parseAmount(r.amount,currency,true);}catch{return v;}},0);
   const invalidAmount=rows.some(r=>{if(!r.amount.trim())return false;try{parseAmount(r.amount,currency,true);return false;}catch{return true;}});
-  const dirty=rows.some(r=>r.choice||r.amount||r.notes||r.customName||r.payment)||rows.length>1;
+  const dirty=rows.some(r=>r.choice||r.amount||r.notes||r.customName||r.payment||r.account)||rows.length>1;
   useEffect(()=>{if(!dirty)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[dirty]);
   function requestClose(){if(busy||pending.current)return;if(dirty)setDiscard(true);else close();}
   function update(id:string,key:keyof ExpenseDraft,value:string){setRows(rows=>rows.map(r=>r.id===id?{...r,[key]:value}:r));setErrors(old=>({...old,[id]:{...old[id],[key]:undefined}}));setError('');}
@@ -46,14 +49,14 @@ export default function ExpenseBatchForm({ledger,busy,close,save}:{ledger:Ledger
     pending.current=true;setError('');
     try{await save(checks.map(v=>v.submission));close();}catch(e){setError((e as Error).message+' Your entries are kept here. Retry this session to avoid duplicates.');}finally{pending.current=false;}
   }
-  return <Modal wide title="Add expenses" close={requestClose}><form className="batch-expense-form" onSubmit={submit} noValidate>
-    <div className="batch-heading"><p>Enter, review, then save together.</p><label>Currency<select aria-label="Batch currency" value={currency} disabled={busy} onChange={e=>setCurrency(e.target.value as Currency)}>{currencies.map(c=><option key={c}>{c}</option>)}</select></label></div>
+  return <Modal wide className="entry-dialog batch-dialog" title="Add expenses" close={requestClose}><form className="batch-expense-form" onSubmit={submit} noValidate>
+    <div className="batch-heading"><p>Enter, review, then save together.</p><label>Currency<select aria-label="Batch currency" value={currency} disabled={busy} onChange={e=>{setCurrency(e.target.value as Currency);setRows(rows=>rows.map(r=>({...r,account:''})));}}>{currencies.map(c=><option key={c}>{c}</option>)}</select></label></div>
     <div className="batch-rows">{rows.map((r,i)=>{const rowError=errors[r.id]??{};const prefix=`batch-${r.id}`;return <fieldset className="batch-row" key={r.id} disabled={busy}><legend>Expense {i+1}</legend><button className="icon-button batch-remove" type="button" aria-label={`Remove expense ${i+1}`} disabled={rows.length===1} onClick={()=>setRows(rows=>rows.filter(x=>x.id!==r.id))}><Trash2 size={17}/><span>Remove</span></button>
       <div className="batch-fields"><div><CategoryPicker ledger={ledger} choices={options} label={`Expense ${i+1} category`} invalid={!!rowError.choice} describedBy={rowError.choice?prefix+'-choice':undefined} value={r.choice} onChange={value=>update(r.id,'choice',value)}/>{rowError.choice&&<small className="field-error" id={prefix+'-choice'}>{rowError.choice}</small>}</div>
-      <div className="amount-field"><label>Amount · {currency}<input aria-label={`Expense ${i+1} amount`} inputMode="decimal" placeholder="0.00" value={r.amount} onChange={e=>update(r.id,'amount',e.target.value)} aria-invalid={!!rowError.amount} aria-describedby={rowError.amount?prefix+'-amount':undefined}/>{rowError.amount&&<small className="field-error" id={prefix+'-amount'}>{rowError.amount}</small>}</label><AmountWords value={r.amount} currency={currency}/></div>
+      <div className="amount-field"><label>Amount · {currency}<input aria-label={`Expense ${i+1} amount`} data-autofocus={i===0?true:undefined} inputMode="decimal" placeholder="0.00" value={r.amount} onChange={e=>update(r.id,'amount',e.target.value)} aria-invalid={!!rowError.amount} aria-describedby={rowError.amount?prefix+'-amount':undefined}/>{rowError.amount&&<small className="field-error" id={prefix+'-amount'}>{rowError.amount}</small>}</label><AmountWords value={r.amount} currency={currency}/></div>
       <label>Date<input aria-label={`Expense ${i+1} date`} type="date" min="1900-01-01" max="2100-12-31" value={r.date} onChange={e=>update(r.id,'date',e.target.value)} onInput={e=>update(r.id,'date',e.currentTarget.value)} aria-invalid={!!rowError.date}/>{rowError.date&&<small className="field-error">{rowError.date}</small>}</label>
       {r.choice===customCategoryChoice&&<label className="batch-custom">Custom spending name<input aria-label={`Expense ${i+1} custom name`} maxLength={60} value={r.customName} onChange={e=>update(r.id,'customName',e.target.value)} aria-invalid={!!rowError.customName}/>{rowError.customName&&<small className="field-error">{rowError.customName}</small>}</label>}
-      </div><details className="batch-more-details"><summary>More details (optional)</summary><PaymentTypeField label={`Expense ${i+1} payment type (optional)`} value={r.payment} onChange={value=>update(r.id,'payment',value)}/>{rowError.payment&&<small className="field-error">{rowError.payment}</small>}<details className="batch-note" open={!!r.notes}><summary>Add a note (optional)</summary><label><span className="sr-only">Expense {i+1} note</span><input maxLength={500} value={r.notes} placeholder="What was it for?" onChange={e=>update(r.id,'notes',e.target.value)}/></label></details></details>
+      </div><details className="batch-more-details"><summary>More details (optional)</summary>{financialAccountsEnabled&&ledger.accountsSupported&&<label>Account<select aria-label={`Expense ${i+1} account`} value={r.account??''} onChange={e=>update(r.id,'account',e.target.value)}><option value="">Unassigned</option>{(ledger.accounts??[]).filter(a=>!a.archived&&a.currency===currency).map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select>{rowError.account&&<small className="field-error">{rowError.account}</small>}</label>}<PaymentTypeField label={`Expense ${i+1} payment type (optional)`} value={r.payment} onChange={value=>update(r.id,'payment',value)}/>{rowError.payment&&<small className="field-error">{rowError.payment}</small>}<details className="batch-note" open={!!r.notes}><summary>Add a note (optional)</summary><label><span className="sr-only">Expense {i+1} note</span><input maxLength={500} value={r.notes} placeholder="What was it for?" onChange={e=>update(r.id,'notes',e.target.value)}/></label></details></details>
     </fieldset>;})}</div>
     <button type="button" className="button secondary batch-add" disabled={busy||rows.length>=50} onClick={()=>{setRows(rows=>[...rows,expenseDraft(ledger,rows.at(-1)?.choice===customCategoryChoice?'':rows.at(-1)?.choice)]);setError('');}}><Plus size={17}/>Add another expense</button>
     {error&&<p className="form-error" role="alert">{error}</p>}

@@ -1,7 +1,7 @@
 {
   "name": "paisatrail",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader runner --host 127.0.0.1",
@@ -10,7 +10,8 @@
     "test": "vitest run --configLoader runner",
     "test:ui": "playwright test",
     "predev": "node scripts/generate-notices.mjs && node scripts/generate-public.mjs development",
-    "prebuild": "node scripts/generate-notices.mjs && node scripts/generate-public.mjs production"
+    "prebuild": "node scripts/check-version.mjs && node scripts/generate-notices.mjs && node scripts/generate-public.mjs production",
+    "release:check": "node scripts/check-version.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.0",
@@ -27,7 +28,8 @@
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "^5.9.0",
     "vite": "^7.1.0",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "axe-core": "^4.14.0"
   },
   "overrides": {
     "exceljs": {

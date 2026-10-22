@@ -114,10 +114,6 @@
       "destination": "/app/money-plan/index.html"
     },
     {
-      "source": "/app/reports",
-      "destination": "/app/reports/index.html"
-    },
-    {
       "source": "/app/categories",
       "destination": "/app/categories/index.html"
     },
@@ -144,10 +140,6 @@
     {
       "source": "/demo/money-plan",
       "destination": "/demo/money-plan/index.html"
-    },
-    {
-      "source": "/demo/reports",
-      "destination": "/demo/reports/index.html"
     },
     {
       "source": "/demo/categories",
@@ -253,6 +245,26 @@
     {
       "source": "/demo/goals",
       "destination": "/demo/money-plan",
+      "permanent": true
+    },
+    {
+      "source": "/app/reports",
+      "destination": "/app/overview",
+      "permanent": true
+    },
+    {
+      "source": "/demo/reports",
+      "destination": "/demo/overview",
+      "permanent": true
+    },
+    {
+      "source": "/app/accounts",
+      "destination": "/app/money-log",
+      "permanent": true
+    },
+    {
+      "source": "/demo/accounts",
+      "destination": "/demo/money-log",
       "permanent": true
     }
   ],

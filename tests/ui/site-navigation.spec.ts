@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 
 test('phone account actions remain reachable on every demo page and exiting preserves records',async({page})=>{
  await page.setViewportSize({width:390,height:844});
- for(const path of ['overview','money-log','income','money-plan','reports','categories','settings']){
+ for(const path of ['overview','money-log','income','money-plan','categories','settings']){
   await page.goto('/demo/'+path);
   const menu=page.locator('.mobile-account-menu');
   await menu.locator('summary').press('Enter');

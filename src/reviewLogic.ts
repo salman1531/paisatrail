@@ -7,7 +7,7 @@ export function entryMatchesView(ledger:Ledger,entry:Entry,filter:Filter,search=
  const category=ledger.categories.find(c=>c.id===entry.category_id);
  if(!category||(filter.kind&&filter.kind!=='all'&&category.kind!==filter.kind))return false;
  const child=ledger.subcategories?.find(s=>s.id===entry.subcategory_id);
- return `${entry.notes} ${entry.payment_method??''} ${category.name} ${child?.name??''} ${kindLabels[category.kind]} ${ledger.namedGoals?.find(g=>g.id===entry.named_goal_id)?.name??''} ${ledger.expectedPayments?.find(p=>p.id===entry.expected_payment_id)?.name??''} ${ledger.incomeSources?.find(s=>s.id===entry.income_source_id)?.name??''}`.toLowerCase().includes(search.toLowerCase());
+ return `${entry.notes} ${entry.payment_method??''} ${category.name} ${child?.name??''} ${kindLabels[category.kind]} ${ledger.accounts?.find(a=>a.id===entry.account_id)?.name??'Unassigned'} ${ledger.namedGoals?.find(g=>g.id===entry.named_goal_id)?.name??''} ${ledger.expectedPayments?.find(p=>p.id===entry.expected_payment_id)?.name??''} ${ledger.incomeSources?.find(s=>s.id===entry.income_source_id)?.name??''}`.toLowerCase().includes(search.toLowerCase());
 }
 export function contributionState(ledger:Ledger,goal:NamedGoal,period:PlanningPeriod) {
  const plan=ledger.contributionPlans?.find(p=>p.goal_id===goal.id&&p.period_start===period.start&&p.period_end===period.end);

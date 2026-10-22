@@ -23,7 +23,8 @@ assert(entryAsset,'Homepage entry asset is present');
 const entry=await read(entryAsset.slice(1));
 assert(!entry.includes('supabase.co'),'Homepage does not eagerly include the account backend');
 assert(entry.includes('App-'),'Workspace is a separate dynamic entry');
-for(const path of ['login','signup','forgot-password','auth/callback',...['app','demo'].flatMap(area=>['overview','money-log','income','money-plan','reports','categories','settings'].map(page=>area+'/'+page)),'app/admin']){
+const privatePaths=['login','signup','forgot-password','auth/callback',...['app','demo'].flatMap(area=>['overview','money-log','income','money-plan','categories','settings'].map(page=>area+'/'+page)),'app/admin'];
+for(const path of privatePaths){
  const page=await read(path+'/index.html');
  assert(page.includes('noindex, follow'),path+' stays out of indexing');
  assert(!page.includes('home-hero'),path+' has no public homepage duplication');
@@ -47,6 +48,11 @@ assert(!(await read('guide/index.html')).includes('status,.'));
 assert((await stat(resolve(dir,'social-card.png'))).size>0);
 const guide=await read('guide/index.html');
 const hosting=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
+for(const area of ['app','demo'])assert(hosting.redirects.some(route=>route.source===`/${area}/reports`&&route.destination===`/${area}/overview`&&route.permanent),'Legacy Reports URL redirects within its workspace');
+for(const path of ['index.html','guide/index.html','llms.txt','llm.txt'])assert(!(await read(path)).includes('href="/demo/reports"'),'Public links use Overview');
+assert(guide.includes('More insights'),'Guide describes consolidated insights');
+for(const area of ['app','demo'])assert(hosting.redirects.some(route=>route.source===`/${area}/accounts`&&route.destination===`/${area}/money-log`&&route.permanent),'Earlier Accounts links lead to Money Log');
+assert(!guide.includes('Set up accounts and record transfers'));
 for(const path of blogPaths)assert(hosting.rewrites.some(route=>route.source===path&&route.destination===path+'/index.html'),'Public blog route has an explicit hosting rewrite: '+path);
 for(const post of posts){
  const html=await read('blog/'+post.slug+'/index.html');
@@ -65,4 +71,4 @@ for(const post of posts){
  assert((await read('blog/index.html')).includes('href="/blog/'+post.slug+'"'));
  assert((await stat(resolve(dir,'blog-worksheets/'+visual.download))).size>0);
 }
-console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:19,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),checks:'passed'}));
+console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:privatePaths.length,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),checks:'passed'}));

@@ -1,6 +1,6 @@
 import { insertEntriesOnce } from './entryBatch';
 import { createClient } from '@supabase/supabase-js';
-import type { Entry, Ledger, Profile, Category, Subcategory, PeriodGoal, IncomeSource, ExpectedPayment, SpendingBudget, BudgetAllocation, NamedGoal, GoalContributionPlan, BudgetCycle, PlanningPeriod, RemovedEntry } from './types';
+import type { Entry, Ledger, Profile, Category, Subcategory, PeriodGoal, IncomeSource, ExpectedPayment, SpendingBudget, BudgetAllocation, NamedGoal, GoalContributionPlan, BudgetCycle, PlanningPeriod, RemovedEntry,Account,AccountTransfer,RecurringSchedule,RecurringOccurrence } from './types';
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const configured = Boolean(url && key);
@@ -35,7 +35,11 @@ export async function loadLedger(userId: string): Promise<Ledger> {
   }
   async function pages<T>(table:string):Promise<T[]> {const rows:T[]=[];for(let offset=0;;offset+=500){const r=await client.from(table).select('*').eq('user_id',userId).order('id').range(offset,offset+499);assert(r.error);rows.push(...r.data as T[]);if(r.data!.length<500)return rows;}}
   const [incomeSources,expectedPayments,spendingBudgets,budgetAllocations,namedGoals,contributionPlans,budgetCycles,removedEntries]=await Promise.all([pages<IncomeSource>('income_sources'),pages<ExpectedPayment>('expected_payments'),pages<SpendingBudget>('spending_budgets'),pages<BudgetAllocation>('budget_allocations'),pages<NamedGoal>('named_goals'),pages<GoalContributionPlan>('goal_contribution_plans'),pages<BudgetCycle>('budget_cycles'),pages<RemovedEntry>('removed_entries')]);
-  return { categories: cats.data as Category[], subcategories, entries, profile: profile.data as Profile, goals,incomeSources,expectedPayments,spendingBudgets,budgetAllocations,namedGoals,contributionPlans,budgetCycles,removedEntries };
+  const features=await client.rpc('workspace_features');
+  if(features.error&&features.error.code!=='PGRST202'&&features.error.code!=='42883')assert(features.error);
+  const accountsSupported=Boolean(features.data?.accounts);
+  const [accounts,transfers,schedules,occurrences]=accountsSupported?await Promise.all([pages<Account>('accounts'),pages<AccountTransfer>('account_transfers'),pages<RecurringSchedule>('recurring_schedules'),pages<RecurringOccurrence>('recurring_occurrences')]):[[],[],[],[]];
+  return { accountsSupported,accounts,transfers,schedules,occurrences,categories: cats.data as Category[], subcategories, entries, profile: profile.data as Profile, goals,incomeSources,expectedPayments,spendingBudgets,budgetAllocations,namedGoals,contributionPlans,budgetCycles,removedEntries };
 }
 export async function saveEntry(entry: Entry, editing: boolean) {
   if (!editing) return saveEntries([entry]);
@@ -92,3 +96,20 @@ export async function linkGoalEntry(entry:Entry){
  if(existing.data?.named_goal_id===entry.named_goal_id)return; // Safe retry after a lost response.
  throw new Error('This entry is no longer unlinked. Refresh and edit its association in Money Log if you want to move it.');
 }
+
+async function saveOwnedDraft<T extends {id:string;user_id:string}>(table:string,row:T,editing:boolean){
+ if(editing){await savePlanning(table,row,true);return;}
+ const result=await db().from(table).insert(row).select('id').single();
+ if(!result.error)return;
+ // A lost response may follow a committed insert. Reconcile the same ID and exact
+ // submitted fields; never create another ID or overwrite a changed saved draft.
+ const existing=await db().from(table).select('*').eq('id',row.id).eq('user_id',row.user_id).maybeSingle();
+ if(existing.error){assert(result.error);return;}
+ if(existing.data){if(Object.entries(row).every(([key,value])=>existing.data[key]===value))return;throw Error('This draft ID is already saved with different values. Refresh before changing it.');}
+ assert(result.error);
+}
+export async function saveAccount(account:Account,editing:boolean){await saveOwnedDraft('accounts',account,editing);}
+export async function saveTransfer(transfer:AccountTransfer,allocation?:Entry,editing=false){const r=await db().rpc('save_account_transfer',{p_transfer:transfer,p_allocation:allocation??null,p_edit:editing});assert(r.error);}
+export async function setTransferRemoved(id:string,removed:boolean){const r=await db().rpc('set_transfer_removed',{p_id:id,p_removed:removed});assert(r.error);}
+export async function saveSchedule(schedule:RecurringSchedule,editing:boolean){await saveOwnedDraft('recurring_schedules',schedule,editing);}
+export async function recordOccurrence(scheduleId:string,date:string,entry?:Entry){const r=await db().rpc('record_recurring_occurrence',{p_schedule:scheduleId,p_date:date,p_entry:entry??null});assert(r.error);}

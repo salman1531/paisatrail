@@ -1,3 +1,4 @@
+import {validateAccountEntry} from './accounts';
 import {parseAmount,validDate} from './finance';
 import type {Currency,Entry,Kind,Ledger,NamedGoal} from './types';
 export function generalSavingsCategory(ledger:Ledger){return ledger.categories.find(c=>c.kind==='saving'&&!c.archived&&/^(general )?savings$/i.test(c.name));}
@@ -9,6 +10,7 @@ export function validateRecordedAmount(amount:string,currency:Currency){
  return parseAmount(amount,currency);
 }
 export function validateRecording(ledger:Ledger,entry:Entry){
+ validateAccountEntry(ledger,entry);
  if(!validDate(entry.date))throw Error('Choose a valid date between 1900 and 2100.');
  if(!Number.isSafeInteger(entry.amount_minor)||entry.amount_minor<=0)throw Error('Enter a positive amount.');
  if(entry.notes.length>500)throw Error('Use no more than 500 characters in the note.');
@@ -17,3 +19,12 @@ export function validateRecording(ledger:Ledger,entry:Entry){
  if(entry.withdrawal&&category.kind!=='saving'&&category.kind!=='investment')throw Error('Only savings and investments can be withdrawn.');
 }
 export function recordingSuccess(ledger:Ledger,entry:Entry,editing:boolean){const kind=ledger.categories.find(c=>c.id===entry.category_id)?.kind;const goal=ledger.namedGoals?.find(g=>g.id===entry.named_goal_id);return `${editing?'Updated':entry.withdrawal?'Recorded withdrawal':kind==='income'?'Recorded income':kind==='expense'?'Recorded expense':kind==='investment'?'Recorded investment contribution':'Recorded savings'}${goal?' · '+goal.name+' progress updated':''}.`;}
+
+/** Preserve a compatible historical wallet assignment when correcting a record.
+ * A different currency or a date before its opening cannot retain that old link.
+ */
+export function compatibleRecordingAccount(ledger:Ledger,initial:Partial<Entry>|null|undefined,currency:Currency,date:string){
+ if(!initial?.account_id)return null;
+ const account=ledger.accounts?.find(a=>a.id===initial.account_id&&a.user_id===ledger.profile.user_id);
+ return account&&account.currency===currency&&date>=account.opening_date?account.id:null;
+}

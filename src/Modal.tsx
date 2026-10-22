@@ -12,8 +12,9 @@ export default function Modal({ title, children, close, wide = false, className 
     const saved = { position: body.style.position, top: body.style.top, left: body.style.left, width: body.style.width, overflow: body.style.overflow };
     Object.assign(body.style, { position: 'fixed', top: `-${y}px`, left: `-${x}px`, width: '100%', overflow: 'hidden' });
     dialog.showModal();
+    dialog.querySelector<HTMLElement>('[data-autofocus]')?.focus();
     const viewport=window.visualViewport;
-    const fitKeyboard=()=>{if(className==='entry-dialog'&&window.innerWidth<=700){const height=viewport?.height??window.innerHeight;dialog.style.maxHeight=`${Math.max(180,height-24)}px`;dialog.style.top=`${viewport?.offsetTop??0}px`;dialog.style.bottom='auto';dialog.style.margin='12px auto';}else if(className==='entry-dialog'){dialog.style.maxHeight='';dialog.style.top='';dialog.style.bottom='';dialog.style.margin='';}};
+    const fitKeyboard=()=>{if(className.includes('entry-dialog')&&window.innerWidth<=700){const height=viewport?.height??window.innerHeight;dialog.style.setProperty('--dialog-viewport',height+'px');dialog.style.setProperty('--dialog-offset',(viewport?.offsetTop??0)+'px');dialog.style.maxHeight=`${Math.max(180,height-24)}px`;dialog.style.top=`${viewport?.offsetTop??0}px`;dialog.style.bottom='auto';dialog.style.margin='12px auto';}else if(className.includes('entry-dialog')){dialog.style.maxHeight='';dialog.style.top='';dialog.style.bottom='';dialog.style.margin='';}};
     fitKeyboard();viewport?.addEventListener('resize',fitKeyboard);viewport?.addEventListener('scroll',fitKeyboard);window.addEventListener('resize',fitKeyboard);
     return () => {
       viewport?.removeEventListener('resize',fitKeyboard);viewport?.removeEventListener('scroll',fitKeyboard);window.removeEventListener('resize',fitKeyboard);

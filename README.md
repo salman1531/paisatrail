@@ -1,5 +1,8 @@
 # PaisaTrace
 
+Current release: **2.0.0**. Record income, expenses and contributions without wallet setup. Overview, Money Log, Income and Money Plan are the four primary destinations; More insights replaces Reports. See [current release and verification](docs/SIMPLE_RECORDING_RELEASE.md), [versions/rollback](docs/VERSIONING.md) and the final release manifest for production publication status. Earlier dated sections below are historical.
+
+
 A responsive personal finance app with password sign-in, dated transactions, optional income forecasts and sources, independent spending budgets, named savings goals, flexible monthly budget cycles, reports and Excel export.
 
 ## Try it locally
@@ -59,7 +62,7 @@ Free hosting is subject to provider quotas. [Cloudflare static asset requests](h
 - Money Plan’s Spending plan stores independent allowances for exact periods and currencies. Blank overall allowance uses category limits, or No spending limit set when there are none; zero is intentional. Budget remaining is an allowance, not bank cash. Use a parent allowance or its children, never both. Optional rollover carries positive unused allowance in the same currency. Copy/previous spending/percentage helpers fill editable drafts and require saving.
 - Named goals are lifetime outcomes. Starting savings plus linked contributions minus withdrawals determines progress. A period contribution plan does not record money. Existing entries are linked only by an explicit choice; the same money must not also be included in starting savings. Investment goals measure contributions, not returns or market value.
 - Calendar months are the default. Settings can schedule a payday cycle at a future boundary of the existing schedule. Short months clamp days 29–31; a transition period may be shorter. All actual dates and previously saved plan ranges stay intact.
-- Overview leads with remaining budget and Add expense. Money Log owns transaction filters/export; Reports owns detailed actual-activity comparisons and calendar/year/custom ranges. Neither changes the shared budget context by silently applying entry-list filters.
+- Overview leads with remaining budget and Add expense. Money Log owns transaction filters/export; Overview’s optional More insights contains period comparisons, income sources and account breakdowns in the same scope. Calendar/year/custom/all-history dates and Excel export live in Money Log without altering the shared budget context.
 - Savings/investments are net contributions, separate from expenses. Income left after allocations is recorded income minus expenses and net contributions; it is not a reconciled bank balance.
 - Migration013 preserves old transactions and monthly/yearly goal records, migrating saved monthly expense limits into Money Plan’s Spending plan. Earlier income targets remain historical and never enter current calculations. Earlier savings plans can be explicitly assigned to one named goal. Legacy history remains in Excel exports.
 
@@ -156,7 +159,7 @@ The Income and connected Money Plan model above replaces the earlier monthly Goa
 
 ## Money Plan consolidation — 11 October
 
-Primary navigation is Overview, Money Log, Income, Money Plan and Reports. Goals precede Spending plan in one page with a shared period/currency. Whole-period allocation totals exclude forecasts, lifetime targets and actual contributions already posted. No income target is required or used. Saved commitments include paused/completed goals until explicitly cleared for the selected period. Category limits must fit inside an explicit base overall limit; rollover remains separate. See [release mapping and acceptance evidence](docs/MONEY_PLAN_RELEASE.md). Apply rerunnable migration014 before this frontend; it preserves records and existing private access.
+Primary navigation is Overview, Money Log, Income and Money Plan (Plan on phones). More insights on Overview replaces the former Reports tab. Goals precede Spending plan in one page with a shared period/currency. Whole-period allocation totals exclude forecasts, lifetime targets and actual contributions already posted. No income target is required or used. Saved commitments include paused/completed goals until explicitly cleared for the selected period. Category limits must fit inside an explicit base overall limit; rollover remains separate. See [release mapping and acceptance evidence](docs/MONEY_PLAN_RELEASE.md). Apply rerunnable migration014 before this frontend; it preserves records and existing private access.
 
 ## Current public domain and page routes — 12 October 2026
 
@@ -164,7 +167,7 @@ Production is https://paisatrace.hirubix.com. Set VITE_SITE_URL to that origin. 
 
 Public home `/`, `/about`, `/guide`, `/privacy`, and `/terms` have canonical URLs and are the only sitemap pages. Legacy `.html` policy/guide links redirect permanently to their clean URLs. Discovery files `/sitemap.xml`, `/robots.txt`, `/llms.txt`, and `/llm.txt` use the custom domain. Sign-in `/login`, account creation `/signup`, recovery `/forgot-password`, and `/auth/callback` are separate and excluded from indexing.
 
-Workspace routes are `/app/overview`, `/app/money-log`, `/app/income`, `/app/money-plan`, `/app/reports`, `/app/categories`, `/app/settings`; `/app/admin` also requires server-authorized admin membership. The same seven workspace paths under `/demo/` open isolated browser-only sample data directly. Private links redirect to sign-in and remember only an allow-listed return path. Reload, Back and Forward retain the destination. Vercel serves route-specific noindex HTML shells, rather than exposing account pages as public content. Unknown URLs have no catch-all rewrite.
+Workspace routes are `/app/overview`, `/app/money-log`, `/app/income`, `/app/money-plan`, `/app/categories`, `/app/settings`, `/app/accounts`; `/app/admin` also requires server-authorized admin membership. The same workspace paths under `/demo/` open isolated browser-only sample data directly. Private links redirect to sign-in and remember only an allow-listed return path. Reload, Back and Forward retain the destination. Legacy `/app/reports` and `/demo/reports` links permanently redirect to Overview within the same workspace. Vercel serves route-specific noindex HTML shells, rather than exposing account pages as public content. Unknown URLs have no catch-all rewrite.
 
 Page navigation changes the browser pathname and document title, so an approved future GA4 integration can measure route changes without hash-based page names. Analytics remains paused; no visitor tracking is enabled by this release. Paths contain no email, financial amounts or authentication tokens. Sessions and demo data on an earlier origin cannot be shared automatically with this new origin: existing users sign in normally and retain their server-held ledger.
 
@@ -179,3 +182,7 @@ Page navigation changes the browser pathname and document title, so an approved 
 ## 19 October recording update
 
 Shared Record action, optional general savings, existing-record goal previews, dated expectations and receipt matching, recoverable entry removal, visible Money Log type filters, and browser-only optional diagnostics. Apply migrations015 and016 before deploying this UI (approved/applied in the existing project). Existing IDs/dates, exact currency arithmetic and five familiar destinations are preserved. See docs/RECORDING_RELEASE.md for contracts, recovery conditions, verification and remaining usability research. Recovery records stay private until restored or account deletion; external Google Analytics remains paused.
+
+## Current local preview — 22 October 2026
+
+Version **2.0.0-preview.2** consolidates Reports into Overview → More insights, using Overview's dates, account and currency. The four main destinations are Overview, Money Log, Income and Money Plan; Accounts/Categories/Settings stay secondary. Money Log retains detailed dates and Excel export. The guide, screenshots, old-link redirects and discovery files are updated. Production remains v1.0.0; migration017 has not been applied live. See [current release evidence](docs/OVERVIEW_CONSOLIDATION_RELEASE.md) and [versions/rollback](docs/VERSIONING.md). Earlier dated sections describe their historical releases.

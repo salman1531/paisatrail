@@ -1,5 +1,15 @@
 # PaisaTrace handoff — updated 7 October 2026
 
+## Current release — 22 October 2026
+
+Version 2.0.0 implements the user-approved simplified flow without financial account fields, wallet filters/balances or new-transfer actions. Reports remains consolidated into Overview. Read [Simple recording release](SIMPLE_RECORDING_RELEASE.md) before earlier preview/history notes. Migration017 was approved and successfully applied in the existing production Supabase project; all four new tables have RLS and deny anonymous reads. Wallet features stay disabled; recurring schedules remain expected until individually confirmed. Publication to https://paisatrace.hirubix.com/ is authorized, with final immutable deployment metadata and live verification recorded in the release manifest. Preserve v1.0.0, both preview tags/bundles and the unrelated index.html edit.
+
+
+## Current preview — 22 October 2026
+
+Current work is version 2.0.0-preview.2 on codex/forest-finance-rebuild. Read [Overview consolidation](OVERVIEW_CONSOLIDATION_RELEASE.md), [forest rebuild](FOREST_WORKSPACE_RELEASE.md) and [versioning](VERSIONING.md) before historical notes below. Production remains v1.0.0 at https://paisatrace.hirubix.com/. Preview 1 and production have immutable tags and verified complete backups. Four primary tabs now replace five: Overview, Money Log, Income, Money Plan (Plan on phones). Unique Reports details live in Overview → More insights; old report URLs redirect within the same workspace. Detailed filters/export remain in Money Log. Guides/screenshots/discovery files are current, with ten public sitemap URLs. Migration017 is tested locally but not applied live; analytics remains paused. Preserve the unrelated index.html edit and exclude it from release commits.
+
+
 ## Latest review follow-up — 11 October 2026
 
 Password sign-in stays primary, confirmed again by the operator. No authentication provider or database permissions changed. Analytics/SEO remains paused; exclude the pre-existing index.html edit from this release.
@@ -146,3 +156,6 @@ The supplied 11 October Money Plan requirements supersede separate Budgets/Goals
 ## 20 October product review draft
 
 Financial glossary/reconciliation, updated Overview hierarchy, consistent contribution/currency labels, factual report comparisons, contextual save actions, login recovery copy and updated guide screenshots are implemented for review. No accounting, persistence, route, schema or auth destination changes. Read docs/PRODUCT_REVIEW_2026-10-20.md for exact evidence and remaining gates; this is not a completed rebrand or usability certification. The new name and alternative navigation remain unselected.
+
+
+22 October 2026 forest workspace preview: version 2.0.0-preview.1 is isolated on codex/forest-finance-rebuild; production/tag v1.0.0 and the stopped Cloud & Teal branch remain preserved. Read docs/FOREST_WORKSPACE_RELEASE.md and docs/VERSIONING.md before continuing. New Accounts/recurring migration017 is prepared/tested locally, not applied live. Legacy entries stay Unassigned; dated opening balances are start-of-day. Same-currency internal transfers exclude income/expense totals; optional linked goal allocations never debit an account twice and require paired recovery. Recurrence creates expected items until individual confirmation, never silent future actuals. Existing recording/goal math and password callbacks remain protected. Overview account filters apply to actuals, with whole-account budget comparisons explicitly unavailable in subsets; lifetime goal scope is labelled. Reports preserve independent scope through SPA drill-down, and export date/account/currency scope matches the view. New demo seeds illustrate accounts without rewriting saved history. Browser display/privacy/date preferences are local and disclosed. Ten public sitemap URLs remain; Accounts routes are private/demo noindex. Full Playwright remains blocked at Chrome launch; do not claim it passes. Preserve the unrelated dirty index.html guide-link edit and exclude it from release commits.

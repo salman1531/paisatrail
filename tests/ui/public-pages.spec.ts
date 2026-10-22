@@ -48,3 +48,12 @@ test('public policy drafts and discovery files work before sign-in', async ({ pa
   const robots = await request.get('/robots.txt');
   expect(await robots.text()).toContain(draft ? 'Disallow: /' : 'Allow: /');
 });
+
+test('legacy report HTTP URLs redirect to Overview within the same workspace',async({request})=>{
+ for(const area of ['app','demo'])for(const suffix of ['', '/?a11y=1']){
+  const response=await request.get(`/${area}/reports${suffix}`,{maxRedirects:0});expect(response.status()).toBe(308);expect(response.headers().location).toBe(`/${area}/overview${suffix.includes('?')?'?a11y=1':''}`);expect(response.headers()['x-robots-tag']).toBe('noindex, follow');
+ }
+ const guide=await (await request.get('/guide')).text(),llms=await (await request.get('/llms.txt')).text();for(const text of [guide,llms]){expect(text).not.toContain('href="/demo/reports"');expect(text).toContain('More insights');}
+});
+
+test('earlier financial Accounts URLs redirect to Money Log without exposing wallet setup',async({request})=>{for(const area of ['app','demo']){const response=await request.get(`/${area}/accounts?a11y=1`,{maxRedirects:0});expect(response.status()).toBe(308);expect(response.headers().location).toBe(`/${area}/money-log?a11y=1`);expect(response.headers()['x-robots-tag']).toBe('noindex, follow');}const guide=await(await request.get('/guide')).text();expect(guide).not.toContain('Set up accounts and record transfers');expect(guide).not.toContain('href="/demo/accounts"');});

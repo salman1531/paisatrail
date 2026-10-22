@@ -29,7 +29,7 @@ export default function MoneyPlan({ledger,period,currency,busy,saveBudget,saveGo
  <section className="panel recorded-money" aria-label="Recorded money">
   <div className="panel-head"><h2>Recorded money</h2><details className="context-help"><summary>How income left is calculated</summary><p>Income recorded − spending − net savings contributions − net investment contributions. Withdrawals reduce net contributions and add back to income left; they are not earned income. Starting goal savings and upcoming income are excluded. This is based on your records, not a bank balance.</p></details></div>
   <p className="recorded-basis">{compactPeriodLabel(period)} · {currency} only · Based on your entries, not your bank balance.</p><dl className="recorded-money-values">
-   <div className={summary.recordedLeft<0?'recorded-income-left recorded-deficit':'recorded-income-left'}><dt>Income left (recorded)</dt><small>Income after recorded outflows</small><dd><MoneyValue amount={summary.recordedLeft} currency={currency}/></dd></div>
+   <div className={summary.recordedLeft<0?'recorded-income-left recorded-deficit':'recorded-income-left'}><dt>Income left (recorded)<small>Income after recorded outflows</small></dt><dd><MoneyValue amount={summary.recordedLeft} currency={currency}/></dd></div>
    <div><dt>Income recorded</dt><dd><MoneyValue amount={summary.received} currency={currency}/></dd></div>
    <div><dt>Spending recorded</dt><dd><MoneyValue amount={summary.actual.expense} currency={currency}/></dd></div>
    <div><dt>Net savings contributions</dt><dd><MoneyValue amount={summary.actual.saving} currency={currency}/></dd></div>

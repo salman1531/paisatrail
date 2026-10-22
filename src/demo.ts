@@ -5,7 +5,7 @@ import type { Ledger, Category, Entry, Currency, Subcategory } from './types';
 const user = 'demo';
 // Independent fictional scenarios, not exchange-rate conversions or income recommendations.
 export const demoIncome:Record<Currency,number>={PKR:180000,USD:4800,EUR:3400,GBP:3000,AED:15000,JPY:380000,KWD:1200};
-export function newDemo(currency:Currency='PKR'): Ledger {
+export function newDemo(currency:Currency='PKR',options:{legacyAccounts?:boolean}={}): Ledger {
   const day=today();const salary=demoIncome[currency];const unit=10**precision(currency);
   const minor=(amount:number)=>Math.round(amount*unit);
   const categories:Category[]=starterCategories.map((c,i)=>({id:`demo-cat-${i}`,user_id:user,name:c.name,kind:c.kind,archived:false,essential:c.essential??false,emergency:false}));
@@ -33,7 +33,16 @@ export function newDemo(currency:Currency='PKR'): Ledger {
   result.spendingBudgets=[{id:budgetId,user_id:user,period_start:p.start,period_end:p.end,currency,total_minor:minor(salary*.65),rollover:false}];result.budgetAllocations=[];
   result.namedGoals=[{id:goalId,user_id:user,name:'Emergency cushion',currency,target_minor:minor(salary*3),starting_minor:0,deadline:null,funding_kind:'saving',status:'active'}];
   for(const e of entries)if(subcategories.find(s=>s.id===e.subcategory_id)?.name==='Emergency fund')e.named_goal_id=goalId;
-  result.contributionPlans=[{id:crypto.randomUUID(),user_id:user,goal_id:goalId,period_start:p.start,period_end:p.end,amount_minor:minor(salary*.12)}];result.budgetCycles=[];return result;
+  result.contributionPlans=[{id:crypto.randomUUID(),user_id:user,goal_id:goalId,period_start:p.start,period_end:p.end,amount_minor:minor(salary*.12)}];result.budgetCycles=[];
+  // Keep historical wallet fixtures available for compatibility tests only.
+  // New demo sessions do not require or seed financial accounts.
+  const opening=entries.map(e=>e.date).sort()[0]??day,bankId=crypto.randomUUID(),cashId=crypto.randomUUID();
+  result.accountsSupported=true;
+  result.accounts=options.legacyAccounts?[{id:bankId,user_id:user,name:'Everyday account',type:'bank',currency,opening_minor:minor(salary*.2),opening_date:opening,archived:false},{id:cashId,user_id:user,name:'Cash wallet',type:'cash',currency,opening_minor:minor(salary*.05),opening_date:opening,archived:false}]:[];
+  if(options.legacyAccounts)for(const entry of entries)entry.account_id=categories.find(c=>c.id===entry.category_id)?.name==='Food'?cashId:bankId;
+  result.transfers=options.legacyAccounts?[...new Set(entries.map(e=>e.date.slice(0,7)))].map(month=>({id:crypto.randomUUID(),user_id:user,from_account_id:bankId,to_account_id:cashId,currency,amount_minor:minor(salary*.1),date:month+'-01',notes:'Cash for everyday spending',allocation_entry_id:null,removed_at:null})):[];
+  result.schedules=[{id:crypto.randomUUID(),user_id:user,name:'Internet subscription',kind:'expense',category_id:categories.find(c=>c.name==='Home')!.id,account_id:options.legacyAccounts?bankId:null,currency,amount_minor:minor(salary*.012),start_date:day,end_date:null,frequency:'monthly',archived:false}];result.occurrences=[];
+  return result;
 }
 const storageKey = 'pocket-ledger-demo-v1';
 export function readDemo(): Ledger {
