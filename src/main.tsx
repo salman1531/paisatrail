@@ -10,7 +10,7 @@ const root=ReactDOM.createRoot(document.getElementById('root')!);
 if(parseRoute(location.pathname,location.hash).area==='home'&&!location.hash) {
   root.render(<React.StrictMode><Home/></React.StrictMode>);
 } else {
-  import('./App').then(({default:App})=>root.render(<React.StrictMode><App/></React.StrictMode>)).catch(()=>{
+  import('./ProductRoot').then(({default:App})=>root.render(<React.StrictMode><App/></React.StrictMode>)).catch(()=>{
     root.render(<main className="loading" role="alert"><h1>Unable to open PaisaTrace</h1><p>Please reload the page to try again.</p><a href="/">Return home</a></main>);
   });
 }

@@ -78,9 +78,116 @@
           "value": "noindex, follow"
         }
       ]
+    },
+    {
+      "source": "/shared/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    },
+    {
+      "source": "/shared-demo/:path*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    },
+    {
+      "source": "/products",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
     }
   ],
   "rewrites": [
+    {
+      "source": "/products",
+      "destination": "/products/index.html"
+    },
+    {
+      "source": "/shared/join",
+      "destination": "/shared/join/index.html"
+    },
+    {
+      "source": "/shared/dashboard",
+      "destination": "/shared/dashboard/index.html"
+    },
+    {
+      "source": "/shared/groups",
+      "destination": "/shared/groups/index.html"
+    },
+    {
+      "source": "/shared/friends",
+      "destination": "/shared/friends/index.html"
+    },
+    {
+      "source": "/shared/activity",
+      "destination": "/shared/activity/index.html"
+    },
+    {
+      "source": "/shared/settlements",
+      "destination": "/shared/settlements/index.html"
+    },
+    {
+      "source": "/shared/reports",
+      "destination": "/shared/reports/index.html"
+    },
+    {
+      "source": "/shared/settings",
+      "destination": "/shared/settings/index.html"
+    },
+    {
+      "source": "/shared-demo/dashboard",
+      "destination": "/shared-demo/dashboard/index.html"
+    },
+    {
+      "source": "/shared-demo/groups",
+      "destination": "/shared-demo/groups/index.html"
+    },
+    {
+      "source": "/shared-demo/friends",
+      "destination": "/shared-demo/friends/index.html"
+    },
+    {
+      "source": "/shared-demo/activity",
+      "destination": "/shared-demo/activity/index.html"
+    },
+    {
+      "source": "/shared-demo/settlements",
+      "destination": "/shared-demo/settlements/index.html"
+    },
+    {
+      "source": "/shared-demo/reports",
+      "destination": "/shared-demo/reports/index.html"
+    },
+    {
+      "source": "/shared-demo/settings",
+      "destination": "/shared-demo/settings/index.html"
+    },
+    {
+      "source": "/shared/groups/:id",
+      "destination": "/shared/groups/index.html"
+    },
+    {
+      "source": "/shared/friends/:id",
+      "destination": "/shared/friends/index.html"
+    },
+    {
+      "source": "/shared-demo/groups/:id",
+      "destination": "/shared-demo/groups/index.html"
+    },
+    {
+      "source": "/shared-demo/friends/:id",
+      "destination": "/shared-demo/friends/index.html"
+    },
     {
       "source": "/login",
       "destination": "/login/index.html"

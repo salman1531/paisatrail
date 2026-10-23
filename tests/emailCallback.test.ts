@@ -9,7 +9,7 @@ it('removes callback credentials from the URL without accepting a session automa
  const {emailCallback,initialPasswordRecovery}=await import('../src/api');
  expect(emailCallback).toEqual({access_token:'fixture-access',refresh_token:'fixture-refresh',recovery:false});
  expect(create).toHaveBeenCalledWith('https://fixture.supabase.co','sb_publishable_fixture',expect.objectContaining({auth:expect.objectContaining({detectSessionInUrl:false})}));
- expect(replace).toHaveBeenCalledWith(null,'','/');expect(initialPasswordRecovery).toBe(false);
+ expect(replace).toHaveBeenCalledWith(null,'','/');expect(initialPasswordRecovery).toBe(false);const api=await import('../src/api');api.consumeEmailCallback();expect(api.emailCallback).toBeNull();
 });
 it('does not enable password recovery before a callback is accepted',async()=>{
  vi.stubGlobal('window',{location:{hash:'#access_token=fixture-access&refresh_token=fixture-refresh&type=recovery'}});vi.stubGlobal('location',{pathname:'/',search:''});vi.stubGlobal('history',{replaceState:vi.fn()});vi.stubGlobal('sessionStorage',{getItem:()=>null});

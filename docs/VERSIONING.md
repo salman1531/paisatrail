@@ -1,3 +1,9 @@
+# Current release: 2.1.0
+
+Shared Expenses is the operator-authorized 23 October 2026 release. The immediate frontend rollback baseline is **2.0.0**, tag `v2.0.0`, production commit `402f6f02e8493c73e4a3108bf377913c2f912621`, immutable Vercel deployment `AzyueTu2PLBVu9odbkkdFwofU61F`. Its complete verified bundle and manifest remain in outputs/backups/2026-10-22 in the parent workspace. Preserve them. Shared Expenses uses additive migration018; a frontend rollback retains shared records and access rules. Read SHARED_EXPENSES_RELEASE.md.
+
+The older version history below remains unchanged as a historical record.
+
 # Release versions and rollback
 
 Rollback production baseline: **1.0.0**, commit `79281a64571987ec9fd38a89d5f4038868f77105`, tag `v1.0.0`.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0 — 2026-10-23
+
+- Independent Shared Expenses workspace with private collaborative groups, invitations, splits and repayments.
+- Personal Finance 2.0.0 remains preserved as the production rollback baseline.
+
 ## 2.0.0 — 2026-10-22
 
 - Simplify recording by removing financial account selection from single/bulk entries and recurring schedules.

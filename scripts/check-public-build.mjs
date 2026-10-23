@@ -22,8 +22,8 @@ const entryAsset=home.match(/<script[^>]*src="([^"]+)"/)?.[1];
 assert(entryAsset,'Homepage entry asset is present');
 const entry=await read(entryAsset.slice(1));
 assert(!entry.includes('supabase.co'),'Homepage does not eagerly include the account backend');
-assert(entry.includes('App-'),'Workspace is a separate dynamic entry');
-const privatePaths=['login','signup','forgot-password','auth/callback',...['app','demo'].flatMap(area=>['overview','money-log','income','money-plan','categories','settings'].map(page=>area+'/'+page)),'app/admin'];
+assert(entry.includes('ProductRoot-')||entry.includes('App-'),'Workspace is a separate dynamic entry');
+const privatePaths=['login','signup','forgot-password','auth/callback','products','shared/join',...['shared','shared-demo'].flatMap(area=>['dashboard','groups','friends','activity','settlements','reports','settings'].map(page=>area+'/'+page)),...['app','demo'].flatMap(area=>['overview','money-log','income','money-plan','categories','settings'].map(page=>area+'/'+page)),'app/admin'];
 for(const path of privatePaths){
  const page=await read(path+'/index.html');
  assert(page.includes('noindex, follow'),path+' stays out of indexing');

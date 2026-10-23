@@ -1,0 +1,30 @@
+# Shared Expenses — 2.1.0
+
+## Repository assessment and approach
+
+The existing application is React 19/TypeScript on Vite with Supabase Auth and PostgreSQL. It uses a small History API router, generated noindex workspace shells, native accessible dialogs, integer minor units, Vitest/PGlite database tests and browser acceptance checks. Keep that stack and password authentication.
+
+Build an independent `src/shared/` domain, service, demo adapter and responsive workspace. Add a product gate around the existing personal application rather than embedding shared balances into the personal ledger. Existing personal users keep their destination. Preferences persist on the server; new shared-only users never call initialize_ledger. Group and direct-friend contexts share one authorization/financial model, distinguished by context kind, with memberships separate from historical financial participants.
+
+Migration018 adds isolated shared tables and narrowly granted RPCs. All writes run server-side, lock their context, enforce active membership/role, validate integer allocations, use stable command IDs for retries, and check record versions. RLS protects reads; no direct client financial writes. Cryptographically random seven-day invitation secrets are generated in the browser; only hashes are stored and validated server-side; authenticated, rate-limited preview returns only group name/kind and optional manual-participant claim, with explicit join confirmation. Direct relationships require the same explicit acceptance; a manual relationship grants no remote access. Owner-issued participant claim invitations require the recipient's explicit acceptance and never match by name.
+
+Use pairwise original obligations, netted within each context, without debt simplification. Confirmed repayments reduce debts; pending repayments do not. Both-registered repayments require receiver confirmation. Manual-party bookkeeping is attributed to the recorder. Cancellation retains settlement and expense snapshots in immutable audit history; restores validate subsequent settlements. Context-serialized mutations and expected versions prevent stale financial overwrites. Pagination and bounded polling/focus refresh avoid fetching every transaction across every group.
+
+MVP uses PKR only; schema records currency independently. Receipt attachments, weighted/multiple-payer splits, recurring shared expenses, conversions, exports, notifications, email invitations and financial integrations are excluded. Group icons use preset symbols, avoiding upload/storage requirements.
+
+## Deployment and rollback
+
+Keep production 2.0.0 and its complete release bundle untouched. Work on codex/shared-expenses with a new version. Migration018 was explicitly approved and successfully applied in production on 23 October 2026; do not rerun it. Live read-only metadata verified all twelve tables have RLS, anonymous SELECT is denied, direct authenticated INSERT/UPDATE/DELETE is denied, and internal audit/deletion functions cannot be executed by anonymous or authenticated clients. No shared writes create personal entries. Shared history must survive participant inactivity and account deletion; registered identities become unavailable rather than deleting other members' debts. Frontend rollback retains the additive schema.
+
+## Acceptance evidence
+
+Implementation and verification are recorded here as completed; do not infer production deployment or multi-account live acceptance from demo-only checks.
+
+
+23 October release acceptance: the operator explicitly approved the database setup and production deployment. The source version is 2.1.0. The implemented product includes seven labelled shared destinations (five mobile actions plus More), product choice/switching, group and direct relationships, manual participants, history-claim invitations, equal/exact/percentage splitting, attributed manual repayments, registered-receiver confirmation, cancellation/restoration, member/owner controls, dated reports and activity. No Shared Expenses mutation calls Personal Finance initialization or writes personal entities. Existing personal users keep their destination.
+
+Verification: 206 unit/database tests across 37 files passed. Database tests cover standalone shared-only onboarding, legacy personal preference migration, owner/member/outsider and anonymous permissions, invitation revocation/expiry/rate limiting, explicit history claims, direct-friend consent, integer splitting/rounding, retries, stale versions, repayments, corrections, archival and identity removal. TypeScript, production build and public checks passed for ten public URLs and thirty-three private shells. Six HTTP tests passed, including nested shared context routes. Thirty-five responsive shared layouts (seven pages at 320/390/768/1280/1440px) had no document overflow; a 320×600 recording form retained its reachable save footer. Manual synthetic flows saved groups/manual participants, equal/exact/percentage expenses and partial repayments with reconciling balances. One phone dashboard axe audit had zero automated violations and one manual icon-label check. This is not full physical-device or screen-reader certification.
+
+The separate Chrome Playwright UI runner aborted with SIGABRT before assertions. Its suite is not passed. In-app browser checks and HTTP tests are separate evidence. Guide screenshots are synthetic. The guide, shared privacy/retention description, LLM files and noindex shells are updated; the public sitemap retains ten URLs and excludes invitation secrets and private/shared demo routes. Pending invitation context is browser-local for at most one hour and clears on joining/declining; it can resume across verification tabs. Consumed email credentials are cleared so switching products does not reopen an accepted callback.
+
+Record final live metadata and deployment evidence in the parent workspace outputs/shared-expenses-2026-10-23 and immutable release manifest. Never undo additive shared history to roll back the frontend. Keep the unrelated index.html edit out of release commits.

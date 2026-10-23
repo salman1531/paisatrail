@@ -6,8 +6,9 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const configured = Boolean(url && key);
 // Keep email-link credentials in memory until the visitor explicitly accepts the verified identity.
 const fragment = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.hash.slice(1));
-export const emailCallback = fragment.has('access_token') ? {access_token:fragment.get('access_token')!,refresh_token:fragment.get('refresh_token') ?? '',recovery:fragment.get('type')==='recovery'} : null;
+export let emailCallback = fragment.has('access_token') ? {access_token:fragment.get('access_token')!,refresh_token:fragment.get('refresh_token') ?? '',recovery:fragment.get('type')==='recovery'} : null;
 if(emailCallback) history.replaceState(null,'',location.pathname+location.search);
+export function consumeEmailCallback(){emailCallback=null;}
 export const initialPasswordRecovery = typeof window !== 'undefined' && sessionStorage.getItem('paisatrail-password-recovery') === 'true';
 export const supabase = configured ? createClient(url, key, { auth: { flowType: 'implicit', detectSessionInUrl: false, persistSession: true, autoRefreshToken: true } }) : null;
 function db() { if (!supabase) throw new Error('Email sign-in is not connected yet.'); return supabase; }
