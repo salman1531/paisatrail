@@ -162,3 +162,6 @@ Financial glossary/reconciliation, updated Overview hierarchy, consistent contri
 
 
 23 October 2026 Shared Expenses release 2.1.0: see SHARED_EXPENSES_RELEASE.md for the isolated product, private collaboration model and acceptance evidence. Migration018 was explicitly approved and applied live; all twelve tables have RLS, anonymous reads and direct authenticated writes are denied. Keep Personal Finance’s four tabs and personal history unchanged. Production deployment evidence and immutable release/rollback manifests are stored in the parent workspace outputs. Do not rerun018 or undo additive shared data for frontend rollback.
+
+
+23 October 2026 product discovery 2.1.1: one common public/account/help surface introduces Personal Finance and Shared Expenses. A labelled Switch product control is visible at the top of every workspace page on desktop and mobile. See PRODUCT_DISCOVERY_RELEASE.md for verification, ten-public-URL sitemap rules, Chrome-runner limitations and rollback. No migration or financial behavior changes.

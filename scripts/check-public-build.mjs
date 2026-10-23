@@ -16,6 +16,7 @@ assert(home.includes(homeDescription));
 assert(!home.includes('Loading PaisaTrace'));
 assert(home.includes('8SimNb7oI6D1mlfI4svzAxFIQzMrrgFuaPt_sHxb4gU'),'Approved Search Console verification remains in initial HTML');
 for(const path of ['/signup','/login','/demo/overview','/about','/guide','/privacy','/terms','/blog'])assert(home.includes(`href="${path}"`),`Initial HTML must link ${path}`);
+for(const text of ['id="products"','Personal Finance','Shared Expenses','href="/shared/dashboard"','href="/shared-demo/dashboard"','href="/products"'])assert(home.includes(text),'Common homepage introduces both modules: '+text);
 const schemas=[...home.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));
 assert(schemas.some(s=>s['@type']==='WebSite'&&s.url===canonical));
 const entryAsset=home.match(/<script[^>]*src="([^"]+)"/)?.[1];
@@ -47,6 +48,8 @@ assert((await read('about/index.html')).includes('<title>About PaisaTrace — Si
 assert(!(await read('guide/index.html')).includes('status,.'));
 assert((await stat(resolve(dir,'social-card.png'))).size>0);
 const guide=await read('guide/index.html');
+for(const file of ['guide/index.html','guide.md','llms.txt','llm.txt']){const text=await read(file);for(const route of ['/products','/shared/dashboard','/shared-demo/dashboard'])assert(text.includes(route),file+' documents '+route);assert(text.includes('Switch product'),file+' explains switching');}
+for(const path of ['about/index.html','privacy/index.html','terms/index.html'])assert((await read(path)).includes('Shared Expenses')||path==='terms/index.html'&&(await read(path)).includes('shared-expense'),'Common public pages describe both modules');
 const hosting=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
 for(const area of ['app','demo'])assert(hosting.redirects.some(route=>route.source===`/${area}/reports`&&route.destination===`/${area}/overview`&&route.permanent),'Legacy Reports URL redirects within its workspace');
 for(const path of ['index.html','guide/index.html','llms.txt','llm.txt'])assert(!(await read(path)).includes('href="/demo/reports"'),'Public links use Overview');
@@ -71,4 +74,17 @@ for(const post of posts){
  assert((await read('blog/index.html')).includes('href="/blog/'+post.slug+'"'));
  assert((await stat(resolve(dir,'blog-worksheets/'+visual.download))).size>0);
 }
-console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:privatePaths.length,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),checks:'passed'}));
+// Crawl common public navigation and validate local destinations and section links.
+let internalLinksChecked=0;
+for(const path of ['index.html','about/index.html','guide/index.html','privacy/index.html','terms/index.html','blog/index.html',...posts.map(post=>'blog/'+post.slug+'/index.html')]){
+ const page=await read(path);
+ for(const match of page.matchAll(/href="(\/[^"#?]*)(?:\?[^"#]*)?(#[^"]+)?"/g)){
+  const destination=match[1]==='/'?'index.html':match[1].slice(1)+(/\.[a-z]+$/.test(match[1])?'':'/index.html');
+  await stat(resolve(dir,destination));
+  if(match[2]&&destination.endsWith('.html')){
+   const target=await read(destination);assert(target.includes('id="'+match[2].slice(1)+'"'),path+' section link resolves: '+match[0]);
+  }
+  internalLinksChecked++;
+ }
+}
+console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:privatePaths.length,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),internalLinksChecked,checks:'passed'}));

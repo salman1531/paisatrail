@@ -3,9 +3,9 @@ import {posts} from '../../scripts/blog.mjs';
 
 test('homepage HTTP response contains the product and crawlable public links before JavaScript',async({request})=>{
  const response=await request.get('/');expect(response.status()).toBe(200);const html=await response.text();
- expect(html).toContain('Track expenses.<br/>Know what remains.');expect(html).toContain('A free expense tracker and budget planner for everyday life.');expect(html).not.toContain('Loading PaisaTrace');
+ expect(html).toContain('Track expenses.<br/>Know what remains.');expect(html).toContain('One free account, two separate workspaces.');expect(html).not.toContain('Loading PaisaTrace');
  for(const path of ['/about','/guide','/privacy','/terms','/signup','/demo/overview'])expect(html).toContain(`href="${path}"`);
- expect((html.match(/<h1\b/g)||[]).length).toBe(1);expect(html).toContain('Track expenses, record income and plan your budget with PaisaTrace.');
+ expect((html.match(/<h1\b/g)||[]).length).toBe(1);expect(html).toContain('Track expenses and budgets, or split costs with friends.');
  const about=await request.get('/about');expect(await about.text()).toContain('<title>About PaisaTrace — Simple Personal Finance Tracking</title>');
 });
 

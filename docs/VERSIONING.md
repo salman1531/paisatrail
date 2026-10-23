@@ -1,4 +1,8 @@
-# Current release: 2.1.0
+# Current release: 2.1.1
+
+The common-page and product-discovery update keeps one homepage, account flow and guide for both independently usable modules. Read PRODUCT_DISCOVERY_RELEASE.md. Its immediate rollback baseline is **2.1.0**, tag `v2.1.0`, production commit `486e54ac1d7f6f59ee98d47c336027552b1dd22d`, Vercel deployment `6a4VfvQFhCdDy3VBKrp7vHcp5BNN`. Its complete verified bundle and manifest are preserved in the parent workspace outputs/backups/2026-10-23. This update has no database migration.
+
+## Previous release: 2.1.0
 
 Shared Expenses is the operator-authorized 23 October 2026 release. The immediate frontend rollback baseline is **2.0.0**, tag `v2.0.0`, production commit `402f6f02e8493c73e4a3108bf377913c2f912621`, immutable Vercel deployment `AzyueTu2PLBVu9odbkkdFwofU61F`. Its complete verified bundle and manifest remain in outputs/backups/2026-10-22 in the parent workspace. Preserve them. Shared Expenses uses additive migration018; a frontend rollback retains shared records and access rules. Read SHARED_EXPENSES_RELEASE.md.
 

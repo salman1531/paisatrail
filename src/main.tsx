@@ -7,7 +7,7 @@ import './design-system.css';
 const root=ReactDOM.createRoot(document.getElementById('root')!);
 // Keep the public landing page light. Hash-based legacy links and email callbacks
 // still load the full application and its existing protected acceptance flow.
-if(parseRoute(location.pathname,location.hash).area==='home'&&!location.hash) {
+if(parseRoute(location.pathname,location.hash).area==='home'&&(!location.hash||['#products','#shared-expenses'].includes(location.hash))) {
   root.render(<React.StrictMode><Home/></React.StrictMode>);
 } else {
   import('./ProductRoot').then(({default:App})=>root.render(<React.StrictMode><App/></React.StrictMode>)).catch(()=>{

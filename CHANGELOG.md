@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1 — 2026-10-23
+
+- Introduce both independent modules on the common homepage and account pages, with clearly named demos.
+- Keep Switch product visible at the top of every workspace on phones, tablets and desktops.
+- Align public navigation, About, shared terms description, user guide, LLM files and SEO metadata. Sitemap remains limited to the ten canonical public pages.
+
 ## 2.1.0 — 2026-10-23
 
 - Independent Shared Expenses workspace with private collaborative groups, invitations, splits and repayments.
