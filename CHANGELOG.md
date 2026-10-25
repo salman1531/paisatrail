@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.2.0 — 25 October 2026
+
+- Bring the tested Shared Expenses dashboard, scoped reporting, clearer split and repayment forms, resilient loading and retry flows into the production release.
+- Give both workspaces common forest/lime navigation tokens and Lucide outline icons, a named workspace dropdown and separate account controls.
+- Introduce public Personal Finance and Shared Expenses pages, equal homepage visibility, two demo choices, responsive previews and accessible shared public navigation.
+- Put sign-in fields first on mobile, remove nested email borders, and preserve validated workspace intent through password sign-in, verification and recovery.
+- Refresh the common guide, privacy storage disclosure, footer, public metadata, sitemap and LLM files. Migration019 extends the existing member-only read report without changing permissions.
+- Preserve immutable 2.1.1 production and 2.2.0-preview.1 backups for rollback.
+
+
+## 2.2.0-preview.1 — 24 October 2026
+
+Shared Expenses review: explicit financial scope, complete spending reports, actionable summaries, simpler people setup, split and repayment reviews, responsive forms, recovery states and representative demo scenarios. Read docs/SHARED_UX_ACCEPTANCE.md for readiness and verification. Production 2.1.1 is preserved; migration019 extends read-only reporting without changing financial rules.
+
+
 ## 2.1.1 — 2026-10-23
 
 - Introduce both independent modules on the common homepage and account pages, with clearly named demos.

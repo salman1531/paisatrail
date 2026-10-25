@@ -3,7 +3,7 @@ import {posts} from '../../scripts/blog.mjs';
 
 test('homepage HTTP response contains the product and crawlable public links before JavaScript',async({request})=>{
  const response=await request.get('/');expect(response.status()).toBe(200);const html=await response.text();
- expect(html).toContain('Track expenses.<br/>Know what remains.');expect(html).toContain('One free account, two separate workspaces.');expect(html).not.toContain('Loading PaisaTrace');
+ expect(html).toContain('Track your money.<br/><em>Split costs with friends.</em>');expect(html).toContain('One account with separate personal and shared workspaces.');expect(html).not.toContain('Loading PaisaTrace');
  for(const path of ['/about','/guide','/privacy','/terms','/signup','/demo/overview'])expect(html).toContain(`href="${path}"`);
  expect((html.match(/<h1\b/g)||[]).length).toBe(1);expect(html).toContain('Track expenses and budgets, or split costs with friends.');
  const about=await request.get('/about');expect(await about.text()).toContain('<title>About PaisaTrace — Simple Personal Finance Tracking</title>');
@@ -21,13 +21,13 @@ test('blog HTTP responses contain all supplied articles and matching visible str
 
 test('public policy drafts and discovery files work before sign-in', async ({ page, request }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle('PaisaTrace — Expense Tracker & Monthly Budget');
+  await expect(page).toHaveTitle('PaisaTrace — Personal Finance & Shared Expenses');
   await page.getByRole('link', { name: 'Privacy policy', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Privacy policy', exact: true })).toBeVisible();
   const draft = await page.locator('.draft').count() > 0;
   if (draft) await expect(page.locator('.draft')).toContainText('Prelaunch draft');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.getByRole('navigation').first().getByRole('link', { name: 'Terms and conditions', exact: true }).click();
+  await page.locator('footer').getByRole('link', { name: 'Terms and conditions', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Terms and conditions', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   const llms = await request.get('/llms.txt');
@@ -37,7 +37,7 @@ test('public policy drafts and discovery files work before sign-in', async ({ pa
   if (draft) expect(await sitemap.text()).not.toContain('/privacy</loc>');
   else expect(await sitemap.text()).toContain('/privacy</loc>');
   await page.goto('/about'); await expect(page.getByRole('heading', {name: /Track your expenses/})).toBeVisible();
-  await page.getByRole('navigation', {name:'Public pages'}).first().getByRole('link', {name:'User guide',exact:true}).click();
+  await page.locator('footer').getByRole('link', {name:'User guide',exact:true}).click();
   await expect(page).toHaveTitle(/PaisaTrace user guide/);
   await expect(page.getByRole('navigation',{name:'Guide contents'})).toBeVisible();
   await page.getByRole('navigation',{name:'Guide contents'}).getByRole('link',{name:/Save toward a named outcome$/}).click();

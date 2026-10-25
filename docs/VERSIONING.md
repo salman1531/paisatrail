@@ -1,3 +1,15 @@
+# Version 2.2.0 — common workspaces release
+
+The release includes the tested Shared Expenses UX preview plus the 25 October public navigation, landing-page and authentication requirements. See COMMON_WORKSPACES_RELEASE.md. The rollback baseline is immutable **v2.1.1**, production commit `4ffdc699d42235d1acfe92220e1efea0c28c0855`, Vercel deployment `BNpcLNosdf7ZwN1DdmefyM1tPFYN`. Its complete verified bundle and manifest remain in outputs/backups/2026-10-23 in the parent workspace. Preserve immutable **v2.2.0-preview.1** and its separate 24 October bundle too.
+
+Migration019 only extends a member-authorized report response; existing tables, mutations, checks and grants are unchanged. Roll back the frontend to the preserved deployment without deleting shared records or reversing migrations. Final production commit, deployment and migration verification are recorded in the new release manifest. Do not move any previously published tag.
+
+---
+
+# Local review: 2.2.0-preview.1
+
+Shared Expenses UI/UX changes are isolated on `codex/shared-ux-2-2`. Read SHARED_UX_ACCEPTANCE.md for SE01–SE30 traceability, calculation sources and open release checks. Production remains **2.1.1**. Its immutable tag, complete verified bundle and deployment remain available. Migration019 is an additive, read-only report extension; it is not applied live. Rolling back the frontend needs no record deletion or schema rollback.
+
 # Current release: 2.1.1
 
 The common-page and product-discovery update keeps one homepage, account flow and guide for both independently usable modules. Read PRODUCT_DISCOVERY_RELEASE.md. Its immediate rollback baseline is **2.1.0**, tag `v2.1.0`, production commit `486e54ac1d7f6f59ee98d47c336027552b1dd22d`, Vercel deployment `6a4VfvQFhCdDy3VBKrp7vHcp5BNN`. Its complete verified bundle and manifest are preserved in the parent workspace outputs/backups/2026-10-23. This update has no database migration.

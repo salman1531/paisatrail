@@ -1,4 +1,8 @@
-# PaisaTrace handoff — updated 7 October 2026
+# PaisaTrace handoff — updated 25 October 2026
+
+## Version 2.2.0 release
+
+Read COMMON_WORKSPACES_RELEASE.md and SHARED_UX_ACCEPTANCE.md first. The release combines the prior Shared Expenses preview with public workspace pages, common navigation tokens and password-flow destination preservation. It uses twelve public sitemap URLs and thirty-three private/noindex shells. Migration019 is read-only and permission-compatible; apply it before the frontend. Production status is recorded separately in the version manifest. Preserve the unrelated dirty index.html and all earlier immutable release bundles. Earlier notes below are historical.
 
 ## Current release — 22 October 2026
 

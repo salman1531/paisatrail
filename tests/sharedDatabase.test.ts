@@ -9,6 +9,7 @@ beforeAll(async()=>{
  await db.exec(`create role anon;create role authenticated;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;grant usage on schema auth,public to anon,authenticated;grant execute on function auth.uid() to authenticated;insert into auth.users values('${a}'),('${b}'),('${outsider}');`);
  // Only a profiles stub is needed: proves shared-only use has no Personal Finance initializer dependency.
  await db.exec('create table profiles(user_id uuid primary key)');await db.exec(readFileSync(new URL('../supabase/migrations/018_shared_expenses.sql',import.meta.url),'utf8'));
+ await db.exec(readFileSync(new URL('../supabase/migrations/019_shared_reporting.sql',import.meta.url),'utf8'));
  for(const [id,name] of [[a,'Ali'],[b,'Ahmed'],[outsider,'Other']])await as(id,"select shared_preferences(null,true,'shared',$1)",[name]);
  await cmd(a,'create_context',{id:cid,participant_id:pa,name:'Trip',kind:'group'} ,null);
  const token='a'.repeat(64);await cmd(a,'invite',{id:crypto.randomUUID(),token_hash:token});await cmd(b,'join',{hash:token,participant_id:pb},null);
@@ -63,6 +64,22 @@ it('rejects foreign participants, invalid dates and fractional minor units atomi
 it('returns complete date-filtered reports and private aggregate summaries',async()=>{
  const report=(await as(a,"select shared_report($1,'2026-10-22','2026-10-22') r",[cid])).rows[0].r as any;expect(report.categories.reduce((n:number,r:any)=>n+r.amount_minor,0)).toBe(10203);expect(report.people.reduce((n:number,r:any)=>n+r.paid_minor,0)).toBe(10203);expect(report.people.reduce((n:number,r:any)=>n+r.share_minor,0)).toBe(10203);const summaries=(await as(a,'select shared_summary() r')).rows[0].r as any[];expect(summaries.find(s=>s.context.id===cid).total_minor).toBe(10203);
  await db.exec('set role anon');await expect(db.query('select shared_summary()')).rejects.toThrow();await db.exec('reset role');
+});
+it('reports inclusive dates, complete totals, privacy and repayment states without changing all-time debt',async()=>{
+ const id=crypto.randomUUID(),mine=crypto.randomUUID(),guest=crypto.randomUUID();await cmd(a,'create_context',{id,participant_id:mine,kind:'direct',name:'Reporting fixture',friend_id:guest,friend_name:'Tracked fixture'},null);
+ const add=async(date:string,amount:number)=>cmd(a,'expense',{id:crypto.randomUUID(),version:0,title:'Reporting boundary',amount_minor:amount,date,payer_id:mine,split_method:'equal',shares:[{participant_id:mine},{participant_id:guest}]},id);
+ await add('2026-09-30',200);await add('2026-10-01',360000);await add('2026-10-31',10000);await add('2026-11-01',400);
+ // More than one visible page must not truncate any aggregate.
+ for(let n=0;n<21;n++)await add('2026-10-15',100);
+ const payment=crypto.randomUUID();await cmd(a,'settlement',{id:payment,payer_id:guest,receiver_id:mine,amount_minor:10000,date:'2026-11-01',method:'Cash'},id);
+ const before=(await as(a,'select shared_pairs($1) p',[id])).rows;
+ const r=(await as(a,"select shared_report($1,'2026-10-01','2026-10-31') r",[id])).rows[0].r as any;
+ expect(r.totals).toEqual({spending_minor:372100,paid_minor:372100,share_minor:186050,expense_count:23});expect(r.timeline.reduce((n:number,x:any)=>n+x.amount_minor,0)).toBe(372100);expect(r.timeline.map((x:any)=>x.date)).toEqual(['2026-10-01','2026-10-15','2026-10-31']);expect(r.repayments).toEqual([]);
+ expect((await as(a,"select shared_report($1,'2026-11-01','2026-11-01') r",[id])).rows[0].r).toMatchObject({repayments:[{status:'confirmed',amount_minor:10000,count:1}]});
+ expect((await as(a,'select shared_pairs($1) p',[id])).rows).toEqual(before);
+ await expect(as(b,'select shared_report($1)',[id])).rejects.toThrow(/unavailable/);const other=(await as(b,"select shared_report(null,'2026-10-01','2026-10-31') r")).rows[0].r as any;expect(other.people.some((p:any)=>p.context_id===id)).toBe(false);
+ await expect(as(a,"select shared_report($1,'2026-10-31','2026-10-01')",[id])).rejects.toThrow(/valid date/);
+ await db.exec('set role anon');await expect(db.query('select shared_report()')).rejects.toThrow();await db.exec('reset role');
 });
 it('expires invitations, rate-limits invalid previews and supports safe zero-balance leaving',async()=>{
  const invitation=crypto.randomUUID(),hash='1'.repeat(64);await cmd(a,'invite',{id:invitation,token_hash:hash});await db.query("update shared_invitations set expires_at=now()-interval '1 second' where id=$1",[invitation]);expect((await as(b,'select shared_invite_preview($1) r',[hash])).rows[0].r).toHaveProperty('error');

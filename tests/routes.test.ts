@@ -1,5 +1,5 @@
-import {describe,it,expect} from 'vitest';
-import {parseRoute,workspacePath,safeReturnPath,routeTitle,migratedOrigin} from '../src/routes';
+import {describe,it,expect,vi} from 'vitest';
+import {parseRoute,workspacePath,safeReturnPath,routeTitle,migratedOrigin,moveTo} from '../src/routes';
 describe('page URLs',()=>{
  it('opens every demo and private page directly and rejects unknown pages',()=>{for(const area of ['app','demo'])for(const page of ['overview','money-log','income','money-plan','categories','settings'])expect(parseRoute(`/${area}/${page}/`)).toEqual({area,page,section:undefined});expect(parseRoute('/demo/admin').area).toBe('not-found');for(const unknown of ['unknown','constructor','toString','__proto__'])expect(parseRoute('/app/'+unknown).area).toBe('not-found');expect(parseRoute('/login').area).toBe('login');expect(parseRoute('/signup').area).toBe('signup');expect(parseRoute('/forgot-password').area).toBe('forgot-password');expect(parseRoute('/auth/callback').area).toBe('callback');});
  it('keeps legacy planning links and Money Log names compatible',()=>{expect(parseRoute('/','#budgets')).toEqual({area:'app',page:'money-plan',section:'spending'});expect(parseRoute('/demo/goals')).toMatchObject({area:'demo',page:'money-plan',section:'goals'});expect(workspacePath('entries',true)).toBe('/demo/money-log');expect(routeTitle(parseRoute('/demo/reports'))).toBe('Demo · Overview · PaisaTrace');});
@@ -10,3 +10,5 @@ describe('page URLs',()=>{
 });
 
  it('isolates shared routes and preserves only valid invitation return fragments',()=>{expect(parseRoute('/shared/groups/11111111-1111-4111-8111-111111111111')).toMatchObject({area:'shared',sharedPage:'groups'});expect(parseRoute('/shared-demo/reports')).toMatchObject({area:'shared-demo',sharedPage:'reports'});expect(parseRoute('/shared/unknown').area).toBe('not-found');expect(parseRoute('/shared/dashboard/11111111-1111-4111-8111-111111111111').area).toBe('not-found');const invite='/shared/join#invite='+'a'.repeat(64);expect(safeReturnPath(invite)).toBe(invite);expect(safeReturnPath('/shared/join#invite=bad')).toBe('/app/overview');expect(safeReturnPath('/shared/groups')).toBe('/shared/groups');});
+
+it('titles filtered navigation using the pathname while preserving the query in history',()=>{const document={title:''},pushState=vi.fn();vi.stubGlobal('document',document);vi.stubGlobal('location',{pathname:'/shared-demo/reports',search:'',hash:''});vi.stubGlobal('history',{pushState});vi.stubGlobal('window',{dispatchEvent:vi.fn()});try{moveTo('/shared-demo/reports?period=month');expect(document.title).toBe('Demo · Reports · Shared Expenses · PaisaTrace');expect(pushState).toHaveBeenCalledWith(null,'','/shared-demo/reports?period=month');}finally{vi.unstubAllGlobals();}});

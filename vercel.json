@@ -109,6 +109,14 @@
   ],
   "rewrites": [
     {
+      "source": "/personal-finance",
+      "destination": "/personal-finance/index.html"
+    },
+    {
+      "source": "/shared-expenses",
+      "destination": "/shared-expenses/index.html"
+    },
+    {
       "source": "/products",
       "destination": "/products/index.html"
     },

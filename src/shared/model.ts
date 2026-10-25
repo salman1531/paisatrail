@@ -12,9 +12,9 @@ export type Settlement={id:string;context_id:string;payer_id:string;receiver_id:
 export type Activity={id:string;context_id:string;actor_id:string|null;actor_name:string;action:string;entity_id:string|null;detail:Record<string,unknown>;created_at:string};
 export type Invitation={id:string;context_id:string;claim_participant_id:string|null;expires_at:string;revoked_at:string|null};
 export type InvitePreview={id:string;context_id:string;name:string;kind:'group'|'direct';expires_at:string;claim_name:string|null;claim_participant_id:string|null;error?:string};
-export type Report={categories:{category:string;amount_minor:number}[];people:{id:string;context_id:string;name:string;paid_minor:number;share_minor:number}[]};
+export type Report={totals?:{spending_minor:number;paid_minor:number;share_minor:number;expense_count:number};timeline?:{date:string;amount_minor:number}[];repayments?:{status:Settlement['status'];amount_minor:number;count:number}[];categories:{category:string;amount_minor:number}[];people:{id:string;context_id:string;name:string;paid_minor:number;share_minor:number}[]};
 export type Command={id:string;action:string;context:string|null;data:Record<string,unknown>};
-export type HistoryFilter={context?:string;start?:string;end?:string;offset?:number;category?:string};
+export type HistoryFilter={context?:string;start?:string;end?:string;offset?:number;category?:string;participant?:string;participantRole?:'paid'|'share';includedOnly?:boolean};
 export const pageSize=20;
 export function exactInteger(n:number){if(!Number.isSafeInteger(n)||n<0||n>1000000000000)throw Error('Enter a valid amount within the supported limit.');return n;}
 export function percentageWeight(text:string){if(!/^\d{1,3}(\.\d{1,2})?$/.test(text.trim()))throw Error('Use percentages with up to two decimal places.');const [a,b='']=text.trim().split('.');const n=Number(a)*100+Number(b.padEnd(2,'0'));if(n>10000)throw Error('A percentage cannot exceed 100%.');return n;}

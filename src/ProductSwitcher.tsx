@@ -1,11 +1,6 @@
-import {ArrowLeftRight} from 'lucide-react';
+import {Check,ChevronDown,WalletCards,UsersRound} from 'lucide-react';
+import {useDismissMenus} from './PublicNav';
 import './product-switcher.css';
-
-export function ProductSwitchLink({product,demo=false}:{product:'personal'|'shared';demo?:boolean}) {
-  const href=demo?(product==='personal'?'/shared-demo/dashboard':'/demo/overview'):'/products';
-  return <a className="product-switch-link" href={href}><ArrowLeftRight size={16} aria-hidden="true"/><span>Switch product</span></a>;
-}
-
-export default function ProductSwitcher({product,demo=false}:{product:'personal'|'shared';demo?:boolean}) {
-  return <nav className="workspace-product-bar" aria-label="Product switcher"><span className="current-product">{product==='personal'?'Personal Finance':'Shared Expenses'}{demo&&<small>Demo</small>}</span><ProductSwitchLink product={product} demo={demo}/></nav>;
-}
+type Props={product:'personal'|'shared';demo?:boolean};
+export function ProductSwitchLink({product,demo=false}:Props){return <a className="product-switch-link" href={demo?(product==='personal'?'/shared-demo/dashboard':'/demo/overview'):'/products'}>Choose workspace</a>;}
+export default function ProductSwitcher({product,demo=false}:Props){useDismissMenus();return <nav className="workspace-product-bar" aria-label="Workspace switcher"><details className="workspace-selector" data-dismiss-menu><summary>{product==='personal'?<WalletCards size={18} aria-hidden="true"/>:<UsersRound size={18} aria-hidden="true"/>}<span>{product==='personal'?'Personal Finance':'Shared Expenses'}</span><ChevronDown size={16} aria-hidden="true"/></summary><div className="workspace-options">{(['personal','shared'] as const).map(key=><a key={key} href={key==='personal'?(demo?'/demo/overview':'/app/overview'):(demo?'/shared-demo/dashboard':'/shared/dashboard')} aria-current={product===key?'true':undefined}>{key==='personal'?<WalletCards size={19} aria-hidden="true"/>:<UsersRound size={19} aria-hidden="true"/>}<span>{key==='personal'?'Personal Finance':'Shared Expenses'}</span>{product===key&&<Check size={17} aria-label="Current workspace"/>}</a>)}<p>{demo?'Separate demos · Sample data only':'Separate workspaces · Records never merge'}</p></div></details>{demo&&<span className="workspace-demo-label">Demo</span>}</nav>;}

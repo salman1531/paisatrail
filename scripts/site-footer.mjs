@@ -3,8 +3,8 @@ import {brandIdentityHtml} from './brand.mjs';
 export function footerGroups(email = '') {
   const support = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? [{label:'Contact support',href:`mailto:${email}?subject=PaisaTrace%20support`}] : [];
   return [
-    {title:'Explore',links:[{label:'Home',href:'/'},{label:'Products',href:'/#products'},{label:'About PaisaTrace',href:'/about'},{label:'Blog',href:'/blog'},{label:'Personal Finance demo',href:'/demo/overview'},{label:'Shared Expenses demo',href:'/shared-demo/dashboard'}]},
-    {title:'Account',links:[{label:'Switch product',href:'/products'},{label:'Account sign-in',href:'/login'},{label:'Create an account',href:'/signup'},{label:'Reset password',href:'/forgot-password'}]},
+    {title:'Explore',links:[{label:'Home',href:'/'},{label:'Personal Finance',href:'/personal-finance'},{label:'Shared Expenses',href:'/shared-expenses'},{label:'About PaisaTrace',href:'/about'},{label:'Blog',href:'/blog'},{label:'Personal Finance demo',href:'/demo/overview'},{label:'Shared Expenses demo',href:'/shared-demo/dashboard'}]},
+    {title:'Account',links:[{label:'Choose workspace',href:'/products'},{label:'Account sign-in',href:'/login'},{label:'Create an account',href:'/signup'},{label:'Reset password',href:'/forgot-password'}]},
     {title:'Help',links:[{label:'User guide',href:'/guide'},...support]},
     {title:'Legal',links:[{label:'Privacy policy',href:'/privacy'},{label:'Terms and conditions',href:'/terms'},{label:'Third-party notices',href:'/third-party-notices.txt'}]},
   ];

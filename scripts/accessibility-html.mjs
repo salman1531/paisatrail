@@ -1,7 +1,7 @@
 /** Put repeated public navigation and footer outside the main landmark. */
 export function accessiblePublicHtml(html,{development=false}={}){
  if(!/<body\b/.test(html)||html.includes('class="skip-link"'))return html;
- html=html.replace(/(<body\b[^>]*>)\s*(<main\b[^>]*>)\s*(<nav\b[\s\S]*?<\/nav>)/,'$1$3$2');
+ html=html.replace(/(<body\b[^>]*>)\s*(<main\b[^>]*>)\s*(<header class="public-header"[\s\S]*?<\/header>|<nav\b[\s\S]*?<\/nav>)/,'$1$3$2');
  html=html.replace(/(<footer\b[\s\S]*?<\/footer>)\s*<\/main>/,'</main>$1');
  let target='main-content';
  html=html.replace(/<main\b([^>]*)>/,(_tag,attrs)=>{

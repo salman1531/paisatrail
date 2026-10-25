@@ -11,7 +11,7 @@ const canonical=home.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
 assert(canonical?.startsWith('https://'),'A configured public origin is required for release checks');
 const origin=new URL(canonical).origin;
 assert.equal((home.match(/<h1\b/g)||[]).length,1);
-assert(home.includes('Track expenses.<br/>Know what remains.'));
+assert(home.includes('Track your money.<br/><em>Split costs with friends.</em>'));
 assert(home.includes(homeDescription));
 assert(!home.includes('Loading PaisaTrace'));
 assert(home.includes('8SimNb7oI6D1mlfI4svzAxFIQzMrrgFuaPt_sHxb4gU'),'Approved Search Console verification remains in initial HTML');
@@ -33,13 +33,14 @@ for(const path of privatePaths){
 }
 // Every public header and full footer must carry the same monogram + wordmark.
 const brand='<span class="brand-wordmark">PaisaTrace</span>';
-for(const path of ['index.html','about/index.html','guide/index.html','privacy/index.html','terms/index.html','blog/index.html',...posts.map(post=>'blog/'+post.slug+'/index.html')]){
+for(const path of ['index.html','personal-finance/index.html','shared-expenses/index.html','about/index.html','guide/index.html','privacy/index.html','terms/index.html','blog/index.html',...posts.map(post=>'blog/'+post.slug+'/index.html')]){
  const page=await read(path);assert(page.includes('class="brand-lockup"'),path+' includes the shared identity');assert(page.includes(brand),path+' uses the PaisaTrace wordmark');assert(page.includes('class="brand-icon" src="/favicon.svg"'),path+' uses the canonical monogram');
 }
+for(const [path,workspace] of [['personal-finance','personal'],['shared-expenses','shared']]){const page=await read(path+'/index.html');assert.equal((page.match(/<h1\b/g)||[]).length,1);assert(page.includes('index, follow'));assert(page.includes(`href="${origin}/${path}"`));assert(page.includes('next=%2F'+(workspace==='personal'?'app%2Foverview':'shared%2Fdashboard')));}
 const favicon=await read('favicon.svg');const social=await read('social-card.svg');assert(social.includes(favicon.replace(/<svg[^>]*>|<\/svg>/g,'').trim()),'Social preview uses the same monogram');
 const sitemap=await read('sitemap.xml');
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-assert.deepEqual(urls,['/','/about','/guide','/privacy','/terms',...blogPaths].map(p=>origin+p));
+assert.deepEqual(urls,['/','/personal-finance','/shared-expenses','/about','/guide','/privacy','/terms',...blogPaths].map(p=>origin+p));
 assert((await read('robots.txt')).includes(`Sitemap: ${origin}/sitemap.xml`));
 for(const path of ['about','guide','privacy','terms']){
  const page=await read(path+'/index.html');assert(page.includes(`href="${origin}/${path}"`));assert.equal((page.match(/<h1\b/g)||[]).length,1);
@@ -48,9 +49,10 @@ assert((await read('about/index.html')).includes('<title>About PaisaTrace — Si
 assert(!(await read('guide/index.html')).includes('status,.'));
 assert((await stat(resolve(dir,'social-card.png'))).size>0);
 const guide=await read('guide/index.html');
-for(const file of ['guide/index.html','guide.md','llms.txt','llm.txt']){const text=await read(file);for(const route of ['/products','/shared/dashboard','/shared-demo/dashboard'])assert(text.includes(route),file+' documents '+route);assert(text.includes('Switch product'),file+' explains switching');}
+for(const file of ['guide/index.html','guide.md','llms.txt','llm.txt']){const text=await read(file);for(const route of ['/products','/shared/dashboard','/shared-demo/dashboard'])assert(text.includes(route),file+' documents '+route);assert(text.includes('workspace')&&text.includes('dropdown'),file+' explains the workspace dropdown');}
 for(const path of ['about/index.html','privacy/index.html','terms/index.html'])assert((await read(path)).includes('Shared Expenses')||path==='terms/index.html'&&(await read(path)).includes('shared-expense'),'Common public pages describe both modules');
 const hosting=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
+for(const path of ['/personal-finance','/shared-expenses'])assert(hosting.rewrites.some(route=>route.source===path&&route.destination===path+'/index.html'));
 for(const area of ['app','demo'])assert(hosting.redirects.some(route=>route.source===`/${area}/reports`&&route.destination===`/${area}/overview`&&route.permanent),'Legacy Reports URL redirects within its workspace');
 for(const path of ['index.html','guide/index.html','llms.txt','llm.txt'])assert(!(await read(path)).includes('href="/demo/reports"'),'Public links use Overview');
 assert(guide.includes('More insights'),'Guide describes consolidated insights');
@@ -76,7 +78,7 @@ for(const post of posts){
 }
 // Crawl common public navigation and validate local destinations and section links.
 let internalLinksChecked=0;
-for(const path of ['index.html','about/index.html','guide/index.html','privacy/index.html','terms/index.html','blog/index.html',...posts.map(post=>'blog/'+post.slug+'/index.html')]){
+for(const path of ['index.html','personal-finance/index.html','shared-expenses/index.html','about/index.html','guide/index.html','privacy/index.html','terms/index.html','blog/index.html',...posts.map(post=>'blog/'+post.slug+'/index.html')]){
  const page=await read(path);
  for(const match of page.matchAll(/href="(\/[^"#?]*)(?:\?[^"#]*)?(#[^"]+)?"/g)){
   const destination=match[1]==='/'?'index.html':match[1].slice(1)+(/\.[a-z]+$/.test(match[1])?'':'/index.html');
