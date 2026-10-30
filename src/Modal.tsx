@@ -1,6 +1,8 @@
-import { useEffect, useRef, useId, type ReactNode } from 'react';
+import { useEffect, useRef, useId, createContext, useContext, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 
+const DialogCloseContext=createContext<()=>void>(()=>{});
+export const useDialogClose=()=>useContext(DialogCloseContext);
 export default function Modal({ title, children, close, wide = false, className = '' }: { className?:string; wide?: boolean; title: string; children: ReactNode; close: () => void }) {
   const titleId=useId();
   const ref = useRef<HTMLDialogElement>(null);
@@ -14,7 +16,7 @@ export default function Modal({ title, children, close, wide = false, className 
     dialog.showModal();
     dialog.querySelector<HTMLElement>('[data-autofocus]')?.focus();
     const viewport=window.visualViewport;
-    const fitKeyboard=()=>{if(className.includes('entry-dialog')&&window.innerWidth<=700){const height=viewport?.height??window.innerHeight;dialog.style.setProperty('--dialog-viewport',height+'px');dialog.style.setProperty('--dialog-offset',(viewport?.offsetTop??0)+'px');dialog.style.maxHeight=`${Math.max(180,height-24)}px`;dialog.style.top=`${viewport?.offsetTop??0}px`;dialog.style.bottom='auto';dialog.style.margin='12px auto';}else if(className.includes('entry-dialog')){dialog.style.maxHeight='';dialog.style.top='';dialog.style.bottom='';dialog.style.margin='';}};
+    const fitKeyboard=()=>{if(window.innerWidth<=800&&!className.includes('workspace-more-sheet')){const height=viewport?.height??window.innerHeight;dialog.style.setProperty('--dialog-viewport',height+'px');dialog.style.setProperty('--dialog-offset',(viewport?.offsetTop??0)+'px');dialog.style.maxHeight=`${Math.max(180,height-24)}px`;dialog.style.top=`${viewport?.offsetTop??0}px`;dialog.style.bottom='auto';dialog.style.margin='12px auto';}else{dialog.style.maxHeight='';dialog.style.top='';dialog.style.bottom='';dialog.style.margin='';}};
     fitKeyboard();viewport?.addEventListener('resize',fitKeyboard);viewport?.addEventListener('scroll',fitKeyboard);window.addEventListener('resize',fitKeyboard);
     return () => {
       viewport?.removeEventListener('resize',fitKeyboard);viewport?.removeEventListener('scroll',fitKeyboard);window.removeEventListener('resize',fitKeyboard);
@@ -24,5 +26,5 @@ export default function Modal({ title, children, close, wide = false, className 
       window.scrollTo({ left: x, top: y, behavior: 'instant' });
     };
   }, []);
-  return <dialog className={[wide?'wide-dialog':'',className].filter(Boolean).join(' ')} ref={ref} onCancel={e => { e.preventDefault(); close(); }} onClick={e => { if (e.target === e.currentTarget) close(); }} aria-labelledby={titleId}><div className="modal-content"><div className="modal-head"><h2 id={titleId}>{title}</h2><button className="icon-button" onClick={close} aria-label="Close dialog"><X size={20}/></button></div>{children}</div></dialog>;
+  return <dialog className={['workspace-dialog',wide?'wide-dialog':'',className].filter(Boolean).join(' ')} ref={ref} onCancel={e => { e.preventDefault(); close(); }} onClick={e => { if (e.target === e.currentTarget) close(); }} aria-labelledby={titleId}><DialogCloseContext.Provider value={close}><div className="modal-content"><div className="modal-head"><h2 id={titleId}>{title}</h2><button className="icon-button" onClick={close} aria-label="Close dialog"><X size={20}/></button></div>{children}</div></DialogCloseContext.Provider></dialog>;
 }

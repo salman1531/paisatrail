@@ -1,3 +1,15 @@
+# Release 2.3.0 — unified UI
+
+Prepared for the user-authorized production publication on 28 October 2026. The immediate rollback is immutable v2.2.0, production commit `28fe0bb8294792e8ff5fc0b6f83465ff7d4a5cb9`, Vercel deployment `4QioNme6Dem8p1esgetRRJkdaj7a`. Preserve its complete verified 25 October bundle. The local tag v2.3.0-preview.1 preserves the full unified UI preview independently. No database migration or rollback is required. Final production commit, deployment and checks are recorded in the new version manifest.
+
+---
+
+# Working preview 2.3.0-preview.1 — unified UI
+
+The 26 October unified experience replaces the paused 2.2.1 menu-only work. Production remains immutable **v2.2.0**, commit `28fe0bb8294792e8ff5fc0b6f83465ff7d4a5cb9`, deployment `4QioNme6Dem8p1esgetRRJkdaj7a`. The complete verified 25 October bundle remains in the parent workspace. Paused menu edits and the unrelated index edit are preserved separately in outputs/backups/2026-10-26. Do not move published tags or drop migrations for a frontend rollback. Read UNIFIED_UI_RELEASE.md.
+
+---
+
 # Version 2.2.0 — common workspaces release
 
 The release includes the tested Shared Expenses UX preview plus the 25 October public navigation, landing-page and authentication requirements. See COMMON_WORKSPACES_RELEASE.md. The rollback baseline is immutable **v2.1.1**, production commit `4ffdc699d42235d1acfe92220e1efea0c28c0855`, Vercel deployment `BNpcLNosdf7ZwN1DdmefyM1tPFYN`. Its complete verified bundle and manifest remain in outputs/backups/2026-10-23 in the parent workspace. Preserve immutable **v2.2.0-preview.1** and its separate 24 October bundle too.

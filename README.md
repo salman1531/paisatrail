@@ -1,6 +1,6 @@
 # PaisaTrace
 
-Current release: **2.2.0** unifies public navigation, workspace styling and account access for Personal Finance and Shared Expenses. Public introductions are `/personal-finance` and `/shared-expenses`; named workspace dropdowns keep the modules independent. This release includes the tested Shared Expenses reporting and recording improvements. Read [common workspaces release](docs/COMMON_WORKSPACES_RELEASE.md), [Shared UX acceptance](docs/SHARED_UX_ACCEPTANCE.md) and [versioning/rollback](docs/VERSIONING.md). Preserve immutable **2.1.1** production and **2.2.0-preview.1** snapshots. Final deployment and migration status belong in the release manifest; local checks alone do not prove publication.
+Current release: **2.3.0** unifies the application shell, desktop/mobile navigation, account controls, reporting toolbars, cards, lists, charts and forms for Personal Finance and Shared Expenses. Shared Overview and Repayments keep the existing dashboard/settlements URLs. Read [the release acceptance map](docs/UNIFIED_UI_RELEASE.md) and [versioning/rollback](docs/VERSIONING.md). Production publication is tracked in the release manifest. Immutable 2.2.0 and 2.3.0-preview.1 remain available.
 
 
 A responsive personal finance app with password sign-in, dated transactions, optional income forecasts and sources, independent spending budgets, named savings goals, flexible monthly budget cycles, reports and Excel export.

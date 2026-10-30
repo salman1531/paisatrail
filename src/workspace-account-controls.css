@@ -1,0 +1,8 @@
+.workspace-account-menu.mobile-account-menu{display:block;position:relative;align-self:center;flex-shrink:0;width:44px}
+.workspace-account-menu.mobile-account-menu>summary{display:flex;align-items:center;justify-content:center;list-style:none;cursor:pointer;width:44px;height:44px;min-width:44px;min-height:44px;border-radius:8px;background:white;border:1px solid var(--border);color:var(--primary)}
+.workspace-account-menu.mobile-account-menu>summary::-webkit-details-marker{display:none}
+.workspace-account-menu.mobile-account-menu>div{position:absolute;right:0;top:calc(100% + 6px);z-index:39;width:210px;max-width:calc(100vw - 32px);padding:6px;background:white;border:1px solid var(--control-border);border-radius:10px;box-shadow:0 10px 24px #173f3520}
+.workspace-account-menu.mobile-account-menu>div button,.workspace-account-menu.mobile-account-menu>div a{display:flex;align-items:center;gap:10px;min-height:44px;width:100%;padding:10px 12px;border:0;border-radius:6px;background:transparent;text-align:left;text-decoration:none;font-size:.875rem;color:var(--primary);line-height:1.4;white-space:normal}
+.workspace-account-menu.mobile-account-menu>div .workspace-signout{border-top:1px solid var(--border);border-radius:0 0 6px 6px;margin-top:4px}
+.workspace-account-menu.mobile-account-menu>div button:hover,.workspace-account-menu.mobile-account-menu>div a:hover{background:#edf3e8}
+.workspace-account-menu svg{flex-shrink:0;stroke-width:1.8}

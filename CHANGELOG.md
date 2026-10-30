@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.3.0 — 28 October 2026
+
+- Publish the unified shell, menus, cards, charts, forms and recording guidance for both workspaces.
+- Refresh guide and homepage screenshots, visible route labels and LLM navigation information.
+- Preserve 2.2.0 and the separately tagged 2.3.0-preview.1 for rollback; no database migration.
+
+## 2.3.0-preview.1 — 26 October 2026
+
+- One configurable workspace shell, labelled mobile navigation and modal More sheet for both independent products.
+- Common page headers, reporting toolbar, metric cards, records, forms and dashboard layout; Shared Overview and Repayments preserve existing URLs.
+- First-use guidance, readable financial scope, common account controls and Help & about.
+- Existing financial calculations, access rules and authentication intent are preserved. Production 2.2.0 remains available; see docs/UNIFIED_UI_RELEASE.md for acceptance status.
+
 ## 2.2.0 — 25 October 2026
 
 - Bring the tested Shared Expenses dashboard, scoped reporting, clearer split and repayment forms, resilient loading and retry flows into the production release.
