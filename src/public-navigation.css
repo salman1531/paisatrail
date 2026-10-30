@@ -2,3 +2,5 @@
 
 .public-mobile-menu .menu-close-label{display:none}.public-mobile-menu[open] .menu-open-label{display:none}.public-mobile-menu[open] .menu-close-label{display:inline}
 .public-header a,.public-header summary{min-width:0;white-space:normal;overflow-wrap:anywhere}.public-mobile-menu nav{max-width:calc(100vw - 24px)}.public-mobile-menu nav a{min-width:0;max-width:100%}.public-header .brand-lockup{min-width:0}.public-header .public-brand{flex-shrink:1;max-width:100%}
+
+.public-header [hidden]{display:none!important}
