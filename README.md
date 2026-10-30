@@ -1,5 +1,7 @@
 # PaisaTrace
 
+Working preview: **2.3.1-preview.1** completes shared loading/errors, field feedback and session-aware public entry actions. Production v2.3.0 remains preserved. See docs/UI_COMPLETION_RELEASE.md for acceptance status.
+
 Current release: **2.3.0** unifies the application shell, desktop/mobile navigation, account controls, reporting toolbars, cards, lists, charts and forms for Personal Finance and Shared Expenses. Shared Overview and Repayments keep the existing dashboard/settlements URLs. Read [the release acceptance map](docs/UNIFIED_UI_RELEASE.md) and [versioning/rollback](docs/VERSIONING.md). Production publication is tracked in the release manifest. Immutable 2.2.0 and 2.3.0-preview.1 remain available.
 
 

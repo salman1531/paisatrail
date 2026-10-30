@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1-preview.1 — 31 October 2026
+
+- Keep the Personal Finance shell/account menu visible during ledger loading and retryable failures.
+- Link Shared Expenses and repayment validation to the relevant field without changing financial rules.
+- Show session-aware public workspace entry actions after hydration; preserve anonymous SEO rendering.
+- Use the lockfile-matched Playwright browser by default, retaining optional installed Chrome testing.
+
 ## 2.3.0 — 28 October 2026
 
 - Publish the unified shell, menus, cards, charts, forms and recording guidance for both workspaces.

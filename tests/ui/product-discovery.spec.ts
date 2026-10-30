@@ -6,7 +6,7 @@ test('both independent modules are discoverable from the common homepage and sig
  await page.locator('#demos').getByRole('link',{name:/^Shared Expenses demo/}).click();
  await expect(page.getByRole('heading',{name:'Dashboard',exact:true})).toBeVisible();
  await expect(page.getByRole('navigation',{name:'Workspace switcher'})).toContainText('Shared Expenses');
- await page.locator('.workspace-selector summary').click();
+ await page.locator('.workspace-selector summary').filter({visible:true}).click();
  await page.getByRole('navigation',{name:'Workspace switcher'}).getByRole('link',{name:'Personal Finance',exact:true}).click();
  await expect(page).toHaveURL(/\/demo\/overview$/);
  await page.getByRole('button',{name:'Money Log',exact:true}).click();
