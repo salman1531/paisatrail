@@ -1,3 +1,4 @@
+import {changeType} from './helpers';
 import {go,record} from './helpers';
 import {selectCategory} from './helpers';
 import {logFilters,logActions} from './helpers';
@@ -9,7 +10,7 @@ test('bulk expenses validate, remove, save once, recalculate and survive reload'
  await go(page,'Money Log');await logActions(page);await page.getByRole('button',{name:'Add multiple expenses',exact:true}).click();
  await page.getByRole('button',{name:'Save all expenses',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Nothing has been saved');
  await selectCategory(page,'Expense 1 category','Food → Groceries');await page.getByLabel('Expense 1 amount').fill('2500');
- await page.getByRole('button',{name:'Add another expense',exact:true}).click();await expect(page.getByLabel('Expense 2 category')).toHaveValue('Food → Groceries');await page.getByLabel('Expense 2 amount').fill('1200');await selectCategory(page,'Expense 2 category','Transport → Petrol');
+ await page.getByRole('button',{name:'Add another expense',exact:true}).click();await expect(page.getByRole('combobox',{name:'Expense 2 category',exact:true})).toHaveValue('Food → Groceries');await page.getByLabel('Expense 2 amount').fill('1200');await selectCategory(page,'Expense 2 category','Transport → Petrol');
  await page.getByRole('button',{name:'Add another expense',exact:true}).click();await page.getByRole('button',{name:'Remove expense 3',exact:true}).click();
  await expect(page.locator('.batch-save-bar')).toContainText('PKR 3,700.00');
  await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Keep editing',exact:true}).click();await expect(page.getByLabel('Expense 1 amount')).toHaveValue('2500');
@@ -38,6 +39,6 @@ test('fixed payment dropdown and income chart keep record scopes consistent',asy
  await page.goto('/demo/overview');
  await record(page,'expense');await page.getByRole('dialog').getByText('More details',{exact:true}).click();await expect(page.getByLabel('Payment type (optional)').locator('option')).toHaveText(['Not specified','Cash','Credit Card','Debit Card','Bank Account','Others']);await page.getByLabel('Payment type (optional)').selectOption('Others');await expect(page.getByText('Custom payment name (optional)',{exact:true})).toHaveCount(0);
  await page.getByLabel('Amount',{exact:true}).fill('2500');await selectCategory(page,'Category','Food → Groceries');await page.getByRole('button',{name:/^Save (?:expense|income|savings|investment|withdrawal)$/,exact:true}).click();await go(page,'Money Log');await logFilters(page);await page.getByLabel('Filter payment type').selectOption('Others');await expect(page.getByRole('row').filter({hasText:'Others'})).toHaveCount(1);
- await go(page,'Overview');await page.getByRole('region',{name:'See where your money goes'}).getByRole('button',{name:'Income',exact:true}).click();await page.locator('.workspace-category-bar').filter({hasText:'Salary'}).click();await expect(page.getByLabel('Filter entry type')).toHaveValue('income');await expect(page.getByLabel('Filter payment type')).toHaveValue('all');
- await record(page,'expense');await page.getByRole('radio',{name:'Income',exact:true}).check();for(const name of ['Salary','Business','Freelance','Gifts','Rental income','Investment returns','Other income']){await page.getByRole('combobox',{name:'Category',exact:true}).fill(name);await expect(page.getByRole('option',{name,exact:true})).toBeVisible()};
+ await go(page,'Overview');await page.getByRole('region',{name:'Spending by category'}).getByRole('button',{name:'Income',exact:true}).click();await page.locator('.workspace-category-bar').filter({hasText:'Salary'}).click();await expect(page.getByLabel('Filter entry type')).toHaveValue('income');await expect(page.getByLabel('Filter payment type')).toHaveValue('all');
+ await record(page,'expense');await changeType(page,'Income');for(const name of ['Salary','Business','Freelance','Gifts','Rental income','Investment returns','Other income']){await page.getByRole('combobox',{name:'Income category',exact:true}).fill(name);await expect(page.getByRole('option',{name,exact:true})).toBeVisible()};
 });

@@ -1,3 +1,4 @@
+import {changeType} from './helpers';
 import {go,record} from './helpers';
 import {selectCategory} from './helpers';
 import {logMonth} from './helpers';
@@ -37,8 +38,8 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
  test('savings and investments pick subcategories and preserve parent totals',async({page})=>{
  await page.goto('/demo/overview');
  for(const [kind,choice,amount] of [['Savings','Travel savings','100'],['Investments','Stocks','200']]){
- await record(page,'expense');await page.getByRole('radio',{name:kind,exact:true}).check();await selectCategory(page,'Category',kind+' → '+choice);await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:/^Save (?:expense|income|savings|investment|withdrawal)$/,exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
+ await record(page,'expense');await changeType(page,kind==='Investments'?'Investment':kind);await selectCategory(page,'Category',kind+' → '+choice);await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:/^Save (?:expense|income|savings|investment|withdrawal)$/,exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
  await expect(page.getByText(choice,{exact:true})).toBeVisible();
  }
- await entryAction(page,/^Edit entry Investments/);await expect(page.getByLabel('Category',{exact:true})).toHaveValue('Investments → Stocks');await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ await entryAction(page,/^Edit entry Investments/);await expect(page.getByLabel('Investment category',{exact:true})).toHaveValue('Investments → Stocks');await page.getByRole('button',{name:'Cancel',exact:true}).click();
  });

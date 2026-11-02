@@ -30,7 +30,7 @@ test('planning, currency precision and viewport layout', async ({ page }) => {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await go(page,'Settings'); await page.getByLabel('Default entry currency').selectOption('JPY'); await page.getByRole('button', { name: 'Save settings' }).click(); await page.getByRole('button',{name:'Confirm currency change'}).click();
   await go(page,'Money Log'); await record(page,'expense'); await selectCategory(page,'Category','Food → Groceries'); await page.getByLabel('Amount', { exact: true }).fill('1.25'); await page.getByRole('button', { name: /^Save (?:expense|income|savings|investment|withdrawal)$/ }).click(); await expect(page.getByRole('alert')).toContainText('up to 0 decimal places');
-  await page.getByRole('button', { name: 'Cancel', exact: true }).click(); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click(); await page.getByRole('button',{name:'Discard changes',exact:true}).click(); expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 test('PKR defaults and multiple entries on the same day survive reload', async ({ page }) => {
   await page.goto('/demo/overview');

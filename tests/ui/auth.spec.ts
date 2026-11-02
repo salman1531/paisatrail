@@ -3,7 +3,7 @@ test('password login does not send an email; signup and recovery are separate', 
   const requests: { path: string; body: Record<string, unknown> }[] = [];
   await page.route('**/auth/v1/**', async route => {
     const url = new URL(route.request().url()); requests.push({path: url.pathname + url.search, body: route.request().postDataJSON() ?? {}});
-    await route.fulfill({status: url.pathname.endsWith('/token') ? 400 : 200, headers:{'X-Supabase-Api-Version':'2024-01-01'}, contentType: 'application/json', body: url.pathname.endsWith('/token') ? JSON.stringify({code: 'invalid_credentials', message: 'Invalid login credentials'}) : '{}'});
+    await route.fulfill({status: url.pathname.endsWith('/token') ? 400 : 200, headers:{'X-Supabase-Api-Version':'2024-01-01','Access-Control-Expose-Headers':'X-Supabase-Api-Version'}, contentType: 'application/json', body: url.pathname.endsWith('/token') ? JSON.stringify({code: 'invalid_credentials', error_code:'invalid_credentials',error_code:'invalid_credentials', message: 'Invalid login credentials'}) : '{}'});
   });
   await page.goto('/login');
   await page.getByLabel('Email address').fill('auth-fixture@example.com');

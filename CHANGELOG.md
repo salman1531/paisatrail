@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.3.1-preview.2 — 2 November 2026
+
+- Render sharp, responsive mobile homepage summaries instead of enlarging a small screenshot.
+- Keep login compact at laptop, tablet and phone sizes.
+- Bound category choices above the unified save footer.
+- Update acceptance navigation, recording labels and fixed-date synthetic fixtures.
+
 ## 2.3.1-preview.1 — 31 October 2026
 
 - Keep the Personal Finance shell/account menu visible during ledger loading and retryable failures.

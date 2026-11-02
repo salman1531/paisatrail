@@ -23,3 +23,12 @@ Baseline: unchanged U01–U33 specification, 26 October v1.0; completion started
 6. Sign in with the same account and open each workspace; check the public Open workspace action, safe return destination and account-menu Sign out. Passwords stay on your own device.
 
 User has both physical phone types and one ordinary account. One account covers both workspaces, but cannot independently verify a second receiver's confirmation or permission isolation. Two-user scenarios use fictional local database/service actors; independent live two-account acceptance remains pending unless a second dedicated account is supplied. Physical device, true browser zoom and full screen-reader checks must be recorded by the person performing them.
+
+
+## 2 November — completion preview 2
+
+The mobile homepage sample now uses native text cards for both products, preserving the sample figures without enlarging low-resolution screenshots. Desktop and detailed guide screenshots remain. The layout keeps headings inside page padding. Sign-in fits 1800×1040, 1366×768, 1024×768, 768×700, 390×844 and 320×740 at default text size; larger text and expanded help can scroll. The category picker recognizes the unified save footer when positioning its overlay.
+
+243 unit/database tests and a clean committed-source build/public audit passed on 2 November. Personal Overview and the expense dialog at 390px with 200% text and wider spacing had no automated axe violations; SVG contrast and symbolic names still need manual review. A fictional PKR 100 expense updated recorded income left and the spending budget by exactly PKR 100, without changing income or contributions. The one-account/physical-device limitations above still apply. User will check both physical phones. The hosted preview requires the owner's normal Vercel sign-in; preview protection was retained.
+
+The initial Linux run exposed obsolete test selectors; the next run passed 45/94 desktop scenarios and exposed further stale labels, along with the footer-boundary defect. Acceptance modernization retains money, scope and duplicate-save assertions. Final CI results are tracked in outputs/ui-completion-2026-11-02; do not treat this preview as accepted until they pass. Production remains 2.3.0.
