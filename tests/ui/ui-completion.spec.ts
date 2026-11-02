@@ -20,7 +20,7 @@ test('signed-in public visitors get workspace entry actions on React and generat
  for(const [route,href] of [['/','/products'],['/personal-finance','/app/overview'],['/shared-expenses','/shared/dashboard']]){
   await page.goto(route);await expect(page.locator('.landing-actions a.button').first()).toHaveText('Open workspace');await expect(page.locator('.landing-actions a.button').first()).toHaveAttribute('href',href);
  }
- await page.goto('/guide');await expect(page.locator('.public-header a[data-public-account]').filter({visible:true}).first()).toHaveText('Open workspace');await expect(page.locator('.public-header a[data-public-signin]').filter({visible:true})).toHaveCount(0);
+ await page.goto('/guide');const menu=page.locator('.public-mobile-menu summary');if(await menu.isVisible())await menu.click();await expect(page.locator('.public-header a[data-public-account]').filter({visible:true}).first()).toHaveText('Open workspace');await expect(page.locator('.public-header a[data-public-signin]').filter({visible:true})).toHaveCount(0);
 });
 test('ledger failure retains the shell and retries without a page reload',async({page})=>{
  await fixtureAccount(page);let attempts=0;

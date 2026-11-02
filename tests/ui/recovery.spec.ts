@@ -8,7 +8,7 @@ test('verified recovery opens password form, survives reload, and updates the sa
   });
   await page.route('**/rest/v1/**', route => route.fulfill({status:200, contentType:'application/json', body:'{}'}));
   const encode = (v: unknown) => Buffer.from(JSON.stringify(v)).toString('base64url');
-  const token = `${encode({alg:'HS256',typ:'JWT'})}.${encode({sub:user.id, exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})}.fixture-signature`;
+  const token = `${encode({alg:'HS256',typ:'JWT'})}.${encode({sub:user.id, exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})}.${Buffer.from('fixture-signature').toString('base64url')}`;
   await page.goto(`/#access_token=${token}&refresh_token=fixture-refresh-only&expires_in=3600&token_type=bearer&type=recovery`);
   await expect(page.getByRole('heading',{name:'Confirm your account',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Set your password',exact:true})).toHaveCount(0);

@@ -5,8 +5,8 @@ import type { Ledger, Category, Entry, Currency, Subcategory } from './types';
 const user = 'demo';
 // Independent fictional scenarios, not exchange-rate conversions or income recommendations.
 export const demoIncome:Record<Currency,number>={PKR:180000,USD:4800,EUR:3400,GBP:3000,AED:15000,JPY:380000,KWD:1200};
-export function newDemo(currency:Currency='PKR',options:{legacyAccounts?:boolean}={}): Ledger {
-  const day=today();const salary=demoIncome[currency];const unit=10**precision(currency);
+export function newDemo(currency:Currency='PKR',options:{legacyAccounts?:boolean;asOf?:string}={}): Ledger {
+  const day=options.asOf??today();const salary=demoIncome[currency];const unit=10**precision(currency);
   const minor=(amount:number)=>Math.round(amount*unit);
   const categories:Category[]=starterCategories.map((c,i)=>({id:`demo-cat-${i}`,user_id:user,name:c.name,kind:c.kind,archived:false,essential:c.essential??false,emergency:false}));
   const subcategories:Subcategory[]=starterCategories.flatMap((c,i)=>c.children.map((s,j)=>({id:`demo-sub-${i}-${j}`,user_id:user,category_id:categories[i].id,name:s.name,archived:false,emergency:s.emergency??false})));
