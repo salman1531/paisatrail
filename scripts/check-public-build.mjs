@@ -1,4 +1,5 @@
 import {readFile,stat} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {resolve} from 'node:path';
 import assert from 'node:assert/strict';
 import {homeDescription} from './seo-html.mjs';
@@ -49,6 +50,20 @@ assert((await read('about/index.html')).includes('<title>About PaisaTrace — Si
 assert(!(await read('guide/index.html')).includes('status,.'));
 assert((await stat(resolve(dir,'social-card.png'))).size>0);
 const guide=await read('guide/index.html');
+const llms=await read('llms.txt');
+assert.equal(await read('llm.txt'),llms,'Both LLM filenames serve the same reference');
+for(const url of urls)assert(llms.includes(']('+url+')'),'LLM reference lists canonical sitemap URL '+url);
+for(const path of privatePaths.filter(path=>path.startsWith('demo/')||path.startsWith('shared-demo/'))){
+ assert(guide.includes(`href="/${path}"`),'Guide links to demo page '+path);
+ assert(llms.includes(`](${origin}/${path})`),'LLM reference links to demo page '+path);
+}
+const guideImages=[...guide.matchAll(/(?:src|srcset)="(\/guide-images\/[^"?]+)\?v=([a-f0-9]+)"/g)];
+assert(guideImages.length>0,'Guide contains example images');
+for(const match of guideImages){
+ const bytes=await readFile(resolve(dir,match[1].slice(1)));
+ assert.equal(createHash('sha256').update(bytes).digest('hex').slice(0,match[2].length),match[2],'Guide links to current image bytes: '+match[1]);
+}
+
 for(const file of ['guide/index.html','guide.md','llms.txt','llm.txt']){const text=await read(file);for(const route of ['/products','/shared/dashboard','/shared-demo/dashboard'])assert(text.includes(route),file+' documents '+route);assert(text.includes('workspace')&&text.includes('dropdown'),file+' explains the workspace dropdown');}
 for(const path of ['about/index.html','privacy/index.html','terms/index.html'])assert((await read(path)).includes('Shared Expenses')||path==='terms/index.html'&&(await read(path)).includes('shared-expense'),'Common public pages describe both modules');
 const hosting=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url),'utf8'));
@@ -89,4 +104,4 @@ for(const path of ['index.html','personal-finance/index.html','shared-expenses/i
   internalLinksChecked++;
  }
 }
-console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:privatePaths.length,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),internalLinksChecked,checks:'passed'}));
+console.log(JSON.stringify({publicOrigin:origin,publicPages:urls.length,privateShells:privatePaths.length,guideImageSources:guideImages.length,initialHomeBytes:Buffer.byteLength(home),homepageJsBytes:Buffer.byteLength(entry),internalLinksChecked,checks:'passed'}));

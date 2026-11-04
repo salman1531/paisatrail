@@ -1,5 +1,37 @@
 # Changelog
 
+## 2.4.0 — Expense entry, shared balances, and public guides
+
+- Open expense entry directly from the filtered Money Log.
+- Scope Shared Expenses balances by space and keep reporting dates separate from all-time debt.
+- Update both demos, guide screenshots, and canonical public links.
+
+## 2.4.0-preview.2 — Public links and guide check
+
+- Keep canonical public links in the sitemap and both LLM files aligned.
+- Update the guide and About to match both demos and the current workspace controls.
+- Check both demo route sets and guide image assets in the public build audit.
+
+## 2.4.0-preview.1 — End-to-end recording and reporting
+
+- Label Shared Expenses debt by space and currency, independently of reporting dates.
+- Open expense recording from the filtered Money Log and compare matching dates from the Overview.
+- Show readable examples and a single demo chooser on Home, with workspace context in account entry.
+
+## 2.3.1-preview.2 — 2 November 2026
+
+- Render sharp, responsive mobile homepage summaries instead of enlarging a small screenshot.
+- Keep login compact at laptop, tablet and phone sizes.
+- Bound category choices above the unified save footer.
+- Update acceptance navigation, recording labels and fixed-date synthetic fixtures.
+
+## 2.3.1-preview.1 — 31 October 2026
+
+- Keep the Personal Finance shell/account menu visible during ledger loading and retryable failures.
+- Link Shared Expenses and repayment validation to the relevant field without changing financial rules.
+- Show session-aware public workspace entry actions after hydration; preserve anonymous SEO rendering.
+- Use the lockfile-matched Playwright browser by default, retaining optional installed Chrome testing.
+
 ## 2.3.0 — 28 October 2026
 
 - Publish the unified shell, menus, cards, charts, forms and recording guidance for both workspaces.

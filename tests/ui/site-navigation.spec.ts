@@ -4,7 +4,7 @@ test('phone account actions remain reachable on every demo page and exiting pres
  await page.setViewportSize({width:390,height:844});
  for(const path of ['overview','money-log','income','money-plan','categories','settings']){
   await page.goto('/demo/'+path);
-  const menu=page.locator('.mobile-account-menu');
+  const menu=page.locator('.workspace-account-menu');
   await menu.locator('summary').press('Enter');
   const box=await menu.locator('div').boundingBox();
   expect(box).not.toBeNull();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(390);
@@ -13,7 +13,7 @@ test('phone account actions remain reachable on every demo page and exiting pres
   expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
  }
  const saved=await page.evaluate(()=>localStorage.getItem('pocket-ledger-demo-v1'));
- await page.locator('.mobile-account-menu').getByRole('button',{name:'Exit demo',exact:true}).click();
+ await page.locator('.workspace-account-menu').getByRole('button',{name:'Exit demo',exact:true}).click();
  await expect(page).toHaveURL(/\/login$/);await expect(page.getByLabel('Email address')).toBeVisible();
  expect(await page.evaluate(()=>localStorage.getItem('pocket-ledger-demo-v1'))).toBe(saved);
 });

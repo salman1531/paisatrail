@@ -1,0 +1,41 @@
+name: UI acceptance
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, tablet, mobile]
+    env:
+      VITE_SUPABASE_URL: https://fixtures.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: fixture-public-key
+      VITE_SITE_URL: https://paisatrace.hirubix.com
+      VITE_OPERATOR_NAME: Salman Javed
+      VITE_CONTACT_EMAIL: salman.se95@gmail.com
+      VITE_PUBLIC_POLICY_REVIEWED: 'true'
+      PAISA_AUTH_FIXTURES: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npm run build
+      - run: node scripts/check-public-build.mjs
+      - run: npm run test:ui -- --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: ui-failure-${{ matrix.project }}
+          path: test-results/
+          retention-days: 7

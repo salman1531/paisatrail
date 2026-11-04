@@ -25,7 +25,7 @@ export default function CategoryPicker({ledger,choices,label,value,onChange,disa
    const box=field!.getBoundingClientRect(),viewport=window.visualViewport;
    const floor=(viewport?.offsetTop??0)+(viewport?.height??window.innerHeight),ceiling=viewport?.offsetTop??0;
    const dialog=field!.closest('dialog'),dialogBox=dialog?.getBoundingClientRect();
-   const footer=dialog?.querySelector('.entry-save-footer,.batch-save-bar')?.getBoundingClientRect(),header=dialog?.querySelector('.modal-head')?.getBoundingClientRect();
+   const footer=dialog?.querySelector('.workspace-form-footer,.entry-save-footer,.batch-save-bar')?.getBoundingClientRect(),header=dialog?.querySelector('.modal-head')?.getBoundingClientRect();
    const bottom=Math.min(floor,footer?.top??dialogBox?.bottom??floor),top=Math.max(ceiling,header?.bottom??dialogBox?.top??ceiling);
    const below=Math.max(0,bottom-box.bottom-12),above=Math.max(0,box.top-top-12),up=below<180&&above>below;
    const maxHeight=Math.min(240,up?above:below);

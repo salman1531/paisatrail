@@ -1,7 +1,13 @@
-import {safeReturnPath} from './routes';
+import {parseRoute,safeReturnPath} from './routes';
 export type Workspace='personal'|'shared';
 export const workspaceDestination=(workspace:Workspace)=>workspace==='shared'?'/shared/dashboard':'/app/overview';
 export const workspaceAuthPath=(workspace:Workspace,mode='signup')=>`/${mode}?next=${encodeURIComponent(workspaceDestination(workspace))}`;
+export const workspaceLabel=(workspace:Workspace)=>workspace==='personal'?'Personal Finance':'Shared Expenses';
+export function workspaceForReturn(path:string|null):Workspace|null{
+ if(!path)return null;
+ const area=parseRoute(path.split('#')[0]).area;
+ return area==='app'?'personal':area==='shared'||area==='join'?'shared':null;
+}
 const key='paisatrace-workspace-intent';
 type Store=Pick<Storage,'getItem'|'setItem'|'removeItem'>;
 const browserStore=()=>{try{return typeof window==='undefined'?undefined:window.localStorage;}catch{return undefined;}};
