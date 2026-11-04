@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0-preview.1 — End-to-end recording and reporting
+
+- Label Shared Expenses debt by space and currency, independently of reporting dates.
+- Open expense recording from the filtered Money Log and compare matching dates from the Overview.
+- Show readable examples and a single demo chooser on Home, with workspace context in account entry.
+
 ## 2.3.1-preview.2 — 2 November 2026
 
 - Render sharp, responsive mobile homepage summaries instead of enlarging a small screenshot.

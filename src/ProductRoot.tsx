@@ -1,4 +1,3 @@
-import {saveWorkspaceIntent} from './workspaceIntent';
 import {useEffect,useState} from 'react';
 import type {User} from '@supabase/supabase-js';
 import App from './App';
@@ -21,7 +20,7 @@ export default function ProductRoot(){
  const shared=['shared','join','products'].includes(route.area),needsPref=shared||route.area==='app';
  useEffect(()=>{if(!supabase)return;let alive=true;const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{if(alive){setUser(session?.user??null);setReady(true);}});supabase.auth.getSession().then(r=>{if(alive){setUser(r.data.session?.user??null);setReady(true);}}).catch(()=>{if(alive)setReady(true);});return()=>{alive=false;subscription.unsubscribe();};},[]);
  useEffect(()=>{setPref(null);setPrefReady(false);setError('');if(!user||!needsPref)return;let alive=true;preferences().then(p=>{if(alive)setPref(p);}).catch(e=>{if(alive)setError((e as Error).message);}).finally(()=>{if(alive)setPrefReady(true);});return()=>{alive=false;};},[user?.id,needsPref,revision]);
- useEffect(()=>{if(!ready||!shared||user)return;if(route.area==='join')rememberInvitation(location.pathname+location.hash);sessionStorage.setItem('paisatrace-return-route',safeReturnPath(location.pathname+location.hash));if(route.area!=='join')saveWorkspaceIntent('shared');moveTo('/login',true);},[ready,shared,user?.id]);
+ useEffect(()=>{if(!ready||!shared||user)return;if(route.area==='join')rememberInvitation(location.pathname+location.hash);sessionStorage.setItem('paisatrace-return-route',safeReturnPath(location.pathname+location.hash));moveTo('/login',true);},[ready,shared,user?.id]);
  useEffect(()=>{const product=route.area==='app'?'personal':route.area==='shared'?'shared':null;let alive=true;if(user&&pref&&product&&pref[product==='shared'?'shared_enabled':'personal_enabled']&&pref.last_product!==product)void preferences({last:product}).then(value=>{if(alive)setPref(value);}).catch(()=>{});return()=>{alive=false;};},[route.area,user?.id,pref]);
  if(route.area==='shared-demo')return <SharedWorkspace demo/>;
  // Keep the existing explicit email identity acceptance and recovery flow intact.
@@ -31,6 +30,6 @@ export default function ProductRoot(){
  if(error)return <main className="product-choice"><BrandIdentity/><h1>Unable to open your workspace</h1><p role="alert">{error}</p><button className="button" onClick={()=>setRevision(v=>v+1)}>Try again</button><a href="/app/overview">Personal Finance</a><a href="/shared-demo/dashboard">Explore the shared demo</a></main>;
  if(route.area==='products'||!pref?.personal_enabled&&route.area==='app'||!pref?.shared_enabled&&shared)return <ProductChoice user={user} pref={pref} requested={route.area==='app'?'personal':route.area==='shared'||route.area==='join'?'shared':undefined} done={()=>setRevision(v=>v+1)}/>;
  if(route.area==='join')return <JoinShared user={user} token={route.inviteToken}/>;
- if(route.area==='shared')return <SharedWorkspace user={user} pref={pref!}/>;
+ if(route.area==='shared')return <SharedWorkspace key={user.id} user={user} pref={pref!}/>;
  return <App/>;
 }

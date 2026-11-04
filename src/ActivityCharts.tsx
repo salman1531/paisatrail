@@ -2,16 +2,33 @@ import {ChartPanel,EmptyState,BarChart} from './WorkspaceUI';
 import {useMemo} from 'react';
 import {activitySeries,cumulativeMovement,type ActivityBucket} from './analytics';
 import MoneyValue from './MoneyValue';
-import {money,precision} from './finance';
+import {filtered,money,totals} from './finance';
+import {addDays,periodFilter,periodForDate} from './planning';
+import {compactPeriodLabel} from './PeriodControls';
+import type {PlanningPeriod} from './types';
 import type {Filter,Ledger,Kind} from './types';
 import {reportPeriodLabel} from './ReportPeriod';
 import {trackedBalance} from './accounts';
 import {today} from './finance';
 type Props={ledger:Ledger;filter:Filter;records:(kind:Kind|undefined,dates?:Filter)=>void};
-function DataTable({rows,currency}:{rows:ActivityBucket[];currency:Ledger['profile']['currency']}){return <details className="chart-data"><summary>View exact amounts</summary><div className="table-scroll"><table><caption>Recorded income and expenses by period · {currency}</caption><thead><tr><th>Period</th><th>Income</th><th>Expenses</th><th>Net movement</th></tr></thead><tbody>{rows.map(r=><tr key={r.start}><th>{r.start} – {r.end}</th><td><MoneyValue amount={r.income} currency={currency}/></td><td><MoneyValue amount={r.expense} currency={currency}/></td><td><MoneyValue amount={r.net} currency={currency}/></td></tr>)}</tbody></table></div></details>;}
-export function IncomeExpenseChart({ledger,filter,records}:Props){
- const rows=useMemo(()=>activitySeries(ledger,filter),[ledger,filter]),c=ledger.profile.currency,max=Math.max(1,...rows.flatMap(r=>[r.income,r.expense]));
- return <ChartPanel title="Income vs expenses" actions={<button className="text-button" onClick={()=>records(undefined)}>View records</button>}><BarChart label="Received income and expenses" currency={c} rows={rows.map(r=>({id:r.start,label:r.label,values:[{id:'income',label:'Received income',amount:r.income,colour:'var(--chart-income)'},{id:'expense',label:'Expenses',amount:r.expense,colour:'var(--chart-expense)'}]}))} select={(id,series)=>{const r=rows.find(r=>r.start===id)!;records(series as Kind,{...filter,startDate:r.start,endDate:r.end});}}/><DataTable rows={rows} currency={c}/></ChartPanel>;
+function DataTable({rows,currency,open}:{rows:ActivityBucket[];currency:Ledger['profile']['currency'];open?:(kind:'income'|'expense',row:ActivityBucket)=>void}){return <details className="chart-data"><summary>View exact amounts</summary><div className="table-scroll"><table><caption>Recorded income and expenses by period · {currency}</caption><thead><tr><th>Period</th><th>Income</th><th>Expenses</th><th>Net movement</th></tr></thead><tbody>{rows.map(r=><tr key={r.start}><th scope="row">{compactPeriodLabel(r)}</th>{(['income','expense'] as const).map(k=><td key={k}>{open?<button type="button" className="text-button" aria-label={`View ${k==='expense'?'expenses':'income'} · ${compactPeriodLabel(r)} · ${money(r[k],currency)}`} onClick={()=>open(k,r)}><MoneyValue amount={r[k]} currency={currency}/></button>:<MoneyValue amount={r[k]} currency={currency}/>}</td>)}<td><MoneyValue amount={r.net} currency={currency}/></td></tr>)}</tbody></table></div></details>;}
+/** Match the day count, including when the previous cycle is shorter. */
+export function spendingComparison(ledger:Ledger,period:PlanningPeriod,filter:Filter,calendar:boolean,now=today(ledger.profile.timezone)){
+ if(now<period.start)return null;
+ const prior=periodForDate(addDays(period.start,-1),ledger.budgetCycles,calendar);
+ const days=(start:string,end:string)=>Math.round((Date.parse(end)-Date.parse(start))/86400000)+1;
+ const count=Math.min(days(period.start,now<period.end?now:period.end),days(prior.start,prior.end));
+ const categoryIds=new Set(ledger.categories.filter(c=>c.kind==='expense').map(c=>c.id));
+ return [period,prior].map(p=>{
+  const range={start:p.start,end:addDays(p.start,count-1)},scope={...filter,...periodFilter(range),currency:ledger.profile.currency};
+  const entries=filtered(ledger.entries,scope).filter(e=>categoryIds.has(e.category_id));
+  return {range,scope,count:entries.length,amount:totals(ledger,entries,ledger.profile.currency).expense};
+ });
+}
+export function IncomeExpenseChart({ledger,filter,records,period,calendar=false}:Props&{period?:PlanningPeriod;calendar?:boolean}){
+ const rows=useMemo(()=>activitySeries(ledger,filter),[ledger,filter]),c=ledger.profile.currency,comparison=period?spendingComparison(ledger,period,filter,calendar):null;
+ const open=(kind:Kind,r:ActivityBucket)=>records(kind,{...filter,startDate:r.start,endDate:r.end});
+ return <ChartPanel title="Income vs expenses" actions={<button className="text-button" onClick={()=>records(undefined)}>View records</button>}><p className="small muted">{reportPeriodLabel(filter)} · {c}</p><BarChart label="Received income and expenses" currency={c} rows={rows.map(r=>({id:r.start,label:r.label,values:[{id:'income',label:'Received income',amount:r.income,colour:'var(--chart-income)'},{id:'expense',label:'Expenses',amount:r.expense,colour:'var(--chart-expense)'}]}))} select={(id,series)=>{const r=rows.find(r=>r.start===id)!;open(series as Kind,r);}}/><DataTable rows={rows} currency={c} open={open}/>{period&&<section className="spending-comparison" aria-label="Spending compared with the previous period"><h3>Spending comparison · {c}</h3>{comparison?<><p className="small muted">Same number of days from the start of each period.</p><div className="spending-comparison-values">{comparison.map(({range,scope,count,amount},index)=><div key={range.start}><span>{index?'Previous':'Current'} · {compactPeriodLabel(range)}</span>{count?<button type="button" className="text-button" onClick={()=>records('expense',scope)}><MoneyValue amount={amount} currency={c}/><span className="sr-only"> · View {index?'previous':'current'} expenses</span></button>:<strong>{index?'No earlier expense records':'No expense records'}</strong>}</div>)}</div>{comparison.some(p=>!p.count)&&<p className="small muted">Comparison unavailable for these dates.</p>}</>:<p className="small muted">This period has not started. Comparison unavailable.</p>}</section>}</ChartPanel>;
 }
 export function MovementChart({ledger,filter,forceMovement=false}:Pick<Props,'ledger'|'filter'>&{forceMovement?:boolean}){
  const rows=useMemo(()=>cumulativeMovement(activitySeries(ledger,filter)),[ledger,filter]),last=rows.at(-1)?.cumulative??0,lo=Math.min(0,...rows.map(r=>r.cumulative)),hi=Math.max(1,...rows.map(r=>r.cumulative));

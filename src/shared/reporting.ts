@@ -1,5 +1,5 @@
 import {today,validDate} from '../finance';
-import type {HistoryFilter,Report} from './model';
+import type {HistoryFilter,Report,Summary} from './model';
 export type Period='all'|'month'|'last'|'custom';
 export type Scope={period:Period;context:string;start:string;end:string;category:string;participant:string;role:'paid'|'share';recordStart:string;recordEnd:string;offset:number;recordOffset:number;records:boolean};
 export function periodDates(period:Period,now=today()){
@@ -17,6 +17,15 @@ export function readScope(search:string):Scope{
  return {period:period==='custom'&&!custom?'all':period,context:q.get('space')??'',...dates,category:q.get('category')??'',participant:q.get('person')??'',role:q.get('role')==='paid'?'paid':'share',recordStart:validRange(recordStart,recordEnd)?recordStart:'',recordEnd:validRange(recordStart,recordEnd)?recordEnd:'',offset:Math.min(1000000,Math.max(0,Math.floor(Number(q.get('offset'))||0))),recordOffset:Math.min(1000000,Math.max(0,Math.floor(Number(q.get('recordOffset'))||0))),records:q.get('records')==='1'};
 }
 export function scopeSearch(scope:Scope){const q=new URLSearchParams();if(scope.period!=='all')q.set('period',scope.period);if(scope.period==='custom'){q.set('from',scope.start);q.set('to',scope.end);}if(scope.context)q.set('space',scope.context);if(scope.category)q.set('category',scope.category);if(scope.participant){q.set('person',scope.participant);q.set('role',scope.role);}if(scope.recordStart){q.set('recordFrom',scope.recordStart);q.set('recordTo',scope.recordEnd);}if(scope.offset)q.set('offset',String(scope.offset));if(scope.recordOffset)q.set('recordOffset',String(scope.recordOffset));if(scope.records)q.set('records','1');return q.size?'?'+q.toString():'';}
+export const sharedCurrency = 'PKR' as const;
+/** Debt scope is independent of dates and is never inferred from the row count. */
+export function balanceScope(rows:Summary[],s:Scope,routeContext?:string){
+ const id=routeContext||s.context;
+ const selected=id?rows.filter(row=>row.context.id===id):rows;
+ const label=id?selected[0]?.context.name??'Unavailable space':'All spaces';
+ const items=selected.flatMap(row=>row.pairs.filter(pair=>pair.debtor_id===row.my_participant_id||pair.creditor_id===row.my_participant_id).map(pair=>({row,pair})));
+ return {selected,label,items,unavailable:Boolean(id&&!selected.length)};
+}
 export function reportFilter(s:Scope,context?:string):HistoryFilter{return {context:context||s.context||undefined,start:s.start||undefined,end:s.end||undefined};}
 export function recordsFilter(s:Scope,context?:string):HistoryFilter{return {...reportFilter(s,context),start:s.recordStart||s.start||undefined,end:s.recordEnd||s.end||undefined,category:s.category||undefined,participant:s.participant||undefined,participantRole:s.role,offset:s.recordOffset,includedOnly:s.records};}
 export type Bucket={start:string;end:string;amount_minor:number};

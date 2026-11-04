@@ -2,11 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Home from './Home';
 import {parseRoute} from './routes';
-import {workspaceFromSearch,saveWorkspaceIntent,workspaceDestination} from './workspaceIntent';
+import {workspaceFromSearch,workspaceDestination} from './workspaceIntent';
 import './styles.css';
 import './design-system.css';
 const intended=workspaceFromSearch(location.search);
-if(intended&&['login','signup','forgot-password'].includes(parseRoute(location.pathname).area)){try{sessionStorage.setItem('paisatrace-return-route',workspaceDestination(intended));}catch{}saveWorkspaceIntent(intended);}
+if(['login','signup','forgot-password'].includes(parseRoute(location.pathname).area)){
+ try{if(intended)sessionStorage.setItem('paisatrace-return-route',workspaceDestination(intended));else sessionStorage.removeItem('paisatrace-return-route');}catch{}
+}
 const root=ReactDOM.createRoot(document.getElementById('root')!);
 // Keep the public landing page light. Hash-based legacy links and email callbacks
 // still load the full application and its existing protected acceptance flow.

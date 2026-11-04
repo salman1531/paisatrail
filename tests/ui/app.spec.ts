@@ -27,7 +27,7 @@ test('daily entry, correction, category rename/archive, reporting and Excel down
   await go(page,'Money Log'); await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();
   await page.reload(); await go(page,'Money Log'); await logMonth(page,'2026','01'); await page.getByLabel('Search entries').fill('=1+1');
   await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();
-  await entryAction(page, 'Remove entry My groceries 2026-01-15'); await page.getByRole('button', { name: 'Remove entry',exact:true }).click(); await expect(page.getByRole('heading', { name: 'No entries match this view' })).toBeVisible();
+  await entryAction(page, 'Remove entry My groceries 2026-01-15'); await page.getByRole('button', { name: 'Remove entry',exact:true }).click(); await expect(page.getByRole('heading', { name: 'No search results' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true); expect(errors).toEqual([]);
 });
 test('planning, currency precision and viewport layout', async ({ page }) => {

@@ -175,3 +175,14 @@
     padding-block: 0;
   }
 }
+
+/* Shared compact scopes and actionable empty results. */
+.unified-workspace .period-control-dates>div>span {visibility:visible;min-height:0;overflow-wrap:anywhere}
+.empty-log-actions {display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px}
+.recording-amount-currency {grid-template-columns:minmax(0,1fr) minmax(82px,auto);align-items:start}
+.spending-comparison {border-top:1px solid var(--border);margin-top:14px;padding-top:12px}
+.spending-comparison h3 {font-size:.9375rem;margin:0 0 6px}
+.spending-comparison-values {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+.spending-comparison-values>div {display:grid;gap:2px;align-content:start;min-width:0}
+.spending-comparison-values>div>span {font-size:.8125rem}
+.spending-comparison-values .text-button {justify-self:start;min-height:44px;padding-inline:0}

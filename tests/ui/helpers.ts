@@ -7,6 +7,11 @@ export async function go(page:Page,name:string){
  await mainNav(page).getByRole('button',{name:mobile&&name==='Money Plan'?'Plan':name,exact:true}).click();
 }
 export async function record(page:Page,kind:string){
+ const expense=page.locator('.workspace-primary').getByRole('button',{name:'Add expense',exact:true});
+ if(await expense.isVisible()){
+  if(kind==='expense'){await expense.click();return;}
+  await page.getByRole('group',{name:'Entry types'}).getByRole('button',{name:'All',exact:true}).click();
+ }
  const income=page.locator('.workspace-primary').getByRole('button',{name:'Add income',exact:true});
  if(kind==='income'&&await income.isVisible()){await income.click();return;}
  await page.locator('.workspace-primary .record-action>summary').click();await page.locator('.workspace-primary').getByRole('button',{name:'Record '+kind,exact:true}).click();
