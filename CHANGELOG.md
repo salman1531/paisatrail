@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0-preview.2 — Public links and guide check
+
+- Keep canonical public links in the sitemap and both LLM files aligned.
+- Update the guide and About to match both demos and the current workspace controls.
+- Check both demo route sets and guide image assets in the public build audit.
+
 ## 2.4.0-preview.1 — End-to-end recording and reporting
 
 - Label Shared Expenses debt by space and currency, independently of reporting dates.
