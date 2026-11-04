@@ -44,3 +44,45 @@
 @media(max-width:380px){.workspace-bottom-navigation>button>span{font-size:.6875rem;letter-spacing:-.025em}}
 
 @media(max-width:800px){.unified-workspace .shared-stat-grid>.workspace-metric:last-child{grid-column:1/-1}}
+
+/* The row wrapper owns these columns. Legacy transaction rows placed the
+   amount and action cells in columns two and three of a different grid. */
+.unified-workspace .personal-record {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.unified-workspace .personal-record > .workspace-record-value {
+  grid-template-columns: auto 44px;
+  gap: 8px;
+}
+.unified-workspace .personal-record .transaction-amount {
+  grid-column: 1;
+}
+.unified-workspace .personal-record .transaction-actions {
+  grid-column: 2;
+  grid-row: 1;
+}
+.unified-workspace .money-number {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.unified-workspace .toast {
+  pointer-events: none;
+}
+@media (max-width: 800px) {
+  html:has(.unified-workspace) {
+    scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+  .unified-workspace .personal-record {
+    padding: 8px 0;
+    gap: 8px;
+  }
+  .unified-workspace .personal-record:has(.money-value[data-wide=true]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .unified-workspace .personal-record .transaction-description .kind-icon {
+    display: none;
+  }
+  .unified-workspace .money-log-page .period-control {
+    margin-bottom: 10px;
+  }
+}

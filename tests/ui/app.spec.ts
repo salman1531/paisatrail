@@ -8,7 +8,7 @@ test('daily entry, correction, category rename/archive, reporting and Excel down
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto('/demo/overview');
   await expect(page.getByRole('heading', { name: 'Overview' })).toBeVisible();
-  await go(page,'Categories'); await page.getByRole('button', { name: 'Add category', exact: true }).click();
+  await go(page,'Categories'); await page.locator('.workspace-primary').getByRole('button', { name: 'Add category', exact: true }).click();
   await page.getByLabel('Name', { exact: true }).fill('Test groceries'); await page.getByRole('button', { name: 'Save category' }).click();
   await go(page,'Money Log'); await record(page,'expense');
   await page.getByLabel('Amount', { exact: true }).fill('0.29'); await selectCategory(page,'Category','Test groceries'); await page.getByLabel('Date', { exact: true }).fill('2026-01-15'); await page.getByRole('dialog').getByText('More details',{exact:true}).click(); await page.getByLabel('Note', { exact: false }).fill('=1+1'); await page.getByRole('button', { name: /^Save (?:expense|income|savings|investment|withdrawal)$/ }).click();

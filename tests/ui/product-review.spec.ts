@@ -4,6 +4,7 @@ import {test,expect} from '@playwright/test';
 import {entryAction} from './helpers';
 
 test('overview leads with answers and entry-list filters cannot change report totals or charts',async({page})=>{
+ await page.clock.install({time:new Date('2026-10-17T12:00:00Z')});
  await page.goto('/demo/overview');
  const summary=page.locator('.overview-summary'),charts=page.locator('.cash-flow-panel');const before=await summary.textContent(),chartBefore=await charts.textContent();
  expect(await summary.evaluate(e=>e.getBoundingClientRect().top)).toBeLessThan(await charts.evaluate(e=>e.getBoundingClientRect().top));await expect(page.getByLabel('Search entries',{exact:true})).toHaveCount(0);
@@ -16,6 +17,7 @@ test('overview leads with answers and entry-list filters cannot change report to
 });
 
 test('default currency changes preserve plans, reporting scope and deliberate category choice',async({page})=>{
+ await page.clock.install({time:new Date('2026-10-17T12:00:00Z')});
  await page.goto('/demo/overview');const summary=await page.locator('.overview-summary').textContent();
  await record(page,'expense');await expect(page.getByLabel('Category',{exact:true})).toHaveValue('');await page.getByRole('button',{name:'Cancel',exact:true}).click();
  await go(page,'Settings');await page.getByLabel('Default entry currency').selectOption('USD');await page.getByRole('button',{name:'Save settings'}).click();await expect(page.getByRole('dialog')).toContainText('No currency conversion');await page.getByRole('button',{name:'Confirm currency change'}).click();

@@ -9,7 +9,7 @@ import { expect, test } from '@playwright/test';
 test('optional expense subcategories persist and keep parent totals', async ({ page }) => {
   await page.goto('/demo/overview');
   await go(page,'Categories');
-  await page.locator('.compact-category-family').filter({has:page.getByText('Home',{exact:true})}).locator('summary').click();
+  await page.locator('.compact-category-family').filter({has:page.getByText('Home',{exact:true})}).locator('summary').filter({hasText:'Subcategories'}).click();
   await page.getByRole('button', { name: 'Add subcategory to Home', exact: true }).click();
   await page.getByLabel('Subcategory name').fill('Utilities');
   await page.getByRole('button', { name: 'Save subcategory', exact: true }).click();
@@ -39,7 +39,7 @@ test('optional expense subcategories persist and keep parent totals', async ({ p
  await page.goto('/demo/overview');
  for(const [kind,choice,amount] of [['Savings','Travel savings','100'],['Investments','Stocks','200']]){
  await record(page,'expense');await changeType(page,kind==='Investments'?'Investment':kind);await selectCategory(page,'Category',kind+' → '+choice);await page.getByLabel('Amount',{exact:true}).fill(amount);await page.getByRole('button',{name:/^Save (?:expense|income|savings|investment|withdrawal)$/,exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
- await expect(page.getByText(choice,{exact:true})).toBeVisible();
+ await expect(page.locator('.personal-record').filter({hasText:choice}).filter({hasText:'PKR '+Number(amount).toFixed(2)})).toHaveCount(1);
  }
  await entryAction(page,/^Edit entry Investments/);await expect(page.getByLabel('Investment category',{exact:true})).toHaveValue('Investments → Stocks');await page.getByRole('button',{name:'Cancel',exact:true}).click();
  });
