@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.0 — Expense entry, shared balances, and public guides
+
+- Open expense entry directly from the filtered Money Log.
+- Scope Shared Expenses balances by space and keep reporting dates separate from all-time debt.
+- Update both demos, guide screenshots, and canonical public links.
+
 ## 2.4.0-preview.2 — Public links and guide check
 
 - Keep canonical public links in the sitemap and both LLM files aligned.
