@@ -23,9 +23,9 @@ export async function selectCategory(page:Page, field:string, name:string){
  await picker.fill(name);const options=page.getByRole('option');const labels=await options.allTextContents();const label=labels.find(label=>label===name||label.endsWith('→ '+name));if(!label)throw Error('Missing category '+name);await page.getByRole('option',{name:label,exact:true}).click();
 }
 
-export async function logMonth(page:Page,year:string,month:string){await go(page,'Money Log');await page.getByRole('button',{name:'Edit dates',exact:true}).click();await page.getByLabel('Date mode',{exact:true}).selectOption(month==='all'?'year':'calendar');await page.getByLabel('Year',{exact:true}).selectOption(year);if(month!=='all')await page.getByLabel('Month',{exact:true}).selectOption(month);}
+export async function logMonth(page:Page,year:string,month:string){await go(page,'Money Log');await page.getByRole('button',{name:/^Edit dates(?: · |$)/}).click();await page.getByLabel('Date mode',{exact:true}).selectOption(month==='all'?'year':'calendar');await page.getByLabel('Year',{exact:true}).selectOption(year);if(month!=='all')await page.getByLabel('Month',{exact:true}).selectOption(month);}
 export async function logFilters(page:Page){const details=page.locator('.log-filter-disclosure');if(await details.getAttribute('open')===null)await details.locator('summary').click();}
 export async function logActions(page:Page){const details=page.locator('.log-secondary-actions');if(await details.getAttribute('open')===null)await details.locator('summary').click();}
-export async function planningDate(page:Page,date:string){if(!await page.getByLabel('Go to date',{exact:true}).isVisible())await page.getByRole('button',{name:'Edit dates',exact:true}).click();await page.getByLabel('Go to date',{exact:true}).fill(date);}
+export async function planningDate(page:Page,date:string){if(!await page.getByLabel('Go to date',{exact:true}).isVisible())await page.getByRole('button',{name:/^Edit dates(?: · |$)/}).click();await page.getByLabel('Go to date',{exact:true}).fill(date);}
 
 export async function changeType(page:Page,name:string){const panel=page.locator('.record-type-options');if(await panel.getAttribute('open')===null)await panel.locator('summary').click();await panel.getByRole('radio',{name,exact:true}).check();}

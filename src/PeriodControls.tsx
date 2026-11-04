@@ -12,7 +12,7 @@ export default function PeriodControls({label,title,caption,previous,next,curren
  function toggle(){setExpanded(!isOpen);onOpenChange?.(!isOpen);}
  return <section className="period-control" aria-label={label}>
   <div className="period-control-bar"><div className="period-control-dates">{previous&&<button type="button" className="icon-button" aria-label="Previous period" onClick={previous}>‹</button>}<div>{compact?<button type="button" className="text-button period-date-toggle"
-     aria-label={isOpen?'Close dates':'Edit dates'} aria-expanded={isOpen}
+     aria-label={(isOpen?'Close dates':'Edit dates')+' · '+title} aria-expanded={isOpen}
      aria-controls={id} onClick={toggle}>
       <strong>{title}</strong><span aria-hidden="true">⌄</span>
     </button>:<strong>{title}</strong>}<span>{caption}</span></div>{next&&<button type="button" className="icon-button" aria-label="Next period" onClick={next}>›</button>}</div>

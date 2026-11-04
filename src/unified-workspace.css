@@ -103,8 +103,17 @@
   .unified-workspace .money-log-page .period-control {
     padding: 6px 8px;
   }
+  .unified-workspace .money-log-page .period-control-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
   .unified-workspace .money-log-page .period-control-dates {
-    flex-basis: auto;
+    gap: 4px;
+    margin-right: 0;
+  }
+  .unified-workspace .money-log-page .period-control-dates .icon-button {
+    width: 32px;
+    min-width: 32px;
   }
   .unified-workspace .money-log-page .period-control-dates > div > span,
   .unified-workspace .money-log-page .period-currency-label {
@@ -112,6 +121,7 @@
   }
   .unified-workspace .money-log-page .period-control-currency select {
     max-width: 132px;
+    padding-inline: 8px 10px;
     font-size: .875rem;
   }
   .unified-workspace .money-log-page .entries-panel {
