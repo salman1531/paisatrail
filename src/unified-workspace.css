@@ -86,3 +86,82 @@
     margin-bottom: 10px;
   }
 }
+
+.period-date-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0;
+  text-align: left;
+}
+@media (max-width: 800px) {
+  .unified-workspace .money-log-page .workspace-header,
+  .unified-workspace .money-log-page .workspace-demo-notice {
+    margin-bottom: 8px;
+  }
+  .unified-workspace .money-log-page .period-control {
+    padding: 6px 8px;
+  }
+  .unified-workspace .money-log-page .period-control-dates {
+    flex-basis: auto;
+  }
+  .unified-workspace .money-log-page .period-control-dates > div > span,
+  .unified-workspace .money-log-page .period-currency-label {
+    display: none;
+  }
+  .unified-workspace .money-log-page .period-control-currency select {
+    max-width: 132px;
+    font-size: .875rem;
+  }
+  .unified-workspace .money-log-page .entries-panel {
+    padding: 10px 12px;
+  }
+  .unified-workspace .entry-type-filters button {
+    min-height: 44px;
+    font-size: .8125rem;
+    padding: 4px 6px;
+  }
+  .unified-workspace .money-log-page .log-filter-toolbar {
+    padding: 0 0 6px;
+  }
+  .unified-workspace .money-log-page .search-field input {
+    border: 0;
+    box-shadow: none;
+  }
+  .unified-workspace .personal-record {
+    padding-block: 5px;
+  }
+}
+@media (max-width: 800px) and (max-height: 720px) {
+  .unified-workspace .money-log-page .workspace-header {
+    row-gap: 8px;
+  }
+  .unified-workspace .money-log-page .workspace-header,
+  .unified-workspace .money-log-page .workspace-demo-notice {
+    margin-bottom: 4px;
+  }
+  .unified-workspace .money-log-page .log-filter-toolbar {
+    padding-bottom: 2px;
+  }
+  .unified-workspace .money-log-page .transaction-date-group {
+    padding-block: 0;
+  }
+  .unified-workspace .money-log-page .personal-record {
+    padding-block: 3px;
+  }
+  .unified-workspace .money-log-page .entries-panel {
+    padding-block: 6px;
+  }
+  .unified-workspace .money-log-page .entries-panel > .panel-head {
+    margin-bottom: 2px;
+  }
+  .unified-workspace .money-log-page .personal-record .transaction-amount {
+    gap: 0;
+    padding-top: 0;
+  }
+  .unified-workspace .money-log-page .entry-title-button {
+    min-height: 24px;
+    padding-block: 0;
+  }
+}

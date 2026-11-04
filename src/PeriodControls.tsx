@@ -7,13 +7,17 @@ export function compactPeriodLabel(period:{start:string;end:string}){
 }
 type CurrencyControl={value:Currency|'all';label:string;change:(value:Currency|'all')=>void;allowAll?:boolean;options?:readonly Currency[]};
 /** Shared presentation; each screen retains ownership of its own date/filter state. */
-export default function PeriodControls({label,title,caption,previous,next,currency,children,open,onOpenChange,scope}:{label:string;title:string;caption:string;previous?:()=>void;next?:()=>void;currency?:CurrencyControl;children:ReactNode;open?:boolean;onOpenChange?:(open:boolean)=>void;scope?:ReactNode}){
+export default function PeriodControls({label,title,caption,previous,next,currency,children,open,onOpenChange,scope,compact=false}:{label:string;title:string;caption:string;previous?:()=>void;next?:()=>void;currency?:CurrencyControl;children:ReactNode;open?:boolean;onOpenChange?:(open:boolean)=>void;scope?:ReactNode;compact?:boolean}){
  const [expanded,setExpanded]=useState(false),id=useId(),isOpen=open??expanded;
  function toggle(){setExpanded(!isOpen);onOpenChange?.(!isOpen);}
  return <section className="period-control" aria-label={label}>
-  <div className="period-control-bar"><div className="period-control-dates">{previous&&<button type="button" className="icon-button" aria-label="Previous period" onClick={previous}>‹</button>}<div><strong>{title}</strong><span>{caption}</span></div>{next&&<button type="button" className="icon-button" aria-label="Next period" onClick={next}>›</button>}</div>
+  <div className="period-control-bar"><div className="period-control-dates">{previous&&<button type="button" className="icon-button" aria-label="Previous period" onClick={previous}>‹</button>}<div>{compact?<button type="button" className="text-button period-date-toggle"
+     aria-label={isOpen?'Close dates':'Edit dates'} aria-expanded={isOpen}
+     aria-controls={id} onClick={toggle}>
+      <strong>{title}</strong><span aria-hidden="true">⌄</span>
+    </button>:<strong>{title}</strong>}<span>{caption}</span></div>{next&&<button type="button" className="icon-button" aria-label="Next period" onClick={next}>›</button>}</div>
    {currency&&<label className="period-control-currency"><span className="period-currency-label">Currency</span><select aria-label={currency.label} title={!currency.allowAll?'Filters totals by currency; does not convert amounts':'Filters this entry list and its export'} value={currency.value} onChange={e=>currency.change(e.target.value as Currency|'all')}>{currency.allowAll&&<option value="all">All currencies</option>}{(currency.options??currencies).map(c=><option key={c}>{c}</option>)}</select><span className="currency-filter-help">Amounts aren’t converted</span></label>}
-   {scope&&<div className="period-scope">{scope}</div>}<button type="button" className="text-button period-edit" aria-expanded={isOpen} aria-controls={id} onClick={toggle}>{isOpen?'Close dates':'Edit dates'}</button>
+   {scope&&<div className="period-scope">{scope}</div>}{!compact&&<button type="button" className="text-button period-edit" aria-expanded={isOpen} aria-controls={id} onClick={toggle}>{isOpen?'Close dates':'Edit dates'}</button>}
   </div>
   {isOpen&&<div id={id} className="period-control-fields">{children}</div>}
  </section>;

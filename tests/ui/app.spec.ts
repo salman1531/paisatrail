@@ -17,7 +17,12 @@ test('daily entry, correction, category rename/archive, reporting and Excel down
   await entryAction(page, 'Edit entry Test groceries 2026-01-15'); await page.getByLabel('Amount', { exact: true }).fill('0.39'); await page.getByRole('button', { name: /^Save (?:expense|income|savings|investment|withdrawal)$/ }).click();
   await expect(page.getByText('PKR 0.39', { exact: true }).first()).toBeVisible();
   const download = page.waitForEvent('download'); await logActions(page);await page.getByRole('button', { name: 'Export Excel' }).click(); expect((await download).suggestedFilename()).toBe('paisatrace-2026-01.xlsx');
-  await go(page,'Categories'); await page.getByRole('button', { name: 'Edit Test groceries', exact: true }).click(); await page.getByLabel('Name', { exact: true }).fill('My groceries'); await page.getByRole('button', { name: 'Save category' }).click();
+  await go(page,'Categories');
+  const category = page.locator('.compact-category-family').filter({has:page.getByText('Test groceries',{exact:true})});
+  await category.getByLabel('More actions for Test groceries',{exact:true}).click();
+  await category.getByRole('button',{name:'Edit',exact:true}).click(); await page.getByLabel('Name', { exact: true }).fill('My groceries'); await page.getByRole('button', { name: 'Save category' }).click();
+  const categoryMenu = page.locator('.category-more').filter({has:page.getByLabel('More actions for My groceries',{exact:true})});
+  if(await categoryMenu.getAttribute('open')===null)await categoryMenu.locator('summary').click();
   await page.getByRole('button', { name: 'Archive My groceries', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Archive this category?' })).toBeVisible(); await page.getByRole('button', { name: 'Archive category',exact:true }).click();
   await go(page,'Money Log'); await expect(page.getByText('My groceries · archived', { exact: true })).toBeVisible();
   await page.reload(); await go(page,'Money Log'); await logMonth(page,'2026','01'); await page.getByLabel('Search entries').fill('=1+1');
